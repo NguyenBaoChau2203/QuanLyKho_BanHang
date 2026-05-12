@@ -11,6 +11,10 @@ Thứ tự chạy:
 1. `schema.sql`
 2. `seed.sql`
 
+Người phụ trách chính database scripts: Châu.
+
+Dũ và Hùng có thể đề xuất thay đổi bảng/cột phục vụ service của mình, nhưng cần báo Châu hoặc ghi rõ trong pull request trước khi sửa trực tiếp `schema.sql`/`seed.sql`.
+
 Tài khoản demo:
 
 - Username: `admin`

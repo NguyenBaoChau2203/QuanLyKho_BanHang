@@ -21,6 +21,8 @@ feature/sales-report-hung
 
 ## Bảng database phụ trách
 
+Các bảng dưới đây là phạm vi nghiệp vụ Hùng cần hiểu và viết DAL/BLL. Châu là người phụ trách chính `schema.sql` và `seed.sql`; nếu Hùng cần đổi bảng/cột/index thì phải báo Châu hoặc ghi rõ trong PR.
+
 - `Customers`
 - `SalesInvoices`
 - `SalesInvoiceDetails`

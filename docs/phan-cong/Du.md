@@ -20,6 +20,8 @@ feature/inventory-du
 
 ## Bảng database phụ trách
 
+Các bảng dưới đây là phạm vi nghiệp vụ Dũ cần hiểu và viết DAL/BLL. Châu là người phụ trách chính `schema.sql` và `seed.sql`; nếu Dũ cần đổi bảng/cột/index thì phải báo Châu hoặc ghi rõ trong PR.
+
 - `Categories`
 - `Products`
 - `Suppliers`

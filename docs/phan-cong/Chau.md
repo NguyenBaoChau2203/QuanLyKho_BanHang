@@ -2,7 +2,7 @@
 
 ## Vai trò
 
-Châu là nhóm trưởng, phụ trách kiến trúc tổng thể, OpenSpec, database tổng thể, toàn bộ WinForms UI, tích hợp service của Dũ/Hùng, dashboard, assistant hybrid, kiểm tra build và demo cuối.
+Châu là nhóm trưởng, phụ trách kiến trúc tổng thể, OpenSpec, database tổng thể, viết và quản lý SQL scripts, toàn bộ WinForms UI, tích hợp service của Dũ/Hùng, dashboard, assistant hybrid, kiểm tra build và demo cuối.
 
 ## Branch làm việc
 
@@ -14,10 +14,31 @@ feature/project-ui-chau
 
 - Thiết lập và giữ ổn định kiến trúc project 3 lớp.
 - Quản lý OpenSpec, specs, tasks và tiến độ chung.
-- Review database schema cuối trước khi demo.
+- Thiết kế database tổng thể, viết `database/schema.sql`, viết `database/seed.sql` và review schema cuối trước khi demo.
 - Làm toàn bộ WinForms UI.
 - Tự tích hợp service của Dũ và Hùng vào UI.
 - Chuẩn bị báo cáo kỹ thuật và demo cuối.
+
+## Database cần phụ trách
+
+- Thiết kế schema tổng thể cho SQL Server LocalDB.
+- Viết và cập nhật `database/schema.sql`.
+- Viết và cập nhật `database/seed.sql`.
+- Quy định tên bảng, khóa chính, khóa ngoại, index và constraint.
+- Đảm bảo database hỗ trợ đủ nghiệp vụ nhập kho, bán hàng, kiểm kê, dashboard, báo cáo và assistant.
+- Review mọi đề xuất thay đổi schema từ Dũ và Hùng trước khi merge.
+
+## Quy định khi làm database
+
+- Database chính dùng SQL Server LocalDB.
+- Script phải chạy được theo thứ tự: `schema.sql` trước, `seed.sql` sau.
+- Tên bảng dùng tiếng Anh số nhiều: `Products`, `SalesInvoices`, `StockTransactions`.
+- Tên cột dùng PascalCase: `ProductId`, `CreatedAt`, `QuantityOnHand`.
+- Bảng nghiệp vụ quan trọng phải có khóa ngoại rõ ràng.
+- Số tiền dùng `DECIMAL(18,2)`.
+- Ngày giờ dùng `DATETIME2`.
+- Dữ liệu danh mục không xóa cứng nếu đã phát sinh giao dịch; dùng `IsActive`.
+- Nếu Dũ hoặc Hùng cần thêm cột/bảng, hai bạn phải ghi rõ trong PR hoặc báo Châu trước khi sửa script.
 
 ## UI cần phụ trách
 
@@ -63,6 +84,9 @@ feature/project-ui-chau
 ## Checklist hoàn thành
 
 - [ ] UI mở được tất cả menu chính.
+- [ ] `database/schema.sql` chạy được trên SQL Server LocalDB.
+- [ ] `database/seed.sql` tạo được dữ liệu demo.
+- [ ] Database có đủ bảng cho nhập kho, bán hàng, kiểm kê, dashboard và báo cáo.
 - [ ] Không có form nào gọi DAL trực tiếp.
 - [ ] Login chạy được với tài khoản seed.
 - [ ] Dashboard có layout rõ ràng và sẵn sàng nhận dữ liệu thật.
