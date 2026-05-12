@@ -237,7 +237,7 @@ public sealed class FrmAssistant : Form
         var askResult = _assistantService.Ask(question);
         if (!askResult.Success || askResult.Data is null)
         {
-            AppendAssistantCard("Không thể xử lý", askResult.Message, "BLL");
+            AppendAssistantCard("Không thể xử lý", askResult.Message, "BLL", relatedQuestion: question);
             ScrollToLatest();
             return;
         }
@@ -247,7 +247,8 @@ public sealed class FrmAssistant : Form
         AppendAssistantCard(
             response.Handled ? "Trợ lý AI" : "Trợ lý AI cần hỏi lại",
             response.Answer,
-            BuildBadgeText(response));
+            BuildBadgeText(response),
+            relatedQuestion: question);
         ScrollToLatest();
     }
 
@@ -272,41 +273,54 @@ public sealed class FrmAssistant : Form
             BackColor = UserBubbleBg
         };
 
+        var innerWidth = Math.Max(240, card.Width - card.Padding.Horizontal);
+        var stack = new FlowLayoutPanel
+        {
+            FlowDirection = FlowDirection.TopDown,
+            WrapContents = false,
+            AutoSize = true,
+            AutoSizeMode = AutoSizeMode.GrowAndShrink,
+            Dock = DockStyle.Top,
+            Width = innerWidth,
+            BackColor = UserBubbleBg,
+            Margin = Padding.Empty,
+            Padding = Padding.Empty
+        };
+
         var header = new Label
         {
             Text = $"Bạn · {DateTime.Now:HH:mm}",
-            Dock = DockStyle.Top,
-            Height = 20,
+            AutoSize = true,
+            MaximumSize = new Size(innerWidth, 0),
             Font = AppTheme.SectionFont(10F),
-            ForeColor = AppTheme.TextMuted
+            ForeColor = AppTheme.TextMuted,
+            BackColor = UserBubbleBg,
+            Margin = Padding.Empty
         };
 
-        var body = new TextBox
+        var body = new Label
         {
             Text = text,
-            ReadOnly = true,
-            Multiline = true,
-            BorderStyle = BorderStyle.None,
-            BackColor = UserBubbleBg,
-            Dock = DockStyle.Fill,
+            AutoSize = true,
+            MaximumSize = new Size(innerWidth, 0),
             Font = AppTheme.BodyFont(),
             ForeColor = Color.FromArgb(31, 41, 55),
-            WordWrap = true,
-            TabStop = false
+            BackColor = UserBubbleBg,
+            Margin = new Padding(0, 6, 0, 0),
+            UseMnemonic = false
         };
 
-        card.Controls.Add(header);
-        card.Controls.Add(body);
+        stack.Controls.Add(header);
+        stack.Controls.Add(body);
+        card.Controls.Add(stack);
 
-        var estimated = TextRenderer.MeasureText(text, body.Font,
-            new Size(card.Width - card.Padding.Horizontal - 8, int.MaxValue),
-            TextFormatFlags.WordBreak | TextFormatFlags.TextBoxControl).Height + card.Padding.Vertical + header.Height + 12;
-        card.Height = Math.Max(estimated, 72);
+        stack.PerformLayout();
+        card.Height = stack.PreferredSize.Height + card.Padding.Vertical + 4;
 
         _conversationFlow.Controls.Add(card);
     }
 
-    private void AppendAssistantCard(string title, string body, string badgeText)
+    private void AppendAssistantCard(string title, string body, string badgeText, string? relatedQuestion = null)
     {
         var card = new Panel
         {
@@ -348,6 +362,40 @@ public sealed class FrmAssistant : Form
         titleRow.Controls.Add(titleLabel, 0, 0);
         titleRow.Controls.Add(badge, 1, 0);
 
+        var flowWidth = Math.Max(200, card.Width - card.Padding.Horizontal);
+        titleRow.Width = flowWidth;
+        titleRow.Margin = Padding.Empty;
+
+        var topSection = new FlowLayoutPanel
+        {
+            FlowDirection = FlowDirection.TopDown,
+            WrapContents = false,
+            AutoSize = true,
+            AutoSizeMode = AutoSizeMode.GrowAndShrink,
+            Dock = DockStyle.Top,
+            Width = flowWidth,
+            BackColor = AppTheme.SurfaceMuted,
+            Margin = Padding.Empty,
+            Padding = Padding.Empty
+        };
+        topSection.Controls.Add(titleRow);
+
+        if (!string.IsNullOrWhiteSpace(relatedQuestion))
+        {
+            var questionLine = new Label
+            {
+                Text = "Câu hỏi của bạn: " + relatedQuestion.Trim(),
+                AutoSize = true,
+                MaximumSize = new Size(flowWidth, 0),
+                Font = AppTheme.BodyFont(9F),
+                ForeColor = AppTheme.TextMuted,
+                BackColor = AppTheme.SurfaceMuted,
+                Margin = new Padding(0, 0, 0, 8),
+                UseMnemonic = false
+            };
+            topSection.Controls.Add(questionLine);
+        }
+
         var bodyBox = new TextBox
         {
             Text = body,
@@ -362,13 +410,17 @@ public sealed class FrmAssistant : Form
             TabStop = false
         };
 
+        // Dock Fill trước, Top sau — phần đầu nằm trên, nội dung chiếm phần còn lại.
         card.Controls.Add(bodyBox);
-        card.Controls.Add(titleRow);
+        card.Controls.Add(topSection);
 
+        var innerWidth = flowWidth - 8;
+        topSection.PerformLayout();
+        var topH = topSection.PreferredSize.Height;
         var bodyHeight = TextRenderer.MeasureText(body, bodyBox.Font,
-            new Size(card.Width - card.Padding.Horizontal - 8, int.MaxValue),
+            new Size(innerWidth, int.MaxValue),
             TextFormatFlags.WordBreak | TextFormatFlags.TextBoxControl).Height;
-        card.Height = Math.Min(520, Math.Max(120, bodyHeight + card.Padding.Vertical + titleRow.Height + 18));
+        card.Height = Math.Min(560, Math.Max(120, topH + bodyHeight + card.Padding.Vertical + 18));
 
         _conversationFlow.Controls.Add(card);
     }
