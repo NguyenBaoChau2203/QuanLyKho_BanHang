@@ -77,14 +77,30 @@ public sealed class AssistantService
 
             return ServiceResult<AssistantResponseDto>.Ok(online, online.StatusMessage);
         }
-        catch
+        catch (Exception ex)
         {
             var fallback = _ruleBasedProvider.Ask(
                 question,
                 AssistantModes.AiFailedFallback,
-                AiFallbackStatus,
+                BuildFallbackStatus(ex),
                 isFallback: true);
             return ServiceResult<AssistantResponseDto>.Ok(fallback, fallback.StatusMessage);
         }
+    }
+
+    private static string BuildFallbackStatus(Exception ex)
+    {
+        var message = string.IsNullOrWhiteSpace(ex.Message) ? ex.GetType().Name : ex.Message;
+        message = message
+            .Replace(Environment.NewLine, " ", StringComparison.Ordinal)
+            .Replace("\r", " ", StringComparison.Ordinal)
+            .Replace("\n", " ", StringComparison.Ordinal);
+
+        if (message.Length > 140)
+        {
+            message = message[..140] + "...";
+        }
+
+        return $"{AiFallbackStatus} Lý do: {message}";
     }
 }

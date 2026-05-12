@@ -82,7 +82,8 @@ internal sealed class DeepSeekAssistantProvider
                     Content = BuildUserPrompt(question, safeContexts)
                 }
             ],
-            Temperature = 0.2m,
+            Thinking = new DeepSeekThinking { Type = "disabled" },
+            ResponseFormat = new DeepSeekResponseFormat { Type = "json_object" },
             MaxTokens = 500,
             Stream = false
         };
@@ -129,7 +130,7 @@ Chỉ trả về một JSON object hợp lệ, không markdown, theo schema:
         var json = ExtractJsonObject(content);
         using var document = JsonDocument.Parse(json);
         var root = document.RootElement;
-        var intent = root.GetProperty("intent").GetString()?.Trim() ?? AssistantIntentCatalog.Unknown;
+        var intent = NormalizeIntent(root.GetProperty("intent").GetString());
         var answer = root.GetProperty("answer").GetString()?.Trim() ?? string.Empty;
         var handled = root.TryGetProperty("handled", out var handledElement) && handledElement.ValueKind == JsonValueKind.True;
 
@@ -149,6 +150,26 @@ Chỉ trả về một JSON object hợp lệ, không markdown, theo schema:
         }
 
         return new DeepSeekAssistantResult(intent, answer, handled && intent != AssistantIntentCatalog.Unknown);
+    }
+
+    private static string NormalizeIntent(string? rawIntent)
+    {
+        var normalized = (rawIntent ?? string.Empty)
+            .Trim()
+            .ToLowerInvariant()
+            .Replace('_', '-')
+            .Replace(' ', '-');
+
+        return normalized switch
+        {
+            "revenue" or "today-revenue" or "revenue-today" or "doanh-thu-hom-nay" => AssistantIntentCatalog.RevenueToday,
+            "low-stock" or "stock-low" or "near-out-of-stock" or "hang-sap-het" or "ton-thap" => AssistantIntentCatalog.LowStock,
+            "top-product" or "top-products" or "top-selling-product" or "top-selling-products" => AssistantIntentCatalog.TopProducts,
+            "top-customer" or "top-customers" or "best-customers" or "top-buyers" => AssistantIntentCatalog.TopCustomers,
+            "stocktake" or "stocktake-today" or "inventory-check" or "kiem-ke-hom-nay" => AssistantIntentCatalog.StocktakeToday,
+            "" or "unknown" => AssistantIntentCatalog.Unknown,
+            _ => normalized
+        };
     }
 
     private static string ExtractJsonObject(string content)
@@ -190,14 +211,29 @@ Chỉ trả về một JSON object hợp lệ, không markdown, theo schema:
         [JsonPropertyName("messages")]
         public List<DeepSeekMessage> Messages { get; init; } = [];
 
-        [JsonPropertyName("temperature")]
-        public decimal Temperature { get; init; }
+        [JsonPropertyName("thinking")]
+        public DeepSeekThinking Thinking { get; init; } = new();
+
+        [JsonPropertyName("response_format")]
+        public DeepSeekResponseFormat ResponseFormat { get; init; } = new();
 
         [JsonPropertyName("max_tokens")]
         public int MaxTokens { get; init; }
 
         [JsonPropertyName("stream")]
         public bool Stream { get; init; }
+    }
+
+    private sealed class DeepSeekThinking
+    {
+        [JsonPropertyName("type")]
+        public string Type { get; init; } = "disabled";
+    }
+
+    private sealed class DeepSeekResponseFormat
+    {
+        [JsonPropertyName("type")]
+        public string Type { get; init; } = "json_object";
     }
 
     private sealed class DeepSeekMessage

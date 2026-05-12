@@ -43,7 +43,40 @@ public sealed class AssistantServiceTests
         Assert.AreEqual("ai-failed-fallback", result.Data.Mode);
         Assert.IsTrue(result.Data.IsFallback);
         Assert.IsTrue(result.Data.Handled);
+        StringAssert.Contains(result.Data.StatusMessage, "HTTP 401");
         StringAssert.Contains(result.Data.Answer, "sản phẩm");
+    }
+
+    [TestMethod]
+    public void Ask_DeepSeekSuccess_ReturnsAiOnlineAndNormalizesIntent()
+    {
+        using var env = new EnvironmentVariableScope(
+            (EnvironmentVariableScope.DeepSeekApiKey, "fake-deepseek-key-for-tests"),
+            (EnvironmentVariableScope.DeepSeekBaseUrl, "https://api.deepseek.test"),
+            (EnvironmentVariableScope.DeepSeekModel, "deepseek-v4-flash"));
+        const string responseBody = """
+        {
+          "choices": [
+            {
+              "message": {
+                "content": "{\"intent\":\"low_stock\",\"handled\":true,\"answer\":\"Có 2 sản phẩm cần nhập thêm ngay.\"}"
+              }
+            }
+          ]
+        }
+        """;
+        using var httpClient = new HttpClient(new StaticSuccessHandler(responseBody));
+        var service = new AssistantService(httpClient, TimeSpan.FromMilliseconds(100));
+
+        var result = service.Ask("hôm nay mặt hàng nào cần nhập thêm?");
+
+        Assert.IsTrue(result.Success);
+        Assert.IsNotNull(result.Data);
+        Assert.AreEqual("ai-online", result.Data.Mode);
+        Assert.IsFalse(result.Data.IsFallback);
+        Assert.IsTrue(result.Data.Handled);
+        Assert.AreEqual("low-stock", result.Data.Intent);
+        StringAssert.Contains(result.Data.Answer, "2 sản phẩm");
     }
 
     [TestMethod]
@@ -140,6 +173,17 @@ public sealed class AssistantServiceTests
             return Task.FromResult(new HttpResponseMessage(statusCode)
             {
                 Content = new StringContent("{}")
+            });
+        }
+    }
+
+    private sealed class StaticSuccessHandler(string body) : HttpMessageHandler
+    {
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        {
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(body)
             });
         }
     }
