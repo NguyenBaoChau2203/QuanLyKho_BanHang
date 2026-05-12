@@ -34,8 +34,7 @@ public sealed class FrmAssistant : Form
             RefreshModeStatus();
             AppendAssistantCard(
                 "Trợ lý AI",
-                "Chào bạn! Tôi có thể dùng DeepSeek nếu đã cấu hình, và luôn tự fallback sang trợ lý offline khi thiếu API hoặc có lỗi mạng.\nChọn gợi ý bên dưới hoặc nhập câu hỏi tiếng Việt, sau đó bấm Gửi.",
-                "Sẵn sàng");
+                "Chào bạn! Tôi có thể dùng DeepSeek nếu đã cấu hình, và luôn tự fallback sang trợ lý offline khi thiếu API hoặc có lỗi mạng.\nChọn gợi ý bên dưới hoặc nhập câu hỏi tiếng Việt, sau đó bấm Gửi.");
         };
 
         _txtQuestion.KeyDown += (_, e) =>
@@ -217,8 +216,7 @@ public sealed class FrmAssistant : Form
         RefreshModeStatus();
         AppendAssistantCard(
             "Đã xóa hội thoại",
-            "Bạn có thể bắt đầu lượt hỏi mới. Gợi ý lệnh vẫn ở phía trên.",
-            "Sẵn sàng");
+            "Bạn có thể bắt đầu lượt hỏi mới. Gợi ý lệnh vẫn ở phía trên.");
         _scrollOuter.ScrollControlIntoView(_conversationFlow.Controls[^1]);
     }
 
@@ -227,7 +225,7 @@ public sealed class FrmAssistant : Form
         var question = _txtQuestion.Text.Trim();
         if (string.IsNullOrEmpty(question))
         {
-            AppendAssistantCard("Thiếu nội dung", "Vui lòng nhập câu lệnh hoặc chọn một gợi ý.", "Nhập liệu");
+            AppendAssistantCard("Thiếu nội dung", "Vui lòng nhập câu lệnh hoặc chọn một gợi ý.");
             return;
         }
 
@@ -237,7 +235,7 @@ public sealed class FrmAssistant : Form
         var askResult = _assistantService.Ask(question);
         if (!askResult.Success || askResult.Data is null)
         {
-            AppendAssistantCard("Không thể xử lý", askResult.Message, "BLL", relatedQuestion: question);
+            AppendAssistantCard("Không thể xử lý", askResult.Message, relatedQuestion: question);
             ScrollToLatest();
             return;
         }
@@ -247,7 +245,6 @@ public sealed class FrmAssistant : Form
         AppendAssistantCard(
             response.Handled ? "Trợ lý AI" : "Trợ lý AI cần hỏi lại",
             response.Answer,
-            BuildBadgeText(response),
             relatedQuestion: question);
         ScrollToLatest();
     }
@@ -320,7 +317,7 @@ public sealed class FrmAssistant : Form
         _conversationFlow.Controls.Add(card);
     }
 
-    private void AppendAssistantCard(string title, string body, string badgeText, string? relatedQuestion = null)
+    private void AppendAssistantCard(string title, string body, string? relatedQuestion = null)
     {
         var card = new Panel
         {
@@ -333,43 +330,18 @@ public sealed class FrmAssistant : Form
 
         var flowWidth = Math.Max(200, card.Width - card.Padding.Horizontal);
 
-        var titleRow = new TableLayoutPanel
-        {
-            Dock = DockStyle.Top,
-            Height = 28,
-            Width = flowWidth,
-            ColumnCount = 2,
-            RowCount = 1,
-            Margin = Padding.Empty,
-            Padding = Padding.Empty
-        };
-        titleRow.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
-        titleRow.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
-
         var titleLabel = new Label
         {
             Text = title,
-            Dock = DockStyle.Fill,
+            Dock = DockStyle.Top,
+            Height = 28,
+            Width = flowWidth,
             Font = AppTheme.SectionFont(11F),
             ForeColor = PrimaryBlue,
             TextAlign = ContentAlignment.MiddleLeft,
             UseMnemonic = false,
             AutoEllipsis = true
         };
-
-        var badge = new Label
-        {
-            Text = badgeText,
-            AutoSize = true,
-            Font = AppTheme.BodyFont(9F),
-            ForeColor = AppTheme.TextMuted,
-            TextAlign = ContentAlignment.MiddleRight,
-            UseMnemonic = false,
-            Margin = new Padding(8, 0, 0, 0)
-        };
-
-        titleRow.Controls.Add(titleLabel, 0, 0);
-        titleRow.Controls.Add(badge, 1, 0);
 
         var topSection = new Panel
         {
@@ -379,7 +351,7 @@ public sealed class FrmAssistant : Form
             Margin = Padding.Empty,
             Padding = Padding.Empty
         };
-        topSection.Controls.Add(titleRow);
+        topSection.Controls.Add(titleLabel);
 
         var questionBlockH = 0;
         if (!string.IsNullOrWhiteSpace(relatedQuestion))
@@ -401,7 +373,7 @@ public sealed class FrmAssistant : Form
             questionBlockH = questionLine.PreferredSize.Height + questionLine.Margin.Bottom;
         }
 
-        topSection.Height = titleRow.Height + questionBlockH;
+        topSection.Height = titleLabel.Height + questionBlockH;
 
         var bodyBox = new TextBox
         {
@@ -454,14 +426,4 @@ public sealed class FrmAssistant : Form
         };
     }
 
-    private static string BuildBadgeText(AssistantResponseDto response)
-    {
-        return response.Mode switch
-        {
-            "ai-online" => "AI online",
-            "ai-failed-fallback" => "Fallback",
-            "offline-rule-based" => "Offline",
-            _ => response.IsFallback ? "Fallback" : "BLL"
-        };
-    }
 }
