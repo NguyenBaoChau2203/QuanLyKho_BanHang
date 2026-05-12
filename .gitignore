@@ -1,0 +1,17 @@
+bin/
+obj/
+.vs/
+.vscode/
+*.user
+*.suo
+*.rsuser
+*.db
+*.db-shm
+*.db-wal
+*.mdf
+*.ldf
+TestResults/
+coverage/
+*.bak
+*.tmp
+appsettings.Development.json
