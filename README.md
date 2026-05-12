@@ -24,6 +24,9 @@
 
 - [Nhiệm vụ tổng thể](docs/01_NhiemVuTongThe.md)
 - [Phân công công việc](docs/02_PhanCongCongViec.md)
+  - [Châu](docs/phan-cong/Chau.md)
+  - [Dũ](docs/phan-cong/Du.md)
+  - [Hùng](docs/phan-cong/Hung.md)
 - [Workflow làm việc](docs/03_WorkflowLamViec.md)
 - [Quy chuẩn chung](docs/04_QuyChuanChung.md)
 - [OpenSpec workflow](docs/05_OpenSpecWorkflow.md)

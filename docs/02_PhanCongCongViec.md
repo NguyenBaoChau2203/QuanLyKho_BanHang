@@ -1,55 +1,30 @@
 # Phân công công việc
 
-## Châu
+File này là mục lục phân công. Mỗi thành viên mở đúng file của mình trong thư mục `docs/phan-cong/` để đọc nhiệm vụ chi tiết, branch cần dùng, checklist bàn giao và quy định phối hợp.
 
-Vai trò: nhóm trưởng, kiến trúc, OpenSpec, database tổng thể, WinForms UI, tích hợp và demo.
+## Danh sách phân công
 
-Nhiệm vụ:
+- [Châu - Nhóm trưởng, kiến trúc, OpenSpec, WinForms UI, tích hợp](phan-cong/Chau.md)
+- [Dũ - Backend kho, sản phẩm, nhập kho, tồn kho, kiểm kê](phan-cong/Du.md)
+- [Hùng - Backend bán hàng, khách hàng, hóa đơn, báo cáo](phan-cong/Hung.md)
 
-- Thiết lập kiến trúc project 3 lớp.
-- Thiết lập OpenSpec, quản lý specs, tasks và tiến độ.
-- Thiết kế database tổng thể và review schema cuối.
-- Làm toàn bộ WinForms UI: login, main layout, dashboard, sản phẩm, loại hàng, nhà cung cấp, khách hàng, nhập kho, tồn kho, kiểm kê, bán hàng, hóa đơn, báo cáo, trợ lý quản lý.
-- Tự tích hợp service của Dũ và Hùng vào UI.
-- Phụ trách dashboard, assistant hybrid, kiểm tra build, demo cuối.
-- Viết báo cáo kỹ thuật về mô hình 3 lớp, OpenSpec, database, giao diện và tính năng nổi bật.
+## Nguyên tắc chung
 
-## Dũ
-
-Vai trò: backend nghiệp vụ kho.
-
-Nhiệm vụ:
-
-- DTO/DAL/BLL cho sản phẩm.
-- DTO/DAL/BLL cho loại hàng.
-- DTO/DAL/BLL cho nhà cung cấp.
-- DTO/DAL/BLL cho nhập kho.
-- DTO/DAL/BLL cho tồn kho.
-- DTO/DAL/BLL cho kiểm kê.
-- Logic cảnh báo tồn thấp.
-- Test nghiệp vụ nhập kho, tồn kho, kiểm kê.
-- Cung cấp method BLL rõ ràng để Châu gọi từ UI.
-
-## Hùng
-
-Vai trò: backend nghiệp vụ bán hàng và báo cáo.
-
-Nhiệm vụ:
-
-- DTO/DAL/BLL cho khách hàng.
-- DTO/DAL/BLL cho bán hàng.
-- DTO/DAL/BLL cho hóa đơn và chi tiết hóa đơn.
-- Báo cáo doanh thu.
-- Top sản phẩm bán chạy.
-- Khách hàng mua nhiều nhất.
-- Logic xuất/in hóa đơn hoặc export PDF/Excel nếu kịp.
-- Rule-based assistant commands liên quan bán hàng và báo cáo.
-- Test luồng bán hàng, hóa đơn, báo cáo.
-- Cung cấp method BLL rõ ràng để Châu gọi từ UI.
-
-## Quy định phối hợp
-
+- Châu chịu trách nhiệm UI và tích hợp cuối.
+- Dũ và Hùng tập trung backend nghiệp vụ, test và service contract.
 - Dũ và Hùng không cần hỗ trợ tích hợp UI.
-- Châu chịu trách nhiệm tích hợp cuối.
-- Khi đổi DTO, tên method hoặc kiểu trả về, phải ghi rõ trong PR description.
-- Nếu service chưa xong, Châu có thể dựng UI bằng mock data tạm.
+- Khi đổi DTO, public method hoặc kiểu trả về, phải ghi rõ trong pull request.
+- Mỗi người làm đúng branch của mình, không push trực tiếp lên `main`.
+
+## Branch làm việc
+
+- Châu: `feature/project-ui-chau`
+- Dũ: `feature/inventory-du`
+- Hùng: `feature/sales-report-hung`
+
+## Thứ tự đọc tài liệu
+
+1. Đọc file phân công cá nhân.
+2. Đọc [Workflow làm việc](03_WorkflowLamViec.md).
+3. Đọc [Quy chuẩn chung](04_QuyChuanChung.md).
+4. Đọc OpenSpec change hiện tại trong `openspec/changes/bootstrap-inventory-sales-mvp/`.
