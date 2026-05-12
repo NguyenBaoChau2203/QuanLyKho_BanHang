@@ -37,6 +37,40 @@ internal static class UiFactory
         Padding = AppTheme.CardPadding
     };
 
+    public static SplitContainer HorizontalSplitter(int preferredDistance, int minimumPanelWidth = 220)
+    {
+        var splitter = new SplitContainer
+        {
+            Dock = DockStyle.Fill
+        };
+
+        void ApplyPreferredDistance()
+        {
+            var width = splitter.ClientSize.Width;
+            if (width <= splitter.SplitterWidth + 50)
+            {
+                return;
+            }
+
+            var safeMinimum = Math.Min(minimumPanelWidth, Math.Max(25, (width - splitter.SplitterWidth) / 3));
+            var maxDistance = width - splitter.SplitterWidth - safeMinimum;
+            if (maxDistance < safeMinimum)
+            {
+                return;
+            }
+
+            var distance = Math.Clamp(preferredDistance, safeMinimum, maxDistance);
+            if (splitter.SplitterDistance != distance)
+            {
+                splitter.SplitterDistance = distance;
+            }
+        }
+
+        splitter.SizeChanged += (_, _) => ApplyPreferredDistance();
+        splitter.HandleCreated += (_, _) => ApplyPreferredDistance();
+        return splitter;
+    }
+
     public static Button ActionButton(string text, EventHandler handler, int width = 110)
     {
         var button = new Button

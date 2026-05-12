@@ -66,7 +66,7 @@ public sealed class FrmSalesInvoice : Form
 
     private Control BuildBody()
     {
-        var splitter = new SplitContainer { Dock = DockStyle.Fill, SplitterDistance = 700 };
+        var splitter = UiFactory.HorizontalSplitter(700, 280);
         splitter.Panel1.Controls.Add(BuildLookupPanel());
         splitter.Panel2.Controls.Add(BuildEditorPanel());
         return splitter;
@@ -165,7 +165,7 @@ public sealed class FrmSalesInvoice : Form
     {
         var root = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 5, ColumnCount = 1, Padding = new Padding(8, 0, 0, 0) };
         root.RowStyles.Add(new RowStyle(SizeType.Absolute, 54));
-        root.RowStyles.Add(new RowStyle(SizeType.Absolute, 148));
+        root.RowStyles.Add(new RowStyle(SizeType.Absolute, 224));
         root.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
         root.RowStyles.Add(new RowStyle(SizeType.Absolute, 104));
         root.RowStyles.Add(new RowStyle(SizeType.Absolute, 46));
@@ -183,6 +183,9 @@ public sealed class FrmSalesInvoice : Form
         var form = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 2, RowCount = 3 };
         form.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 45));
         form.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 55));
+        form.RowStyles.Add(new RowStyle(SizeType.Absolute, 66));
+        form.RowStyles.Add(new RowStyle(SizeType.Absolute, 66));
+        form.RowStyles.Add(new RowStyle(SizeType.Absolute, 92));
         form.Controls.Add(BuildField("Mã hóa đơn", _invoiceCode), 0, 0);
         form.Controls.Add(BuildField("Số lượng", _quantity), 1, 0);
         form.Controls.Add(BuildField("Đơn giá", _unitPrice), 0, 1);

@@ -107,7 +107,7 @@ public abstract class CrudListForm<TItem> : Form where TItem : class, new()
 
     private Control BuildBody()
     {
-        var splitter = new SplitContainer { Dock = DockStyle.Fill, SplitterDistance = 760 };
+        var splitter = UiFactory.HorizontalSplitter(760, 260);
         splitter.Panel1.Controls.Add(Grid);
         splitter.Panel2.Padding = new Padding(12, 0, 0, 0);
         splitter.Panel2.Controls.Add(BuildEditPanel());

@@ -108,13 +108,7 @@ public sealed class FrmReport : Form
 
     private Control BuildUpperBody()
     {
-        var splitter = new SplitContainer
-        {
-            Dock = DockStyle.Fill,
-            SplitterDistance = 620,
-            Panel1MinSize = 420,
-            Panel2MinSize = 420
-        };
+        var splitter = UiFactory.HorizontalSplitter(620, 320);
         splitter.Panel1.Controls.Add(BuildRevenuePanel());
         splitter.Panel2.Controls.Add(BuildTopProductsPanel());
         return splitter;

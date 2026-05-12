@@ -82,13 +82,7 @@ public sealed class FrmDashboard : Form
 
     private Control BuildUpperBody()
     {
-        var splitter = new SplitContainer
-        {
-            Dock = DockStyle.Fill,
-            SplitterDistance = 600,
-            Panel1MinSize = 420,
-            Panel2MinSize = 420
-        };
+        var splitter = UiFactory.HorizontalSplitter(600, 320);
         splitter.Panel1.Controls.Add(BuildTopProductsPanel());
         splitter.Panel2.Controls.Add(BuildLowStockPanel());
         return splitter;

@@ -61,7 +61,7 @@ public sealed class FrmPurchaseReceipt : Form
 
     private Control BuildBody()
     {
-        var splitter = new SplitContainer { Dock = DockStyle.Fill, SplitterDistance = 690 };
+        var splitter = UiFactory.HorizontalSplitter(690, 280);
         splitter.Panel1.Controls.Add(BuildProductPanel());
         splitter.Panel2.Controls.Add(BuildEditorPanel());
         return splitter;
@@ -110,16 +110,19 @@ public sealed class FrmPurchaseReceipt : Form
     {
         var root = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 4, ColumnCount = 1, Padding = new Padding(8, 0, 0, 0) };
         root.RowStyles.Add(new RowStyle(SizeType.Absolute, 54));
-        root.RowStyles.Add(new RowStyle(SizeType.Absolute, 170));
+        root.RowStyles.Add(new RowStyle(SizeType.Absolute, 226));
         root.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
         root.RowStyles.Add(new RowStyle(SizeType.Absolute, 100));
 
         var header = new Panel { Dock = DockStyle.Fill };
         header.Controls.Add(new Label { Text = "Thông tin phiếu", Dock = DockStyle.Fill, Font = AppTheme.TitleFont(14F) });
 
-        var form = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 2, RowCount = 4 };
+        var form = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 2, RowCount = 3 };
         form.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 34));
         form.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 66));
+        form.RowStyles.Add(new RowStyle(SizeType.Absolute, 66));
+        form.RowStyles.Add(new RowStyle(SizeType.Absolute, 66));
+        form.RowStyles.Add(new RowStyle(SizeType.Absolute, 94));
         form.Controls.Add(BuildField("Mã phiếu", _receiptCode), 0, 0);
         form.Controls.Add(BuildField("Nhà cung cấp", _supplier), 1, 0);
         form.Controls.Add(BuildField("Số lượng", _quantity), 0, 1);

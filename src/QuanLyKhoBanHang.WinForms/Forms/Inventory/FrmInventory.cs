@@ -47,7 +47,7 @@ public sealed class FrmInventory : Form
 
     private Control BuildBody()
     {
-        var splitter = new SplitContainer { Dock = DockStyle.Fill, SplitterDistance = 760 };
+        var splitter = UiFactory.HorizontalSplitter(760, 280);
         splitter.Panel1.Controls.Add(BuildGridPanel("Danh sách tồn kho", _stockSource, BuildStockGrid));
         splitter.Panel2.Controls.Add(BuildGridPanel("Hàng sắp hết", _lowStockSource, BuildLowStockGrid));
         return splitter;
