@@ -97,7 +97,7 @@ Sau Phase 0, Châu làm UI dựa trên contract đã chốt, không cần chờ 
 ## Checklist hoàn thành
 
 - [ ] UI mở được tất cả menu chính.
-- [ ] Phase 0 đã chốt database, DTO và service contract đủ để cả nhóm làm song song.
+- [x] Phase 0 đã chốt database, DTO và service contract đủ để cả nhóm làm song song.
 - [ ] `database/schema.sql` chạy được trên SQL Server LocalDB.
 - [ ] `database/seed.sql` tạo được dữ liệu demo.
 - [ ] Database có đủ bảng cho nhập kho, bán hàng, kiểm kê, dashboard và báo cáo.

@@ -18,6 +18,11 @@ public sealed class InventoryService
 
     public ServiceResult<List<StockTransactionDto>> GetStockTransactions(DateTime fromDate, DateTime toDate)
     {
+        if (fromDate.Date > toDate.Date)
+        {
+            return ServiceResult<List<StockTransactionDto>>.Fail("Ngày bắt đầu không được lớn hơn ngày kết thúc.");
+        }
+
         return ServiceResult<List<StockTransactionDto>>.Ok(new List<StockTransactionDto>(), "Chưa có dữ liệu lịch sử kho.");
     }
 }

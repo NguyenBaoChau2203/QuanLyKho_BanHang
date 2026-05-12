@@ -17,11 +17,21 @@ public sealed class ReportService
 
     public ServiceResult<List<ProductSalesSummaryDto>> GetTopSellingProducts(DateTime fromDate, DateTime toDate, int top = 5)
     {
+        if (fromDate.Date > toDate.Date)
+        {
+            return ServiceResult<List<ProductSalesSummaryDto>>.Fail("Ngày bắt đầu không được lớn hơn ngày kết thúc.");
+        }
+
         return ServiceResult<List<ProductSalesSummaryDto>>.Ok(new List<ProductSalesSummaryDto>(), "Chưa có dữ liệu top sản phẩm.");
     }
 
     public ServiceResult<List<CustomerPurchaseSummaryDto>> GetTopCustomers(DateTime fromDate, DateTime toDate, int top = 5)
     {
+        if (fromDate.Date > toDate.Date)
+        {
+            return ServiceResult<List<CustomerPurchaseSummaryDto>>.Fail("Ngày bắt đầu không được lớn hơn ngày kết thúc.");
+        }
+
         return ServiceResult<List<CustomerPurchaseSummaryDto>>.Ok(new List<CustomerPurchaseSummaryDto>(), "Chưa có dữ liệu khách hàng mua nhiều.");
     }
 }
