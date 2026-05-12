@@ -34,10 +34,20 @@ public sealed class AssistantService
             response.Intent = "top-products";
             response.Answer = "Đã nhận câu hỏi top sản phẩm bán chạy. Hùng sẽ nối ReportService để trả dữ liệu thật.";
         }
+        else if ((normalized.Contains("khách") || normalized.Contains("khach")) && (normalized.Contains("mua") || normalized.Contains("nhiều") || normalized.Contains("nhieu")))
+        {
+            response.Intent = "top-customers";
+            response.Answer = "Đã nhận câu hỏi khách hàng mua nhiều nhất. Hùng sẽ nối ReportService để trả dữ liệu thật.";
+        }
+        else if (normalized.Contains("kiểm kê") || normalized.Contains("kiem ke"))
+        {
+            response.Intent = "stocktake-today";
+            response.Answer = "Đã nhận câu hỏi kiểm kê hôm nay. Dũ sẽ nối StocktakeService để trả dữ liệu thật.";
+        }
         else
         {
             response.Handled = false;
-            response.Answer = "Trợ lý chưa hiểu câu này. Hãy thử: doanh thu hôm nay, hàng sắp hết, top sản phẩm bán chạy.";
+            response.Answer = "Trợ lý chưa hiểu câu này. Hãy thử: doanh thu hôm nay, hàng sắp hết, top sản phẩm bán chạy, khách hàng mua nhiều nhất, kiểm kê hôm nay.";
         }
 
         return ServiceResult<AssistantResponseDto>.Ok(response);

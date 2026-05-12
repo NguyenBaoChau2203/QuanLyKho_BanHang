@@ -20,7 +20,9 @@
 - Hỏi trợ lý: `doanh thu hôm nay`.
 - Hỏi trợ lý: `hàng sắp hết`.
 - Hỏi trợ lý: `top sản phẩm bán chạy`.
-- Nêu rõ các màn hình vẫn dùng dữ liệu stub an toàn nếu backend chưa trả đủ dữ liệu.
+- Hỏi trợ lý: `khách hàng mua nhiều nhất`.
+- Hỏi trợ lý: `kiểm kê hôm nay`.
+- Nêu rõ các màn hình vẫn dùng dữ liệu stub an toàn nếu backend chưa trả đủ dữ liệu, nhưng vẫn giữ trải nghiệm demo nhất quán.
 
 ## Nội dung cần nói khi thuyết trình
 
