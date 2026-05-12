@@ -50,13 +50,13 @@ public sealed class FrmMain : Form
         var stack = new TableLayoutPanel
         {
             Dock = DockStyle.Fill,
-            RowCount = 12,
+            RowCount = 13,
             ColumnCount = 1,
         };
         stack.RowStyles.Add(new RowStyle(SizeType.Absolute, 92));
         stack.RowStyles.Add(new RowStyle(SizeType.Absolute, 44));
         stack.RowStyles.Add(new RowStyle(SizeType.Absolute, 10));
-        for (var i = 3; i < 12; i++)
+        for (var i = 3; i < 13; i++)
         {
             stack.RowStyles.Add(new RowStyle(SizeType.Absolute, 44));
         }
@@ -88,6 +88,7 @@ public sealed class FrmMain : Form
         AddNavButton(stack, "Tồn kho", () => new FrmInventory(), 9);
         AddNavButton(stack, "Kiểm kê", () => new FrmStocktake(), 10);
         AddNavButton(stack, "Bán hàng", () => new FrmSalesInvoice(), 11);
+        AddNavButton(stack, "Trợ lý AI", () => new FrmAssistant(), 12);
 
         sidebar.Controls.Add(stack);
         return sidebar;
@@ -135,7 +136,7 @@ public sealed class FrmMain : Form
         };
         quickActions.Controls.Add(CreateActionButton("Bán hàng", () => new FrmSalesInvoice()));
         quickActions.Controls.Add(CreateActionButton("Báo cáo", () => new FrmReport()));
-        quickActions.Controls.Add(CreateActionButton("Trợ lý", () => new FrmAssistant()));
+        quickActions.Controls.Add(CreateActionButton("Trợ lý AI", () => new FrmAssistant()));
 
         header.Controls.Add(quickActions);
         header.Controls.Add(_subtitleLabel);

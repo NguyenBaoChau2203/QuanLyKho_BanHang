@@ -1,9 +1,5 @@
-using QuanLyKhoBanHang.BLL.Common;
 using QuanLyKhoBanHang.BLL.Services;
 using QuanLyKhoBanHang.DTO.Assistant;
-using QuanLyKhoBanHang.DTO.Inventory;
-using QuanLyKhoBanHang.DTO.MasterData;
-using QuanLyKhoBanHang.DTO.Reports;
 using QuanLyKhoBanHang.WinForms.Forms.Common;
 
 namespace QuanLyKhoBanHang.WinForms.Forms.Assistant;
@@ -11,32 +7,36 @@ namespace QuanLyKhoBanHang.WinForms.Forms.Assistant;
 public sealed class FrmAssistant : Form
 {
     private readonly AssistantService _assistantService = new();
-    private readonly ReportService _reportService = new();
-    private readonly InventoryService _inventoryService = new();
-    private readonly StocktakeService _stocktakeService = new();
 
     private readonly TextBox _txtQuestion = new();
+    private readonly Label _modeLabel = new();
     private readonly Panel _scrollOuter = new();
     private readonly FlowLayoutPanel _conversationFlow = new();
     private readonly Button _btnSend = new();
     private readonly Button _btnClear = new();
 
     private static readonly Color PrimaryBlue = Color.FromArgb(37, 99, 235);
+    private static readonly Color OnlineGreen = Color.FromArgb(22, 101, 52);
+    private static readonly Color FallbackAmber = Color.FromArgb(146, 64, 14);
     private static readonly Color UserBubbleBg = Color.FromArgb(236, 242, 254);
 
     public FrmAssistant()
     {
-        Text = "Trợ lý quản lý";
+        Text = "Trợ lý AI";
         BackColor = AppTheme.AppBackground;
         Font = AppTheme.BodyFont();
         MinimumSize = new Size(960, 620);
         Padding = AppTheme.PagePadding;
 
         BuildLayout();
-        Load += (_, _) => AppendAssistantCard(
-            "Trợ lý quản lý",
-            "Chào bạn! Đây là chế độ demo nội bộ (không gọi AI).\nChọn gợi ý bên dưới hoặc nhập lệnh tiếng Việt, sau đó bấm Gửi.",
-            false);
+        Load += (_, _) =>
+        {
+            RefreshModeStatus();
+            AppendAssistantCard(
+                "Trợ lý AI",
+                "Chào bạn! Tôi có thể dùng DeepSeek nếu đã cấu hình, và luôn tự fallback sang trợ lý offline khi thiếu API hoặc có lỗi mạng.\nChọn gợi ý bên dưới hoặc nhập câu hỏi tiếng Việt, sau đó bấm Gửi.",
+                "Sẵn sàng");
+        };
 
         _txtQuestion.KeyDown += (_, e) =>
         {
@@ -54,19 +54,21 @@ public sealed class FrmAssistant : Form
         {
             Dock = DockStyle.Fill,
             ColumnCount = 1,
-            RowCount = 4
+            RowCount = 5
         };
         root.RowStyles.Add(new RowStyle(SizeType.Absolute, 72));
+        root.RowStyles.Add(new RowStyle(SizeType.Absolute, 38));
         root.RowStyles.Add(new RowStyle(SizeType.Absolute, 54));
         root.RowStyles.Add(new RowStyle(SizeType.Absolute, 52));
         root.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
 
         root.Controls.Add(UiFactory.HeaderPanel(
-            "Trợ lý quản lý",
-            "Gõ lệnh nhanh như chat nội bộ — phản hồi xác định từ dịch vụ BLL + dữ liệu minh họa khi chưa có bản ghi."), 0, 0);
+            "Trợ lý AI",
+            "Hỏi nhanh bằng tiếng Việt, nhận câu trả lời từ AssistantService với DeepSeek tùy chọn và fallback offline an toàn."), 0, 0);
 
-        root.Controls.Add(BuildSuggestionBar(), 0, 1);
-        root.Controls.Add(BuildInputBar(), 0, 2);
+        root.Controls.Add(BuildModeBar(), 0, 1);
+        root.Controls.Add(BuildSuggestionBar(), 0, 2);
+        root.Controls.Add(BuildInputBar(), 0, 3);
 
         _scrollOuter.Dock = DockStyle.Fill;
         _scrollOuter.AutoScroll = true;
@@ -87,7 +89,7 @@ public sealed class FrmAssistant : Form
             _conversationFlow.Width = Math.Max(320, _scrollOuter.ClientSize.Width - 24);
         };
 
-        root.Controls.Add(_scrollOuter, 0, 3);
+        root.Controls.Add(_scrollOuter, 0, 4);
 
         Controls.Add(root);
 
@@ -95,6 +97,25 @@ public sealed class FrmAssistant : Form
         _btnClear.Text = "Xóa hội thoại";
 
         AcceptButton = _btnSend;
+    }
+
+    private Control BuildModeBar()
+    {
+        var panel = new Panel
+        {
+            Dock = DockStyle.Fill,
+            BackColor = AppTheme.Surface,
+            Padding = new Padding(12, 6, 12, 6)
+        };
+
+        _modeLabel.Dock = DockStyle.Fill;
+        _modeLabel.Font = AppTheme.BodyFont(9.5F);
+        _modeLabel.ForeColor = AppTheme.TextMuted;
+        _modeLabel.TextAlign = ContentAlignment.MiddleLeft;
+        _modeLabel.Text = "Chế độ: đang kiểm tra qua AssistantService.";
+
+        panel.Controls.Add(_modeLabel);
+        return panel;
     }
 
     private Control BuildSuggestionBar()
@@ -150,7 +171,7 @@ public sealed class FrmAssistant : Form
 
         _txtQuestion.Dock = DockStyle.Fill;
         _txtQuestion.Font = AppTheme.BodyFont();
-        _txtQuestion.PlaceholderText = "Ví dụ: doanh thu hôm nay, hàng sắp hết…";
+        _txtQuestion.PlaceholderText = "Ví dụ: doanh thu hôm nay, hàng sắp hết...";
 
         _btnSend.Dock = DockStyle.Fill;
         _btnSend.Margin = new Padding(8, 0, 0, 0);
@@ -177,13 +198,27 @@ public sealed class FrmAssistant : Form
         "kiểm kê hôm nay"
     ];
 
+    private void RefreshModeStatus()
+    {
+        var status = _assistantService.GetModeStatus();
+        if (status.Success && status.Data is not null)
+        {
+            UpdateModeLabel(status.Data);
+            return;
+        }
+
+        _modeLabel.Text = "Chế độ: chưa xác định.";
+        _modeLabel.ForeColor = AppTheme.TextMuted;
+    }
+
     private void ClearConversation()
     {
         _conversationFlow.Controls.Clear();
+        RefreshModeStatus();
         AppendAssistantCard(
             "Đã xóa hội thoại",
             "Bạn có thể bắt đầu lượt hỏi mới. Gợi ý lệnh vẫn ở phía trên.",
-            false);
+            "Sẵn sàng");
         _scrollOuter.ScrollControlIntoView(_conversationFlow.Controls[^1]);
     }
 
@@ -192,7 +227,7 @@ public sealed class FrmAssistant : Form
         var question = _txtQuestion.Text.Trim();
         if (string.IsNullOrEmpty(question))
         {
-            AppendAssistantCard("Thiếu nội dung", "Vui lòng nhập câu lệnh hoặc chọn một gợi ý.", false);
+            AppendAssistantCard("Thiếu nội dung", "Vui lòng nhập câu lệnh hoặc chọn một gợi ý.", "Nhập liệu");
             return;
         }
 
@@ -200,24 +235,19 @@ public sealed class FrmAssistant : Form
         _txtQuestion.Clear();
 
         var askResult = _assistantService.Ask(question);
-        if (!askResult.Success)
+        if (!askResult.Success || askResult.Data is null)
         {
-            AppendAssistantCard("Không thể xử lý", askResult.Message, false);
+            AppendAssistantCard("Không thể xử lý", askResult.Message, "BLL");
             ScrollToLatest();
             return;
         }
 
-        var intent = ResolveIntent(askResult, question);
-        if (intent == AssistantIntent.Unknown)
-        {
-            var fallback = askResult.Data?.Answer ?? askResult.Message;
-            AppendAssistantCard("Trợ lý", fallback, false);
-            ScrollToLatest();
-            return;
-        }
-
-        var response = BuildIntentResponse(intent);
-        AppendAssistantCard(response.Title, response.Body, response.IsDemoFallback);
+        var response = askResult.Data;
+        UpdateModeLabel(response);
+        AppendAssistantCard(
+            response.Handled ? "Trợ lý AI" : "Trợ lý AI cần hỏi lại",
+            response.Answer,
+            BuildBadgeText(response));
         ScrollToLatest();
     }
 
@@ -276,7 +306,7 @@ public sealed class FrmAssistant : Form
         _conversationFlow.Controls.Add(card);
     }
 
-    private void AppendAssistantCard(string title, string body, bool isDemoFallback)
+    private void AppendAssistantCard(string title, string body, string badgeText)
     {
         var card = new Panel
         {
@@ -295,7 +325,7 @@ public sealed class FrmAssistant : Form
             RowCount = 1
         };
         titleRow.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
-        titleRow.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 120));
+        titleRow.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 180));
 
         var titleLabel = new Label
         {
@@ -308,7 +338,7 @@ public sealed class FrmAssistant : Form
 
         var badge = new Label
         {
-            Text = isDemoFallback ? "Demo stub" : "BLL",
+            Text = badgeText,
             Dock = DockStyle.Fill,
             Font = AppTheme.BodyFont(9F),
             ForeColor = AppTheme.TextMuted,
@@ -343,305 +373,36 @@ public sealed class FrmAssistant : Form
         _conversationFlow.Controls.Add(card);
     }
 
-    private static AssistantIntent ResolveIntent(ServiceResult<AssistantResponseDto> ask, string raw)
+    private void UpdateModeLabel(AssistantResponseDto response)
     {
-        var dto = ask.Data;
-        if (dto is { Intent: not null })
+        _modeLabel.Text = $"Chế độ: {BuildModeText(response.Mode)} · {response.StatusMessage}";
+        _modeLabel.ForeColor = response.Mode switch
         {
-            var mapped = MapServiceIntent(dto.Intent);
-            if (mapped != AssistantIntent.Unknown)
-            {
-                return mapped;
-            }
-        }
-
-        return ParseLocalIntent(raw);
-    }
-
-    private static AssistantIntent MapServiceIntent(string intent) =>
-        intent switch
-        {
-            "revenue" => AssistantIntent.RevenueToday,
-            "low-stock" => AssistantIntent.LowStock,
-            "top-products" => AssistantIntent.TopProducts,
-            _ => AssistantIntent.Unknown
-        };
-
-    private static AssistantIntent ParseLocalIntent(string raw)
-    {
-        var n = raw.Trim().ToLowerInvariant();
-        if (string.IsNullOrEmpty(n))
-        {
-            return AssistantIntent.Unknown;
-        }
-
-        if (n.Contains("kiểm kê", StringComparison.Ordinal) || n.Contains("kiem ke", StringComparison.Ordinal))
-        {
-            return AssistantIntent.StocktakeToday;
-        }
-
-        if ((n.Contains("khách", StringComparison.Ordinal) || n.Contains("khach", StringComparison.Ordinal))
-            && (n.Contains("mua", StringComparison.Ordinal) || n.Contains("nhiều", StringComparison.Ordinal)))
-        {
-            return AssistantIntent.TopCustomers;
-        }
-
-        if (n.Contains("doanh thu", StringComparison.Ordinal))
-        {
-            return AssistantIntent.RevenueToday;
-        }
-
-        if (n.Contains("sắp hết", StringComparison.Ordinal) || n.Contains("sap het", StringComparison.Ordinal)
-                                                         || n.Contains("tồn thấp", StringComparison.Ordinal)
-                                                         || n.Contains("ton thap", StringComparison.Ordinal))
-        {
-            return AssistantIntent.LowStock;
-        }
-
-        if ((n.Contains("top", StringComparison.Ordinal) || n.Contains("bán chạy", StringComparison.Ordinal))
-            && (n.Contains("sản phẩm", StringComparison.Ordinal) || n.Contains("san pham", StringComparison.Ordinal)
-                                                                  || n.Contains("bán chạy", StringComparison.Ordinal)))
-        {
-            return AssistantIntent.TopProducts;
-        }
-
-        return AssistantIntent.Unknown;
-    }
-
-    private (string Title, string Body, bool IsDemoFallback) BuildIntentResponse(AssistantIntent intent)
-    {
-        return intent switch
-        {
-            AssistantIntent.RevenueToday => BuildRevenueToday(),
-            AssistantIntent.LowStock => BuildLowStock(),
-            AssistantIntent.TopProducts => BuildTopProducts(),
-            AssistantIntent.TopCustomers => BuildTopCustomers(),
-            AssistantIntent.StocktakeToday => BuildStocktakeToday(),
-            _ => ("Trợ lý quản lý", "Không xử lý được yêu cầu này trong demo. Hãy dùng các lệnh gợi ý để xem báo cáo, tồn kho, kiểm kê và top sản phẩm.", false)
+            "ai-online" => OnlineGreen,
+            "ai-failed-fallback" => FallbackAmber,
+            _ => AppTheme.TextMuted
         };
     }
 
-    private (string Title, string Body, bool IsDemoFallback) BuildRevenueToday()
+    private static string BuildModeText(string mode)
     {
-        var today = DateTime.Today;
-        var result = _reportService.GetRevenue(today, today);
-        var rows = result.Success && result.Data is { Count: > 0 } data ? data : CreateStubRevenue(today, today);
-        var demo = !(result.Success && result.Data is { Count: > 0 });
-
-        var lines = new List<string>();
-        if (demo)
+        return mode switch
         {
-            lines.Add("(Demo) Backend hiện trả danh sách rỗng — hiển thị minh họa để demo không bị trống.");
-            if (!string.IsNullOrWhiteSpace(result.Message))
-            {
-                lines.Add($"Ghi chú BLL: {result.Message}");
-            }
-        }
-
-        foreach (var row in rows)
-        {
-            lines.Add(
-                $"{row.Date:dd/MM/yyyy} · HĐ: {row.InvoiceCount:N0} · Doanh thu: {row.Revenue:N0} đ · LN ước tính: {row.EstimatedProfit:N0} đ");
-        }
-
-        return ("Doanh thu hôm nay", string.Join(Environment.NewLine, lines), demo);
-    }
-
-    private (string Title, string Body, bool IsDemoFallback) BuildLowStock()
-    {
-        var result = _inventoryService.GetLowStockProducts();
-        var rows = result.Success && result.Data is { Count: > 0 } data ? data : CreateStubLowStock();
-        var demo = !(result.Success && result.Data is { Count: > 0 });
-
-        var lines = new List<string>();
-        if (demo)
-        {
-            lines.Add("(Demo) Chưa có bản ghi tồn thấp từ BLL — hiển thị ví dụ.");
-            if (!string.IsNullOrWhiteSpace(result.Message))
-            {
-                lines.Add($"Ghi chú BLL: {result.Message}");
-            }
-        }
-
-        foreach (var p in rows)
-        {
-            lines.Add($"{p.Code} · {p.Name} · SL: {p.QuantityOnHand:N0} {p.Unit} · Tối thiểu: {p.MinStockLevel:N0}");
-        }
-
-        return ("Hàng sắp hết / tồn thấp", string.Join(Environment.NewLine, lines), demo);
-    }
-
-    private (string Title, string Body, bool IsDemoFallback) BuildTopProducts()
-    {
-        var to = DateTime.Today;
-        var from = to.AddDays(-29);
-        var result = _reportService.GetTopSellingProducts(from, to, 5);
-        var rows = result.Success && result.Data is { Count: > 0 } data ? data : CreateStubTopProducts();
-        var demo = !(result.Success && result.Data is { Count: > 0 });
-
-        var lines = new List<string>
-        {
-            $"Khung thời gian: {from:dd/MM/yyyy} → {to:dd/MM/yyyy}"
+            "ai-online" => "AI online",
+            "ai-failed-fallback" => "AI failed, fallback used",
+            "offline-rule-based" => "Offline rule-based",
+            _ => "Không xác định"
         };
-
-        if (demo)
-        {
-            lines.Add("(Demo) Chưa có dữ liệu top SP — hiển thị ví dụ.");
-            if (!string.IsNullOrWhiteSpace(result.Message))
-            {
-                lines.Add($"Ghi chú BLL: {result.Message}");
-            }
-        }
-
-        var rank = 1;
-        foreach (var r in rows)
-        {
-            lines.Add($"{rank}. {r.ProductCode} · {r.ProductName} · SL {r.QuantitySold:N0} · DT {r.Revenue:N0} đ");
-            rank++;
-        }
-
-        return ("Top sản phẩm bán chạy", string.Join(Environment.NewLine, lines), demo);
     }
 
-    private (string Title, string Body, bool IsDemoFallback) BuildTopCustomers()
+    private static string BuildBadgeText(AssistantResponseDto response)
     {
-        var to = DateTime.Today;
-        var from = to.AddDays(-29);
-        var result = _reportService.GetTopCustomers(from, to, 5);
-        var rows = result.Success && result.Data is { Count: > 0 } data ? data : CreateStubTopCustomers();
-        var demo = !(result.Success && result.Data is { Count: > 0 });
-
-        var lines = new List<string>
+        return response.Mode switch
         {
-            $"Khung thời gian: {from:dd/MM/yyyy} → {to:dd/MM/yyyy}"
+            "ai-online" => "AI online",
+            "ai-failed-fallback" => "Fallback",
+            "offline-rule-based" => "Offline",
+            _ => response.IsFallback ? "Fallback" : "BLL"
         };
-
-        if (demo)
-        {
-            lines.Add("(Demo) Chưa có dữ liệu khách hàng — hiển thị ví dụ.");
-            if (!string.IsNullOrWhiteSpace(result.Message))
-            {
-                lines.Add($"Ghi chú BLL: {result.Message}");
-            }
-        }
-
-        var rank = 1;
-        foreach (var r in rows)
-        {
-            lines.Add($"{rank}. {r.CustomerName} · {r.InvoiceCount:N0} hóa đơn · {r.TotalAmount:N0} đ");
-            rank++;
-        }
-
-        return ("Khách hàng mua nhiều nhất", string.Join(Environment.NewLine, lines), demo);
-    }
-
-    private (string Title, string Body, bool IsDemoFallback) BuildStocktakeToday()
-    {
-        var today = DateTime.Today;
-        var result = _stocktakeService.GetStocktakes(today, today);
-        var rows = result.Success && result.Data is { Count: > 0 } data ? data : CreateStubStocktakes(today);
-        var demo = !(result.Success && result.Data is { Count: > 0 });
-
-        var lines = new List<string>();
-        if (demo)
-        {
-            lines.Add("(Demo) Chưa có phiếu kiểm kê trong BLL — hiển thị ví dụ phiếu trong ngày.");
-            if (!string.IsNullOrWhiteSpace(result.Message))
-            {
-                lines.Add($"Ghi chú BLL: {result.Message}");
-            }
-        }
-
-        foreach (var s in rows)
-        {
-            lines.Add($"{s.StocktakeCode} · {s.StocktakeDate:dd/MM/yyyy HH:mm} · {s.Note}");
-        }
-
-        lines.Add(string.Empty);
-        lines.Add("Gợi ý: mở màn Kiểm kê để nhập chi tiết khi backend sẵn sàng.");
-
-        return ("Kiểm kê hôm nay", string.Join(Environment.NewLine, lines), demo);
-    }
-
-    private static List<RevenueSummaryDto> CreateStubRevenue(DateTime from, DateTime to)
-    {
-        var rows = new List<RevenueSummaryDto>();
-        var day = from;
-        var revenue = 8200000m;
-        while (day <= to)
-        {
-            rows.Add(new RevenueSummaryDto
-            {
-                Date = day,
-                InvoiceCount = 8 + day.Day % 5,
-                Revenue = revenue,
-                EstimatedProfit = revenue * 0.18m
-            });
-            revenue += 125000m;
-            day = day.AddDays(1);
-        }
-
-        return rows;
-    }
-
-    private static List<ProductDto> CreateStubLowStock() =>
-    [
-        new ProductDto
-        {
-            Code = "SP004",
-            Name = "Nước rửa chén 750ml",
-            QuantityOnHand = 32,
-            MinStockLevel = 35,
-            Unit = "Chai"
-        },
-        new ProductDto
-        {
-            Code = "SP005",
-            Name = "Kem đánh răng 110g",
-            QuantityOnHand = 30,
-            MinStockLevel = 35,
-            Unit = "Tuýp"
-        }
-    ];
-
-    private static List<ProductSalesSummaryDto> CreateStubTopProducts() =>
-    [
-        new ProductSalesSummaryDto { ProductId = 2, ProductCode = "SP002", ProductName = "Nước ngọt cola lon", QuantitySold = 12, Revenue = 132000 },
-        new ProductSalesSummaryDto { ProductId = 4, ProductCode = "SP004", ProductName = "Nước rửa chén 750ml", QuantitySold = 4, Revenue = 100000 },
-        new ProductSalesSummaryDto { ProductId = 1, ProductCode = "SP001", ProductName = "Nước suối 500ml", QuantitySold = 10, Revenue = 60000 },
-        new ProductSalesSummaryDto { ProductId = 6, ProductCode = "SP006", ProductName = "Khăn giấy 100 tờ", QuantitySold = 2, Revenue = 25000 }
-    ];
-
-    private static List<CustomerPurchaseSummaryDto> CreateStubTopCustomers() =>
-    [
-        new CustomerPurchaseSummaryDto { CustomerId = 2, CustomerName = "Cửa hàng Tạp hóa An Phú", InvoiceCount = 1, TotalAmount = 198000 },
-        new CustomerPurchaseSummaryDto { CustomerId = 1, CustomerName = "Khách lẻ", InvoiceCount = 1, TotalAmount = 106000 },
-        new CustomerPurchaseSummaryDto { CustomerId = 3, CustomerName = "Siêu thị Hòa Bình", InvoiceCount = 0, TotalAmount = 0 }
-    ];
-
-    private static List<StocktakeDto> CreateStubStocktakes(DateTime today) =>
-    [
-        new StocktakeDto
-        {
-            StocktakeCode = "KK-DEMO-01",
-            StocktakeDate = today.AddHours(9.5),
-            Note = "Kiểm đếm khu A — khớp sổ (demo)."
-        },
-        new StocktakeDto
-        {
-            StocktakeCode = "KK-DEMO-02",
-            StocktakeDate = today.AddHours(14),
-            Note = "Đối chiếu lệch nhẹ ở pallet 03 (demo)."
-        }
-    ];
-
-    private enum AssistantIntent
-    {
-        Unknown,
-        RevenueToday,
-        LowStock,
-        TopProducts,
-        TopCustomers,
-        StocktakeToday
     }
 }
