@@ -4,10 +4,11 @@ Tài liệu này thay thế workflow Cursor `/opsx:*` khi làm việc trong Code
 
 ## Skill Đã Thiết Lập
 
-Codex skill đã được tạo tại:
+Codex skill đã được tạo ở hai nơi:
 
 ```text
 C:\Users\chau1\.codex\skills\openspec-sdd
+D:\QuanLyKho_BanHang\.agent\skills\openspec-sdd
 ```
 
 Khi muốn Codex làm việc theo OpenSpec, bắt đầu prompt bằng:
@@ -17,6 +18,14 @@ Use the openspec-sdd skill.
 ```
 
 Codex app không cần dùng `/opsx:propose` hoặc `/opsx:apply` như Cursor. Thay vào đó, bạn mô tả thao tác bằng prompt rõ ràng.
+
+Nếu Codex báo `openspec-sdd` chưa có trong danh sách skill của phiên, vẫn có thể tiếp tục theo workflow thủ công vì toàn bộ hướng dẫn đã nằm trong repo. Khi đó dùng câu mở đầu:
+
+```text
+Follow the repository OpenSpec/SDD workflow from AGENTS.md and docs/09_CodexOpenSpecWorkflow.md.
+```
+
+Sau khi restart Codex app hoặc mở phiên mới, repo-local skill ở `.agent/skills/openspec-sdd` sẽ giúp agent nhận workflow dễ hơn.
 
 ## Validate OpenSpec
 
