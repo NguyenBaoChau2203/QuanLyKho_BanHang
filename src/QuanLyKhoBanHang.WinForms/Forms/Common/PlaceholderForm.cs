@@ -6,18 +6,26 @@ public class PlaceholderForm : Form
     {
         Text = title;
         StartPosition = FormStartPosition.CenterParent;
-        Width = 960;
-        Height = 620;
+        BackColor = Color.White;
         MinimumSize = new Size(820, 520);
+
+        var root = new TableLayoutPanel
+        {
+            Dock = DockStyle.Fill,
+            ColumnCount = 1,
+            RowCount = 3,
+            Padding = new Padding(24)
+        };
+        root.RowStyles.Add(new RowStyle(SizeType.Absolute, 52));
+        root.RowStyles.Add(new RowStyle(SizeType.Absolute, 8));
+        root.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
 
         var titleLabel = new Label
         {
             Text = title,
-            Dock = DockStyle.Top,
-            Height = 52,
+            Dock = DockStyle.Fill,
             Font = new Font("Segoe UI", 18F, FontStyle.Bold),
-            TextAlign = ContentAlignment.MiddleLeft,
-            Padding = new Padding(24, 0, 0, 0)
+            TextAlign = ContentAlignment.MiddleLeft
         };
 
         var bodyLabel = new Label
@@ -26,11 +34,12 @@ public class PlaceholderForm : Form
             Dock = DockStyle.Fill,
             Font = new Font("Segoe UI", 11F),
             TextAlign = ContentAlignment.TopLeft,
-            Padding = new Padding(24),
             AutoSize = false
         };
 
-        Controls.Add(bodyLabel);
-        Controls.Add(titleLabel);
+        root.Controls.Add(titleLabel, 0, 0);
+        root.SetRowSpan(bodyLabel, 2);
+        root.Controls.Add(bodyLabel, 0, 2);
+        Controls.Add(root);
     }
 }

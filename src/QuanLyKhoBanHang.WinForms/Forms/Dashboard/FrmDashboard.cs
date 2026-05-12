@@ -1,66 +1,84 @@
-using QuanLyKhoBanHang.BLL.Services;
-
 namespace QuanLyKhoBanHang.WinForms.Forms.Dashboard;
 
 public sealed class FrmDashboard : Form
 {
-    private readonly DashboardService _dashboardService = new();
-
     public FrmDashboard()
     {
         Text = "Dashboard";
-        Padding = new Padding(24);
-
-        var result = _dashboardService.GetDashboardSummary(DateTime.Today);
-        var summary = result.Data;
+        BackColor = Color.White;
+        Padding = new Padding(8);
 
         var layout = new TableLayoutPanel
         {
-            Dock = DockStyle.Top,
-            ColumnCount = 4,
-            RowCount = 2,
-            Height = 180
+            Dock = DockStyle.Fill,
+            ColumnCount = 1,
+            RowCount = 3
         };
+        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 44));
+        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 12));
+        layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
 
+        layout.Controls.Add(new Label
+        {
+            Text = "Tổng quan hệ thống",
+            Dock = DockStyle.Fill,
+            Font = new Font("Segoe UI", 16F, FontStyle.Bold),
+            TextAlign = ContentAlignment.MiddleLeft
+        }, 0, 0);
+
+        var cards = new TableLayoutPanel
+        {
+            Dock = DockStyle.Top,
+            Height = 160,
+            ColumnCount = 4
+        };
         for (var i = 0; i < 4; i++)
         {
-            layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25));
+            cards.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25));
+            cards.Controls.Add(CreateCard($"Chỉ số {i + 1}", i == 0 ? "128" : i == 1 ? "36" : i == 2 ? "12" : "4"), i, 0);
         }
-
-        layout.Controls.Add(CreateCard("Doanh thu hôm nay", summary?.TodayRevenue.ToString("N0") + " VND"), 0, 0);
-        layout.Controls.Add(CreateCard("Doanh thu tháng", summary?.MonthRevenue.ToString("N0") + " VND"), 1, 0);
-        layout.Controls.Add(CreateCard("Hóa đơn hôm nay", summary?.TodayInvoiceCount.ToString() ?? "0"), 2, 0);
-        layout.Controls.Add(CreateCard("Hàng tồn thấp", summary?.LowStockProductCount.ToString() ?? "0"), 3, 0);
 
         var note = new Label
         {
-            Text = "Dashboard UI thuộc Châu. Dữ liệu thật sẽ được nối qua DashboardService khi DAL/BLL hoàn thiện.",
+            Text = "Dashboard tạm dùng dữ liệu mẫu để Châu hoàn thiện shell trước khi backend thật sẵn sàng.",
             Dock = DockStyle.Fill,
-            Padding = new Padding(0, 24, 0, 0),
-            Font = new Font("Segoe UI", 11F)
+            Font = new Font("Segoe UI", 11F),
+            ForeColor = Color.FromArgb(96, 108, 129),
+            Padding = new Padding(0, 18, 0, 0)
         };
 
-        Controls.Add(note);
+        layout.Controls.Add(cards, 0, 2);
+        layout.Controls.Add(note, 0, 2);
         Controls.Add(layout);
     }
 
     private static Control CreateCard(string title, string value)
     {
-        return new GroupBox
+        var card = new Panel
+        {
+            Dock = DockStyle.Fill,
+            BackColor = Color.FromArgb(245, 248, 252),
+            Margin = new Padding(0, 0, 12, 0),
+            Padding = new Padding(16)
+        };
+
+        card.Controls.Add(new Label
+        {
+            Text = value,
+            Dock = DockStyle.Fill,
+            Font = new Font("Segoe UI", 22F, FontStyle.Bold),
+            TextAlign = ContentAlignment.MiddleLeft
+        });
+
+        card.Controls.Add(new Label
         {
             Text = title,
-            Dock = DockStyle.Fill,
-            Padding = new Padding(12),
-            Controls =
-            {
-                new Label
-                {
-                    Text = value,
-                    Dock = DockStyle.Fill,
-                    Font = new Font("Segoe UI", 16F, FontStyle.Bold),
-                    TextAlign = ContentAlignment.MiddleCenter
-                }
-            }
-        };
+            Dock = DockStyle.Top,
+            Height = 22,
+            Font = new Font("Segoe UI", 10F, FontStyle.Regular),
+            ForeColor = Color.FromArgb(96, 108, 129)
+        });
+
+        return card;
     }
 }
