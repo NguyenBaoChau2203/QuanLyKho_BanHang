@@ -2,6 +2,7 @@ using System.ComponentModel;
 using QuanLyKhoBanHang.BLL.Services;
 using QuanLyKhoBanHang.DTO.Inventory;
 using QuanLyKhoBanHang.DTO.MasterData;
+using QuanLyKhoBanHang.WinForms.Forms.Common;
 
 namespace QuanLyKhoBanHang.WinForms.Forms.Inventory;
 
@@ -16,8 +17,8 @@ public sealed class FrmStocktake : Form
     public FrmStocktake()
     {
         Text = "Kiểm kê";
-        BackColor = Color.FromArgb(245, 247, 250);
-        Font = new Font("Segoe UI", 10F);
+        BackColor = AppTheme.AppBackground;
+        Font = AppTheme.BodyFont();
         MinimumSize = new Size(1200, 720);
         BuildUi();
         LoadData();
@@ -25,7 +26,7 @@ public sealed class FrmStocktake : Form
 
     private void BuildUi()
     {
-        var root = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 3, Padding = new Padding(18) };
+        var root = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 3, Padding = AppTheme.PagePadding };
         root.RowStyles.Add(new RowStyle(SizeType.Absolute, 68));
         root.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
         root.RowStyles.Add(new RowStyle(SizeType.Absolute, 34));
@@ -34,15 +35,14 @@ public sealed class FrmStocktake : Form
         root.Controls.Add(_message, 0, 2);
         Controls.Add(root);
         _message.Dock = DockStyle.Fill;
-        _message.ForeColor = Color.FromArgb(92, 102, 121);
+        _message.ForeColor = AppTheme.StatusText;
     }
 
     private Control BuildHeader()
     {
-        var panel = new Panel { Dock = DockStyle.Fill };
-        panel.Controls.Add(new Label { Text = "Kiểm kê kho", Dock = DockStyle.Top, Height = 34, Font = new Font("Segoe UI", 18F, FontStyle.Bold) });
-        panel.Controls.Add(new Label { Text = "So sánh số hệ thống và thực tế theo từng dòng để hỗ trợ demo kiểm kê.", Dock = DockStyle.Bottom, Height = 22, ForeColor = Color.FromArgb(96, 108, 129) });
-        return panel;
+        return UiFactory.HeaderPanel(
+            "Kiểm kê kho",
+            "So sánh số hệ thống và thực tế theo từng dòng để hỗ trợ demo kiểm kê.");
     }
 
     private Control BuildBody()
@@ -56,7 +56,7 @@ public sealed class FrmStocktake : Form
         actions.Controls.Add(CreateButton("Ghi nhận", (_, _) => Save()));
         panel.Controls.Add(actions, 0, 0);
 
-        var grid = new DataGridView { Dock = DockStyle.Fill, DataSource = _source, ReadOnly = true, AllowUserToAddRows = false, AllowUserToDeleteRows = false, RowHeadersVisible = false, AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill, BackgroundColor = Color.White };
+        var grid = UiFactory.ReadOnlyGrid(_source);
         grid.AutoGenerateColumns = false;
         grid.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = nameof(StocktakeLineDto.ProductId), HeaderText = "SP" });
         grid.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = nameof(StocktakeLineDto.SystemQuantity), HeaderText = "Hệ thống" });
@@ -68,9 +68,7 @@ public sealed class FrmStocktake : Form
 
     private Button CreateButton(string text, EventHandler handler)
     {
-        var button = new Button { Text = text, Height = 36, Width = 100, Margin = new Padding(0, 0, 8, 0) };
-        button.Click += handler;
-        return button;
+        return UiFactory.ActionButton(text, handler, 100);
     }
 
     private void LoadData()

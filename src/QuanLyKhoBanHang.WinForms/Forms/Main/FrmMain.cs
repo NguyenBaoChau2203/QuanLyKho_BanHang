@@ -1,4 +1,5 @@
 using QuanLyKhoBanHang.WinForms.Forms.Assistant;
+using QuanLyKhoBanHang.WinForms.Forms.Common;
 using QuanLyKhoBanHang.WinForms.Forms.Dashboard;
 using QuanLyKhoBanHang.WinForms.Forms.Inventory;
 using QuanLyKhoBanHang.WinForms.Forms.MasterData;
@@ -19,7 +20,7 @@ public sealed class FrmMain : Form
         Text = "Quản lý kho & bán hàng";
         WindowState = FormWindowState.Maximized;
         MinimumSize = new Size(1280, 780);
-        BackColor = Color.FromArgb(242, 244, 248);
+        BackColor = AppTheme.ShellBackground;
 
         var root = new TableLayoutPanel
         {
@@ -42,7 +43,7 @@ public sealed class FrmMain : Form
         var sidebar = new Panel
         {
             Dock = DockStyle.Fill,
-            BackColor = Color.FromArgb(28, 47, 73),
+            BackColor = AppTheme.Sidebar,
             Padding = new Padding(18)
         };
 
@@ -65,7 +66,7 @@ public sealed class FrmMain : Form
             Text = "QUẢN LÝ KHO\n& BÁN HÀNG",
             Dock = DockStyle.Fill,
             ForeColor = Color.White,
-            Font = new Font("Segoe UI", 16F, FontStyle.Bold),
+            Font = AppTheme.TitleFont(16F),
             TextAlign = ContentAlignment.MiddleLeft
         }, 0, 0);
 
@@ -73,8 +74,8 @@ public sealed class FrmMain : Form
         {
             Text = fullName,
             Dock = DockStyle.Fill,
-            ForeColor = Color.FromArgb(190, 205, 225),
-            Font = new Font("Segoe UI", 10F, FontStyle.Regular),
+            ForeColor = AppTheme.SidebarTextMuted,
+            Font = AppTheme.BodyFont(),
             TextAlign = ContentAlignment.MiddleLeft
         }, 0, 1);
 
@@ -109,18 +110,18 @@ public sealed class FrmMain : Form
         var header = new Panel
         {
             Dock = DockStyle.Fill,
-            BackColor = Color.White,
+            BackColor = AppTheme.Surface,
             Padding = new Padding(24, 18, 24, 18)
         };
 
         _titleLabel.Text = "Dashboard";
-        _titleLabel.Font = new Font("Segoe UI", 18F, FontStyle.Bold);
+        _titleLabel.Font = AppTheme.TitleFont();
         _titleLabel.Dock = DockStyle.Top;
         _titleLabel.Height = 36;
 
         _subtitleLabel.Text = "Sẵn sàng cho demo và tích hợp backend theo từng phase.";
-        _subtitleLabel.Font = new Font("Segoe UI", 10F);
-        _subtitleLabel.ForeColor = Color.FromArgb(96, 108, 129);
+        _subtitleLabel.Font = AppTheme.BodyFont();
+        _subtitleLabel.ForeColor = AppTheme.TextMuted;
         _subtitleLabel.Dock = DockStyle.Top;
         _subtitleLabel.Height = 24;
 
@@ -141,13 +142,13 @@ public sealed class FrmMain : Form
         header.Controls.Add(_titleLabel);
 
         _contentHost.Dock = DockStyle.Fill;
-        _contentHost.BackColor = Color.White;
+        _contentHost.BackColor = AppTheme.Surface;
         _contentHost.Padding = new Padding(18);
 
         var statusStrip = new StatusStrip
         {
             SizingGrip = false,
-            BackColor = Color.FromArgb(242, 244, 248)
+            BackColor = AppTheme.ShellBackground
         };
         _statusLabel.Text = "Sẵn sàng";
         statusStrip.Items.Add(_statusLabel);
@@ -167,30 +168,13 @@ public sealed class FrmMain : Form
 
     private Button CreateNavButton(string text)
     {
-        return new Button
-        {
-            Text = text,
-            Dock = DockStyle.Fill,
-            Height = 40,
-            FlatStyle = FlatStyle.Flat,
-            BackColor = Color.FromArgb(42, 66, 98),
-            ForeColor = Color.White,
-            Font = new Font("Segoe UI", 10F, FontStyle.Regular),
-            TextAlign = ContentAlignment.MiddleLeft,
-            Padding = new Padding(12, 0, 0, 0)
-        };
+        return UiFactory.SidebarButton(text);
     }
 
     private Button CreateActionButton(string text, Func<Form> factory)
     {
-        var button = new Button
-        {
-            Text = text,
-            Width = 88,
-            Height = 34,
-            Margin = new Padding(0, 0, 8, 0)
-        };
-        button.Click += (_, _) => LoadView(factory());
+        var button = UiFactory.ActionButton(text, (_, _) => LoadView(factory()), 88);
+        button.Height = 34;
         return button;
     }
 

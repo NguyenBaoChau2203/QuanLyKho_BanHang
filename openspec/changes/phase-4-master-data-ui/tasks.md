@@ -18,10 +18,10 @@
 ## 4. Validation
 
 - [x] 4.1 Run `openspec validate phase-4-master-data-ui`.
-- [ ] 4.2 Run `dotnet build QuanLyKhoBanHang.sln`.
-- [ ] 4.3 Run `dotnet test QuanLyKhoBanHang.sln --no-build --no-restore`.
+- [x] 4.2 Run `dotnet build QuanLyKhoBanHang.sln`.
+- [x] 4.3 Run `dotnet test QuanLyKhoBanHang.sln --no-build --no-restore`.
 
 ## 5. Delivery
 
 - [x] 5.1 Update this tasks file to mark completed work.
-- [ ] 5.2 Commit phase 4 separately with the requested message.
+- [x] 5.2 Commit phase 4 separately with the requested message.

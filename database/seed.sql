@@ -31,12 +31,12 @@ VALUES
 
 INSERT INTO Products (Code, Name, CategoryId, Unit, CostPrice, SellingPrice, QuantityOnHand, MinStockLevel)
 VALUES
-    (N'SP001', N'Nước suối 500ml', 1, N'Chai', 3500, 6000, 120, 30),
-    (N'SP002', N'Nước ngọt cola lon', 1, N'Lon', 7000, 11000, 80, 25),
-    (N'SP003', N'Mì gói bò', 2, N'Gói', 3000, 5000, 200, 50),
-    (N'SP004', N'Nước rửa chén 750ml', 3, N'Chai', 18000, 25000, 18, 20),
-    (N'SP005', N'Kem đánh răng 110g', 4, N'Tuýp', 12000, 18000, 15, 20),
-    (N'SP006', N'Khăn giấy 100 tờ', 4, N'Gói', 8000, 12500, 60, 15);
+    (N'SP001', N'Nước suối 500ml', 1, N'Chai', 3500, 6000, 110, 30),
+    (N'SP002', N'Nước ngọt cola lon', 1, N'Lon', 7000, 11000, 68, 25),
+    (N'SP003', N'Mì gói bò', 2, N'Gói', 3000, 5000, 195, 50),
+    (N'SP004', N'Nước rửa chén 750ml', 3, N'Chai', 18000, 25000, 32, 35),
+    (N'SP005', N'Kem đánh răng 110g', 4, N'Tuýp', 12000, 18000, 30, 35),
+    (N'SP006', N'Khăn giấy 100 tờ', 4, N'Gói', 8000, 12500, 118, 15);
 
 INSERT INTO PurchaseReceipts (ReceiptCode, SupplierId, ReceiptDate, CreatedByUserId, TotalAmount, Note)
 VALUES

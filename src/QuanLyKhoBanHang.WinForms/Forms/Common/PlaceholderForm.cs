@@ -6,7 +6,7 @@ public class PlaceholderForm : Form
     {
         Text = title;
         StartPosition = FormStartPosition.CenterParent;
-        BackColor = Color.White;
+        BackColor = AppTheme.Surface;
         MinimumSize = new Size(820, 520);
 
         var root = new TableLayoutPanel
@@ -25,7 +25,7 @@ public class PlaceholderForm : Form
         {
             Text = title,
             Dock = DockStyle.Fill,
-            Font = new Font("Segoe UI", 18F, FontStyle.Bold),
+            Font = AppTheme.TitleFont(),
             TextAlign = ContentAlignment.MiddleLeft
         };
 
@@ -33,7 +33,7 @@ public class PlaceholderForm : Form
         {
             Text = description,
             Dock = DockStyle.Fill,
-            Font = new Font("Segoe UI", 11F),
+            Font = AppTheme.BodyFont(11F),
             TextAlign = ContentAlignment.TopLeft,
             AutoSize = false
         };
@@ -41,7 +41,7 @@ public class PlaceholderForm : Form
         var infoCard = new Panel
         {
             Dock = DockStyle.Fill,
-            BackColor = Color.FromArgb(245, 248, 252),
+            BackColor = AppTheme.SurfaceMuted,
             Padding = new Padding(18),
             Margin = new Padding(0, 6, 0, 6)
         };
@@ -49,8 +49,8 @@ public class PlaceholderForm : Form
         {
             Text = "Khu vực này sẽ dùng lại style chung khi các màn hình nghiệp vụ thật được triển khai.",
             Dock = DockStyle.Fill,
-            Font = new Font("Segoe UI", 10F),
-            ForeColor = Color.FromArgb(96, 108, 129),
+            Font = AppTheme.BodyFont(),
+            ForeColor = AppTheme.TextMuted,
             TextAlign = ContentAlignment.MiddleLeft
         });
 

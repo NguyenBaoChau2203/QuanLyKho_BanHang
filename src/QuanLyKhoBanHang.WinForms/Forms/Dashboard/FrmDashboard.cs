@@ -1,3 +1,5 @@
+using QuanLyKhoBanHang.WinForms.Forms.Common;
+
 namespace QuanLyKhoBanHang.WinForms.Forms.Dashboard;
 
 public sealed class FrmDashboard : Form
@@ -5,26 +7,23 @@ public sealed class FrmDashboard : Form
     public FrmDashboard()
     {
         Text = "Dashboard";
-        BackColor = Color.White;
+        BackColor = AppTheme.Surface;
         Padding = new Padding(8);
 
         var layout = new TableLayoutPanel
         {
             Dock = DockStyle.Fill,
             ColumnCount = 1,
-            RowCount = 3
+            RowCount = 4
         };
-        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 44));
+        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 68));
         layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 12));
+        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 170));
         layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
 
-        layout.Controls.Add(new Label
-        {
-            Text = "Tổng quan hệ thống",
-            Dock = DockStyle.Fill,
-            Font = new Font("Segoe UI", 16F, FontStyle.Bold),
-            TextAlign = ContentAlignment.MiddleLeft
-        }, 0, 0);
+        layout.Controls.Add(UiFactory.HeaderPanel(
+            "Tổng quan hệ thống",
+            "Theo dõi nhanh doanh thu, tồn kho và cảnh báo phục vụ demo quản lý."), 0, 0);
 
         var cards = new TableLayoutPanel
         {
@@ -42,31 +41,25 @@ public sealed class FrmDashboard : Form
         {
             Text = "Dashboard tạm dùng dữ liệu mẫu để Châu hoàn thiện shell trước khi backend thật sẵn sàng.",
             Dock = DockStyle.Fill,
-            Font = new Font("Segoe UI", 11F),
-            ForeColor = Color.FromArgb(96, 108, 129),
+            Font = AppTheme.BodyFont(11F),
+            ForeColor = AppTheme.TextMuted,
             Padding = new Padding(0, 18, 0, 0)
         };
 
         layout.Controls.Add(cards, 0, 2);
-        layout.Controls.Add(note, 0, 2);
+        layout.Controls.Add(note, 0, 3);
         Controls.Add(layout);
     }
 
     private static Control CreateCard(string title, string value)
     {
-        var card = new Panel
-        {
-            Dock = DockStyle.Fill,
-            BackColor = Color.FromArgb(245, 248, 252),
-            Margin = new Padding(0, 0, 12, 0),
-            Padding = new Padding(16)
-        };
+        var card = UiFactory.Card();
 
         card.Controls.Add(new Label
         {
             Text = value,
             Dock = DockStyle.Fill,
-            Font = new Font("Segoe UI", 22F, FontStyle.Bold),
+            Font = AppTheme.TitleFont(22F),
             TextAlign = ContentAlignment.MiddleLeft
         });
 
@@ -75,8 +68,8 @@ public sealed class FrmDashboard : Form
             Text = title,
             Dock = DockStyle.Top,
             Height = 22,
-            Font = new Font("Segoe UI", 10F, FontStyle.Regular),
-            ForeColor = Color.FromArgb(96, 108, 129)
+            Font = AppTheme.BodyFont(),
+            ForeColor = AppTheme.TextMuted
         });
 
         return card;

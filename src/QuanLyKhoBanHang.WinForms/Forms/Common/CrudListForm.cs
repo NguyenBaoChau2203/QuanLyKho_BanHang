@@ -24,9 +24,9 @@ public abstract class CrudListForm<TItem> : Form where TItem : class, new()
     protected CrudListForm(string title, string subtitle)
     {
         Text = title;
-        BackColor = Color.White;
+        BackColor = AppTheme.Surface;
         MinimumSize = new Size(1180, 720);
-        Font = new Font("Segoe UI", 10F);
+        Font = AppTheme.BodyFont();
 
         var root = new TableLayoutPanel
         {
@@ -47,7 +47,7 @@ public abstract class CrudListForm<TItem> : Form where TItem : class, new()
         Controls.Add(root);
 
         MessageLabel.Dock = DockStyle.Fill;
-        MessageLabel.ForeColor = Color.FromArgb(92, 102, 121);
+        MessageLabel.ForeColor = AppTheme.StatusText;
         MessageLabel.TextAlign = ContentAlignment.MiddleLeft;
 
         Grid.Dock = DockStyle.Fill;
@@ -57,12 +57,7 @@ public abstract class CrudListForm<TItem> : Form where TItem : class, new()
         Grid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
         Grid.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
         Grid.MultiSelect = false;
-        Grid.BackgroundColor = Color.White;
-        Grid.BorderStyle = BorderStyle.None;
-        Grid.RowHeadersVisible = false;
-        Grid.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(248, 250, 252);
-        Grid.DefaultCellStyle.SelectionBackColor = Color.FromArgb(207, 227, 255);
-        Grid.DefaultCellStyle.SelectionForeColor = Color.Black;
+        UiFactory.StyleGrid(Grid);
         Grid.DataSource = BindingSource;
         Grid.SelectionChanged += (_, _) => OnSelectionChanged();
 
@@ -86,14 +81,14 @@ public abstract class CrudListForm<TItem> : Form where TItem : class, new()
         {
             Text = title,
             Dock = DockStyle.Top,
-            Font = new Font("Segoe UI", 18F, FontStyle.Bold),
+            Font = AppTheme.TitleFont(),
             Height = 34
         });
         panel.Controls.Add(new Label
         {
             Text = subtitle,
             Dock = DockStyle.Bottom,
-            ForeColor = Color.FromArgb(96, 108, 129),
+            ForeColor = AppTheme.TextMuted,
             Height = 22
         });
         return panel;
@@ -144,7 +139,7 @@ public abstract class CrudListForm<TItem> : Form where TItem : class, new()
             Text = "Chưa có dữ liệu hoặc đang chờ service trả về.",
             Dock = DockStyle.Fill,
             TextAlign = ContentAlignment.MiddleCenter,
-            ForeColor = Color.FromArgb(96, 108, 129)
+            ForeColor = AppTheme.TextMuted
         });
 
         panel.Controls.Add(EmptyPanel);
@@ -172,8 +167,7 @@ public abstract class CrudListForm<TItem> : Form where TItem : class, new()
 
     protected void SetMessage(string message, bool isError = false)
     {
-        MessageLabel.Text = message;
-        MessageLabel.ForeColor = isError ? Color.Firebrick : Color.FromArgb(92, 102, 121);
+        UiFactory.SetMessage(MessageLabel, message, isError);
     }
 
     protected void ToggleEditing(bool editing)

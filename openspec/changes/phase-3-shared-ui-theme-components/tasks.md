@@ -12,5 +12,5 @@
 
 ## 3. Delivery
 
-- [ ] 3.1 Confirm phase 3 stays within shared UI helper scope.
-- [ ] 3.2 Commit the phase 3 changes separately.
+- [x] 3.1 Confirm phase 3 stays within shared UI helper scope.
+- [x] 3.2 Commit the phase 3 changes separately.

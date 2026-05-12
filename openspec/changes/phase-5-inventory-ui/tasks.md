@@ -23,4 +23,4 @@
 ## 5. Delivery
 
 - [x] 5.1 Update this tasks file to mark completed work.
-- [ ] 5.2 Commit phase 5 separately with the requested message.
+- [x] 5.2 Commit phase 5 separately with the requested message.

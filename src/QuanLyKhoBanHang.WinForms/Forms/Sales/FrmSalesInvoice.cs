@@ -2,6 +2,7 @@ using System.ComponentModel;
 using QuanLyKhoBanHang.BLL.Services;
 using QuanLyKhoBanHang.DTO.MasterData;
 using QuanLyKhoBanHang.DTO.Sales;
+using QuanLyKhoBanHang.WinForms.Forms.Common;
 
 namespace QuanLyKhoBanHang.WinForms.Forms.Sales;
 
@@ -35,8 +36,8 @@ public sealed class FrmSalesInvoice : Form
     public FrmSalesInvoice()
     {
         Text = "Bán hàng";
-        BackColor = Color.FromArgb(245, 247, 250);
-        Font = new Font("Segoe UI", 10F);
+        BackColor = AppTheme.AppBackground;
+        Font = AppTheme.BodyFont();
         MinimumSize = new Size(1320, 780);
         BuildUi();
         LoadData();
@@ -44,7 +45,7 @@ public sealed class FrmSalesInvoice : Form
 
     private void BuildUi()
     {
-        var root = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 3, Padding = new Padding(18) };
+        var root = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 3, Padding = AppTheme.PagePadding };
         root.RowStyles.Add(new RowStyle(SizeType.Absolute, 68));
         root.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
         root.RowStyles.Add(new RowStyle(SizeType.Absolute, 34));
@@ -53,15 +54,14 @@ public sealed class FrmSalesInvoice : Form
         root.Controls.Add(_message, 0, 2);
         Controls.Add(root);
         _message.Dock = DockStyle.Fill;
-        _message.ForeColor = Color.FromArgb(92, 102, 121);
+        _message.ForeColor = AppTheme.StatusText;
     }
 
     private Control BuildHeader()
     {
-        var panel = new Panel { Dock = DockStyle.Fill };
-        panel.Controls.Add(new Label { Text = "Hóa đơn bán hàng", Dock = DockStyle.Top, Height = 34, Font = new Font("Segoe UI", 18F, FontStyle.Bold) });
-        panel.Controls.Add(new Label { Text = "Chọn khách hàng, thêm dòng hàng và theo dõi tổng tiền, chiết khấu, thành tiền.", Dock = DockStyle.Bottom, Height = 22, ForeColor = Color.FromArgb(96, 108, 129) });
-        return panel;
+        return UiFactory.HeaderPanel(
+            "Hóa đơn bán hàng",
+            "Chọn khách hàng, thêm dòng hàng và theo dõi tổng tiền, chiết khấu, thành tiền.");
     }
 
     private Control BuildBody()
@@ -103,6 +103,7 @@ public sealed class FrmSalesInvoice : Form
         _productGrid.RowHeadersVisible = false;
         _productGrid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
         _productGrid.DataSource = _productSource;
+        UiFactory.StyleGrid(_productGrid);
         _productGrid.AutoGenerateColumns = false;
         _productGrid.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = nameof(ProductDto.Code), HeaderText = "Mã" });
         _productGrid.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = nameof(ProductDto.Name), HeaderText = "Tên" });
@@ -111,7 +112,7 @@ public sealed class FrmSalesInvoice : Form
         _productGrid.SelectionChanged += (_, _) => SyncSelectedProductPrice();
         _productGrid.CellDoubleClick += (_, _) => AddSelectedProduct();
 
-        var hint = new Label { Text = "Chọn sản phẩm, kiểm tra tồn và thêm vào hóa đơn.", Dock = DockStyle.Fill, TextAlign = ContentAlignment.MiddleLeft, ForeColor = Color.FromArgb(96, 108, 129) };
+        var hint = new Label { Text = "Chọn sản phẩm, kiểm tra tồn và thêm vào hóa đơn.", Dock = DockStyle.Fill, TextAlign = ContentAlignment.MiddleLeft, ForeColor = AppTheme.TextMuted };
         layout.Controls.Add(search, 0, 0);
         layout.Controls.Add(_productGrid, 0, 1);
         layout.Controls.Add(hint, 0, 2);
@@ -142,6 +143,7 @@ public sealed class FrmSalesInvoice : Form
         _customerGrid.RowHeadersVisible = false;
         _customerGrid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
         _customerGrid.DataSource = _customerSource;
+        UiFactory.StyleGrid(_customerGrid);
         _customerGrid.AutoGenerateColumns = false;
         _customerGrid.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = nameof(CustomerDto.Code), HeaderText = "Mã" });
         _customerGrid.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = nameof(CustomerDto.Name), HeaderText = "Tên" });
@@ -151,7 +153,7 @@ public sealed class FrmSalesInvoice : Form
         _customerHint.Text = "Khách hàng đang chọn: chưa có";
         _customerHint.Dock = DockStyle.Fill;
         _customerHint.TextAlign = ContentAlignment.MiddleLeft;
-        _customerHint.ForeColor = Color.FromArgb(96, 108, 129);
+        _customerHint.ForeColor = AppTheme.TextMuted;
         layout.Controls.Add(search, 0, 0);
         layout.Controls.Add(_customerGrid, 0, 1);
         layout.Controls.Add(_customerHint, 0, 2);
@@ -168,7 +170,7 @@ public sealed class FrmSalesInvoice : Form
         root.RowStyles.Add(new RowStyle(SizeType.Absolute, 104));
         root.RowStyles.Add(new RowStyle(SizeType.Absolute, 46));
 
-        root.Controls.Add(new Label { Text = "Thông tin hóa đơn", Dock = DockStyle.Fill, Font = new Font("Segoe UI", 14F, FontStyle.Bold) }, 0, 0);
+        root.Controls.Add(new Label { Text = "Thông tin hóa đơn", Dock = DockStyle.Fill, Font = AppTheme.TitleFont(14F) }, 0, 0);
         root.Controls.Add(BuildForm(), 0, 1);
         root.Controls.Add(BuildLineGrid(), 0, 2);
         root.Controls.Add(BuildSummary(), 0, 3);
@@ -210,6 +212,7 @@ public sealed class FrmSalesInvoice : Form
         _lineGrid.RowHeadersVisible = false;
         _lineGrid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
         _lineGrid.DataSource = _lineSource;
+        UiFactory.StyleGrid(_lineGrid);
         _lineGrid.AutoGenerateColumns = false;
         _lineGrid.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = nameof(SalesInvoiceLineDto.ProductName), HeaderText = "Sản phẩm" });
         _lineGrid.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = nameof(SalesInvoiceLineDto.Quantity), HeaderText = "SL" });
@@ -221,8 +224,8 @@ public sealed class FrmSalesInvoice : Form
     private Control BuildSummary()
     {
         var panel = new FlowLayoutPanel { Dock = DockStyle.Fill, FlowDirection = FlowDirection.TopDown, WrapContents = false };
-        _totalLabel.Font = new Font("Segoe UI", 11F, FontStyle.Regular);
-        _finalLabel.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
+        _totalLabel.Font = AppTheme.BodyFont(11F);
+        _finalLabel.Font = AppTheme.SectionFont();
         panel.Controls.Add(_totalLabel);
         panel.Controls.Add(_finalLabel);
         return panel;
@@ -250,9 +253,7 @@ public sealed class FrmSalesInvoice : Form
 
     private Button CreateButton(string text, EventHandler handler)
     {
-        var button = new Button { Text = text, Height = 36, Width = 110, Margin = new Padding(0, 0, 8, 0) };
-        button.Click += handler;
-        return button;
+        return UiFactory.ActionButton(text, handler);
     }
 
     private void LoadData()
@@ -395,8 +396,7 @@ public sealed class FrmSalesInvoice : Form
 
     private void SetMessage(string message, bool error = false)
     {
-        _message.Text = message;
-        _message.ForeColor = error ? Color.Firebrick : Color.FromArgb(92, 102, 121);
+        UiFactory.SetMessage(_message, message, error);
     }
 
     private void SyncSelectedProductPrice()

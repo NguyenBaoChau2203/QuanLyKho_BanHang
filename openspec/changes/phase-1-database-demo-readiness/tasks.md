@@ -12,5 +12,5 @@
 
 ## 3. Delivery
 
-- [ ] 3.1 Confirm phase 1 stays within database/demo-readiness scope only.
-- [ ] 3.2 Commit the phase 1 changes separately.
+- [x] 3.1 Confirm phase 1 stays within database/demo-readiness scope only.
+- [x] 3.2 Commit the phase 1 changes separately.

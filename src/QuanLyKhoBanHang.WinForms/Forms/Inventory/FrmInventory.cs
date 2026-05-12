@@ -1,6 +1,7 @@
 using System.ComponentModel;
 using QuanLyKhoBanHang.BLL.Services;
 using QuanLyKhoBanHang.DTO.MasterData;
+using QuanLyKhoBanHang.WinForms.Forms.Common;
 
 namespace QuanLyKhoBanHang.WinForms.Forms.Inventory;
 
@@ -16,8 +17,8 @@ public sealed class FrmInventory : Form
     public FrmInventory()
     {
         Text = "Tồn kho";
-        BackColor = Color.FromArgb(245, 247, 250);
-        Font = new Font("Segoe UI", 10F);
+        BackColor = AppTheme.AppBackground;
+        Font = AppTheme.BodyFont();
         MinimumSize = new Size(1200, 720);
         BuildUi();
         LoadData();
@@ -25,7 +26,7 @@ public sealed class FrmInventory : Form
 
     private void BuildUi()
     {
-        var root = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 3, Padding = new Padding(18) };
+        var root = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 3, Padding = AppTheme.PagePadding };
         root.RowStyles.Add(new RowStyle(SizeType.Absolute, 68));
         root.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
         root.RowStyles.Add(new RowStyle(SizeType.Absolute, 34));
@@ -34,15 +35,14 @@ public sealed class FrmInventory : Form
         root.Controls.Add(_message, 0, 2);
         Controls.Add(root);
         _message.Dock = DockStyle.Fill;
-        _message.ForeColor = Color.FromArgb(92, 102, 121);
+        _message.ForeColor = AppTheme.StatusText;
     }
 
     private Control BuildHeader()
     {
-        var panel = new Panel { Dock = DockStyle.Fill };
-        panel.Controls.Add(new Label { Text = "Tồn kho hiện tại", Dock = DockStyle.Top, Height = 34, Font = new Font("Segoe UI", 18F, FontStyle.Bold) });
-        panel.Controls.Add(new Label { Text = "Bố cục 2 bảng: tồn kho đầy đủ và hàng sắp hết để demo nhanh.", Dock = DockStyle.Bottom, Height = 22, ForeColor = Color.FromArgb(96, 108, 129) });
-        return panel;
+        return UiFactory.HeaderPanel(
+            "Tồn kho hiện tại",
+            "Bố cục 2 bảng: tồn kho đầy đủ và hàng sắp hết để demo nhanh.");
     }
 
     private Control BuildBody()
@@ -58,8 +58,8 @@ public sealed class FrmInventory : Form
         var panel = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 2 };
         panel.RowStyles.Add(new RowStyle(SizeType.Absolute, 38));
         panel.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
-        panel.Controls.Add(new Label { Text = title, Dock = DockStyle.Fill, Font = new Font("Segoe UI", 12F, FontStyle.Bold) }, 0, 0);
-        var grid = new DataGridView { Dock = DockStyle.Fill, DataSource = source, ReadOnly = true, AllowUserToAddRows = false, AllowUserToDeleteRows = false, RowHeadersVisible = false, AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill, BackgroundColor = Color.White };
+        panel.Controls.Add(new Label { Text = title, Dock = DockStyle.Fill, Font = AppTheme.SectionFont() }, 0, 0);
+        var grid = UiFactory.ReadOnlyGrid(source);
         configure(grid);
         panel.Controls.Add(grid, 0, 1);
         return panel;

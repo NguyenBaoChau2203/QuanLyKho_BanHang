@@ -2,6 +2,7 @@ using System.ComponentModel;
 using QuanLyKhoBanHang.BLL.Services;
 using QuanLyKhoBanHang.DTO.Inventory;
 using QuanLyKhoBanHang.DTO.MasterData;
+using QuanLyKhoBanHang.WinForms.Forms.Common;
 
 namespace QuanLyKhoBanHang.WinForms.Forms.Inventory;
 
@@ -27,8 +28,8 @@ public sealed class FrmPurchaseReceipt : Form
     public FrmPurchaseReceipt()
     {
         Text = "Nhập kho";
-        BackColor = Color.FromArgb(245, 247, 250);
-        Font = new Font("Segoe UI", 10F);
+        BackColor = AppTheme.AppBackground;
+        Font = AppTheme.BodyFont();
         MinimumSize = new Size(1280, 760);
         BuildUi();
         LoadData();
@@ -36,7 +37,7 @@ public sealed class FrmPurchaseReceipt : Form
 
     private void BuildUi()
     {
-        var root = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 3, Padding = new Padding(18) };
+        var root = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 3, Padding = AppTheme.PagePadding };
         root.RowStyles.Add(new RowStyle(SizeType.Absolute, 68));
         root.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
         root.RowStyles.Add(new RowStyle(SizeType.Absolute, 34));
@@ -47,16 +48,15 @@ public sealed class FrmPurchaseReceipt : Form
         Controls.Add(root);
 
         _message.Dock = DockStyle.Fill;
-        _message.ForeColor = Color.FromArgb(92, 102, 121);
+        _message.ForeColor = AppTheme.StatusText;
         _message.Text = "Sẵn sàng nhập kho.";
     }
 
     private Control BuildHeader()
     {
-        var panel = new Panel { Dock = DockStyle.Fill };
-        panel.Controls.Add(new Label { Text = "Phiếu nhập kho", Dock = DockStyle.Top, Height = 34, Font = new Font("Segoe UI", 18F, FontStyle.Bold) });
-        panel.Controls.Add(new Label { Text = "Tra cứu sản phẩm, thêm dòng và theo dõi tổng tiền bằng dữ liệu stub an toàn.", Dock = DockStyle.Bottom, Height = 22, ForeColor = Color.FromArgb(96, 108, 129) });
-        return panel;
+        return UiFactory.HeaderPanel(
+            "Phiếu nhập kho",
+            "Tra cứu sản phẩm, thêm dòng và theo dõi tổng tiền bằng dữ liệu stub an toàn.");
     }
 
     private Control BuildBody()
@@ -90,6 +90,7 @@ public sealed class FrmPurchaseReceipt : Form
         _productGrid.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
         _productGrid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
         _productGrid.DataSource = _productSource;
+        UiFactory.StyleGrid(_productGrid);
         _productGrid.Columns.Clear();
         _productGrid.AutoGenerateColumns = false;
         _productGrid.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = nameof(ProductDto.Code), HeaderText = "Mã" });
@@ -97,7 +98,7 @@ public sealed class FrmPurchaseReceipt : Form
         _productGrid.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = nameof(ProductDto.SellingPrice), HeaderText = "Giá", DefaultCellStyle = { Format = "N0" } });
         _productGrid.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = nameof(ProductDto.QuantityOnHand), HeaderText = "Tồn" });
 
-        var empty = new Label { Text = "Chọn sản phẩm từ danh sách bên dưới để thêm vào phiếu nhập.", Dock = DockStyle.Fill, TextAlign = ContentAlignment.MiddleCenter, ForeColor = Color.FromArgb(96, 108, 129) };
+        var empty = new Label { Text = "Chọn sản phẩm từ danh sách bên dưới để thêm vào phiếu nhập.", Dock = DockStyle.Fill, TextAlign = ContentAlignment.MiddleCenter, ForeColor = AppTheme.TextMuted };
 
         panel.Controls.Add(searchRow, 0, 0);
         panel.Controls.Add(_productGrid, 0, 1);
@@ -114,7 +115,7 @@ public sealed class FrmPurchaseReceipt : Form
         root.RowStyles.Add(new RowStyle(SizeType.Absolute, 100));
 
         var header = new Panel { Dock = DockStyle.Fill };
-        header.Controls.Add(new Label { Text = "Thông tin phiếu", Dock = DockStyle.Fill, Font = new Font("Segoe UI", 14F, FontStyle.Bold) });
+        header.Controls.Add(new Label { Text = "Thông tin phiếu", Dock = DockStyle.Fill, Font = AppTheme.TitleFont(14F) });
 
         var form = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 2, RowCount = 4 };
         form.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 34));
@@ -123,8 +124,9 @@ public sealed class FrmPurchaseReceipt : Form
         form.Controls.Add(BuildField("Nhà cung cấp", _supplier), 1, 0);
         form.Controls.Add(BuildField("Số lượng", _quantity), 0, 1);
         form.Controls.Add(BuildField("Đơn giá nhập", _unitCost), 1, 1);
-        form.Controls.Add(BuildField("Ghi chú", _note, true), 0, 2);
-        form.SetColumnSpan(BuildField("Ghi chú", _note, true), 2);
+        var noteField = BuildField("Ghi chú", _note, true);
+        form.Controls.Add(noteField, 0, 2);
+        form.SetColumnSpan(noteField, 2);
 
         _quantity.Minimum = 1;
         _quantity.Maximum = 100000;
@@ -140,6 +142,7 @@ public sealed class FrmPurchaseReceipt : Form
         _lineGrid.RowHeadersVisible = false;
         _lineGrid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
         _lineGrid.DataSource = _lineSource;
+        UiFactory.StyleGrid(_lineGrid);
         _lineGrid.AutoGenerateColumns = false;
         _lineGrid.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = nameof(PurchaseReceiptLineDto.ProductId), HeaderText = "SP" });
         _lineGrid.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = nameof(PurchaseReceiptLineDto.Quantity), HeaderText = "SL" });
@@ -151,7 +154,7 @@ public sealed class FrmPurchaseReceipt : Form
         actionRow.Controls.Add(CreateButton("Xóa dòng", (_, _) => RemoveLine()));
         actionRow.Controls.Add(CreateButton("Làm mới", (_, _) => ResetForm()));
         _totalLabel.AutoSize = true;
-        _totalLabel.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
+        _totalLabel.Font = AppTheme.SectionFont();
         _totalLabel.Text = "Tổng tiền: 0 đ";
         actionRow.Controls.Add(_totalLabel);
 
@@ -174,9 +177,7 @@ public sealed class FrmPurchaseReceipt : Form
 
     private Button CreateButton(string text, EventHandler handler)
     {
-        var button = new Button { Text = text, Height = 36, Width = 110, Margin = new Padding(0, 0, 8, 0) };
-        button.Click += handler;
-        return button;
+        return UiFactory.ActionButton(text, handler);
     }
 
     private void LoadData()
@@ -256,8 +257,7 @@ public sealed class FrmPurchaseReceipt : Form
 
     private void SetMessage(string message, bool error = false)
     {
-        _message.Text = message;
-        _message.ForeColor = error ? Color.Firebrick : Color.FromArgb(92, 102, 121);
+        UiFactory.SetMessage(_message, message, error);
     }
 
     private static List<ProductDto> CreateStubProducts() =>

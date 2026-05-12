@@ -12,5 +12,5 @@
 
 ## 3. Delivery
 
-- [ ] 3.1 Confirm phase 2 stays within shell-only scope.
-- [ ] 3.2 Commit the phase 2 changes separately.
+- [x] 3.1 Confirm phase 2 stays within shell-only scope.
+- [x] 3.2 Commit the phase 2 changes separately.
