@@ -35,7 +35,7 @@ public abstract class CrudListForm<TItem> : Form where TItem : class, new()
             RowCount = 4,
             Padding = new Padding(18)
         };
-        root.RowStyles.Add(new RowStyle(SizeType.Absolute, 72));
+        root.RowStyles.Add(new RowStyle(SizeType.Absolute, 76));
         root.RowStyles.Add(new RowStyle(SizeType.Absolute, 54));
         root.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
         root.RowStyles.Add(new RowStyle(SizeType.Absolute, 36));
@@ -64,6 +64,7 @@ public abstract class CrudListForm<TItem> : Form where TItem : class, new()
         SearchBox.PlaceholderText = "Tìm kiếm...";
         SearchBox.Width = 320;
         SearchBox.Anchor = AnchorStyles.Left | AnchorStyles.Top;
+        SearchBox.TabIndex = 0;
         SearchBox.TextChanged += (_, _) => ApplyFilter();
 
         CodeBox.Width = 220;

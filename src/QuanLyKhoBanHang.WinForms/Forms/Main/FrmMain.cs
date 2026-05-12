@@ -28,14 +28,14 @@ public sealed class FrmMain : Form
             ColumnCount = 2,
             RowCount = 1
         };
-        root.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 248));
+        root.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 236));
         root.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
 
         root.Controls.Add(BuildSidebar(fullName), 0, 0);
         root.Controls.Add(BuildShell(), 1, 0);
         Controls.Add(root);
 
-        LoadView(new FrmDashboard());
+        Shown += (_, _) => LoadView(new FrmDashboard());
     }
 
     private Control BuildSidebar(string fullName)
@@ -58,7 +58,7 @@ public sealed class FrmMain : Form
         stack.RowStyles.Add(new RowStyle(SizeType.Absolute, 10));
         for (var i = 3; i < 12; i++)
         {
-            stack.RowStyles.Add(new RowStyle(SizeType.Absolute, 46));
+            stack.RowStyles.Add(new RowStyle(SizeType.Absolute, 44));
         }
 
         stack.Controls.Add(new Label
@@ -111,7 +111,7 @@ public sealed class FrmMain : Form
         {
             Dock = DockStyle.Fill,
             BackColor = AppTheme.Surface,
-            Padding = new Padding(24, 18, 24, 18)
+            Padding = new Padding(20, 16, 20, 16)
         };
 
         _titleLabel.Text = "Dashboard";
@@ -128,10 +128,10 @@ public sealed class FrmMain : Form
         var quickActions = new FlowLayoutPanel
         {
             Dock = DockStyle.Right,
-            Width = 300,
+            Width = 320,
             FlowDirection = FlowDirection.LeftToRight,
             WrapContents = false,
-            Padding = new Padding(0, 6, 0, 0)
+            Padding = new Padding(0, 4, 0, 0)
         };
         quickActions.Controls.Add(CreateActionButton("Bán hàng", () => new FrmSalesInvoice()));
         quickActions.Controls.Add(CreateActionButton("Báo cáo", () => new FrmReport()));
