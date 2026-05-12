@@ -96,20 +96,20 @@ Sau Phase 0, Châu làm UI dựa trên contract đã chốt, không cần chờ 
 
 ## Checklist hoàn thành
 
-- [ ] UI mở được tất cả menu chính.
+- [x] UI mở được tất cả menu chính.
 - [x] Phase 0 đã chốt database, DTO và service contract đủ để cả nhóm làm song song.
-- [ ] `database/schema.sql` chạy được trên SQL Server LocalDB.
-- [ ] `database/seed.sql` tạo được dữ liệu demo.
-- [ ] Database có đủ bảng cho nhập kho, bán hàng, kiểm kê, dashboard và báo cáo.
-- [ ] Không có form nào gọi DAL trực tiếp.
-- [ ] Login chạy được với tài khoản seed.
-- [ ] Dashboard có layout rõ ràng và sẵn sàng nhận dữ liệu thật.
-- [ ] Form nhập kho gọi được `PurchaseService`.
-- [ ] Form bán hàng gọi được `SalesService`.
-- [ ] Form báo cáo gọi được `ReportService`.
-- [ ] Trợ lý quản lý gọi được `AssistantService`.
-- [ ] Build solution thành công trước khi merge.
-- [ ] Chuẩn bị dữ liệu demo và kịch bản thuyết trình.
+- [x] `database/schema.sql` chạy được trên SQL Server LocalDB.
+- [x] `database/seed.sql` tạo được dữ liệu demo.
+- [x] Database có đủ bảng cho nhập kho, bán hàng, kiểm kê, dashboard và báo cáo.
+- [x] Không có form nào gọi DAL trực tiếp.
+- [x] Login chạy được với tài khoản seed.
+- [x] Dashboard có layout rõ ràng và sẵn sàng nhận dữ liệu thật.
+- [x] Form nhập kho gọi được `PurchaseService`.
+- [x] Form bán hàng gọi được `SalesService`.
+- [x] Form báo cáo gọi được `ReportService`.
+- [x] Trợ lý quản lý gọi được `AssistantService`.
+- [x] Build solution thành công trước khi merge.
+- [x] Chuẩn bị dữ liệu demo và kịch bản thuyết trình.
 
 ## Bàn giao cuối
 

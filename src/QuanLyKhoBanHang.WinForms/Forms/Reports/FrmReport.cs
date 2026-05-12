@@ -211,7 +211,7 @@ public sealed class FrmReport : Form
 
     private void ApplyRevenue(ServiceResult<List<RevenueSummaryDto>> result, DateTime from, DateTime to)
     {
-        var rows = result.Success && result.Data is { Count: > 0 } data ? data : CreateStubRevenue(from, to);
+        var rows = result.Success ? result.Data ?? [] : CreateStubRevenue(from, to);
         _revenueSource.DataSource = new BindingList<RevenueRow>(rows.Select(x => new RevenueRow
         {
             Date = x.Date.ToString("dd/MM/yyyy"),
@@ -227,7 +227,7 @@ public sealed class FrmReport : Form
 
     private void ApplyProducts(ServiceResult<List<ProductSalesSummaryDto>> result)
     {
-        var rows = result.Success && result.Data is { Count: > 0 } data ? data : CreateStubTopProducts();
+        var rows = result.Success ? result.Data ?? [] : CreateStubTopProducts();
         _topProductsSource.DataSource = new BindingList<ProductSalesRow>(rows.Select((x, index) => new ProductSalesRow
         {
             Rank = index + 1,
@@ -240,7 +240,7 @@ public sealed class FrmReport : Form
 
     private void ApplyCustomers(ServiceResult<List<CustomerPurchaseSummaryDto>> result)
     {
-        var rows = result.Success && result.Data is { Count: > 0 } data ? data : CreateStubTopCustomers();
+        var rows = result.Success ? result.Data ?? [] : CreateStubTopCustomers();
         _topCustomersSource.DataSource = new BindingList<CustomerRow>(rows.Select((x, index) => new CustomerRow
         {
             Rank = index + 1,
@@ -263,36 +263,24 @@ public sealed class FrmReport : Form
 
     private static List<RevenueSummaryDto> CreateStubRevenue(DateTime from, DateTime to)
     {
-        var rows = new List<RevenueSummaryDto>();
-        var day = from;
-        var revenue = 8200000m;
-        while (day <= to)
-        {
-            rows.Add(new RevenueSummaryDto
-            {
-                Date = day,
-                InvoiceCount = 8 + day.Day % 5,
-                Revenue = revenue,
-                EstimatedProfit = revenue * 0.18m
-            });
-            revenue += 1250000m;
-            day = day.AddDays(1);
-        }
-        return rows;
+        return DateTime.Today >= from.Date && DateTime.Today <= to.Date
+            ? [new RevenueSummaryDto { Date = DateTime.Today, InvoiceCount = 2, Revenue = 304000, EstimatedProfit = 46000 }]
+            : [];
     }
 
     private static List<ProductSalesSummaryDto> CreateStubTopProducts() =>
     [
-        new ProductSalesSummaryDto { ProductId = 1, ProductCode = "SP-001", ProductName = "Bút bi Thiên Long", QuantitySold = 120, Revenue = 600000 },
-        new ProductSalesSummaryDto { ProductId = 2, ProductCode = "SP-014", ProductName = "Sổ tay A5", QuantitySold = 86, Revenue = 1548000 },
-        new ProductSalesSummaryDto { ProductId = 3, ProductCode = "SP-020", ProductName = "Thùng carton 5 lớp", QuantitySold = 44, Revenue = 1980000 }
+        new ProductSalesSummaryDto { ProductId = 2, ProductCode = "SP002", ProductName = "Nước ngọt cola lon", QuantitySold = 12, Revenue = 132000 },
+        new ProductSalesSummaryDto { ProductId = 4, ProductCode = "SP004", ProductName = "Nước rửa chén 750ml", QuantitySold = 4, Revenue = 100000 },
+        new ProductSalesSummaryDto { ProductId = 1, ProductCode = "SP001", ProductName = "Nước suối 500ml", QuantitySold = 10, Revenue = 60000 },
+        new ProductSalesSummaryDto { ProductId = 6, ProductCode = "SP006", ProductName = "Khăn giấy 100 tờ", QuantitySold = 2, Revenue = 25000 }
     ];
 
     private static List<CustomerPurchaseSummaryDto> CreateStubTopCustomers() =>
     [
-        new CustomerPurchaseSummaryDto { CustomerId = 1, CustomerName = "Nguyễn Văn An", InvoiceCount = 7, TotalAmount = 12850000 },
-        new CustomerPurchaseSummaryDto { CustomerId = 2, CustomerName = "Trần Thị Mai", InvoiceCount = 5, TotalAmount = 9450000 },
-        new CustomerPurchaseSummaryDto { CustomerId = 3, CustomerName = "Công ty Minh Phát", InvoiceCount = 4, TotalAmount = 8760000 }
+        new CustomerPurchaseSummaryDto { CustomerId = 2, CustomerName = "Cửa hàng Tạp hóa An Phú", InvoiceCount = 1, TotalAmount = 198000 },
+        new CustomerPurchaseSummaryDto { CustomerId = 1, CustomerName = "Khách lẻ", InvoiceCount = 1, TotalAmount = 106000 },
+        new CustomerPurchaseSummaryDto { CustomerId = 3, CustomerName = "Siêu thị Hòa Bình", InvoiceCount = 0, TotalAmount = 0 }
     ];
 
     private sealed class RevenueRow

@@ -123,8 +123,11 @@ public sealed class FrmProduct : CrudListForm<ProductDto>
 
     private static List<ProductDto> CreateStubItems() =>
     [
-        new ProductDto { Id = 1, Code = "SP-001", Name = "Bút bi Thiên Long", CategoryName = "Văn phòng phẩm", Unit = "Cây", SellingPrice = 5000, QuantityOnHand = 120, MinStockLevel = 20 },
-        new ProductDto { Id = 2, Code = "SP-002", Name = "Sổ tay A5", CategoryName = "Văn phòng phẩm", Unit = "Cuốn", SellingPrice = 18000, QuantityOnHand = 15, MinStockLevel = 20 },
-        new ProductDto { Id = 3, Code = "SP-003", Name = "Thùng carton 5 lớp", CategoryName = "Đóng gói", Unit = "Thùng", SellingPrice = 45000, QuantityOnHand = 40, MinStockLevel = 10 }
+        new ProductDto { Id = 1, Code = "SP001", Name = "Nước suối 500ml", CategoryName = "Đồ uống", Unit = "Chai", SellingPrice = 6000, QuantityOnHand = 110, MinStockLevel = 30 },
+        new ProductDto { Id = 2, Code = "SP002", Name = "Nước ngọt cola lon", CategoryName = "Đồ uống", Unit = "Lon", SellingPrice = 11000, QuantityOnHand = 68, MinStockLevel = 25 },
+        new ProductDto { Id = 3, Code = "SP003", Name = "Mì gói bò", CategoryName = "Thực phẩm", Unit = "Gói", SellingPrice = 5000, QuantityOnHand = 195, MinStockLevel = 50 },
+        new ProductDto { Id = 4, Code = "SP004", Name = "Nước rửa chén 750ml", CategoryName = "Gia dụng", Unit = "Chai", SellingPrice = 25000, QuantityOnHand = 32, MinStockLevel = 35 },
+        new ProductDto { Id = 5, Code = "SP005", Name = "Kem đánh răng 110g", CategoryName = "Vệ sinh", Unit = "Tuýp", SellingPrice = 18000, QuantityOnHand = 30, MinStockLevel = 35 },
+        new ProductDto { Id = 6, Code = "SP006", Name = "Khăn giấy 100 tờ", CategoryName = "Vệ sinh", Unit = "Gói", SellingPrice = 12500, QuantityOnHand = 118, MinStockLevel = 15 }
     ];
 }

@@ -92,7 +92,8 @@ public sealed class FrmCustomer : CrudListForm<CustomerDto>
 
     private static List<CustomerDto> CreateStubItems() =>
     [
-        new CustomerDto { Id = 1, Code = "KH-01", Name = "Nguyễn Văn An", Phone = "0912345678", Email = "an@example.com", Address = "Quận 1, TP.HCM", IsActive = true },
-        new CustomerDto { Id = 2, Code = "KH-02", Name = "Trần Thị Mai", Phone = "0987654321", Email = "mai@example.com", Address = "Thủ Dầu Một, Bình Dương", IsActive = true }
+        new CustomerDto { Id = 1, Code = "KH001", Name = "Khách lẻ", Phone = null, Email = null, Address = null, IsActive = true },
+        new CustomerDto { Id = 2, Code = "KH002", Name = "Cửa hàng Tạp hóa An Phú", Phone = "0911111111", Email = "anphu@example.com", Address = "Bình Dương", IsActive = true },
+        new CustomerDto { Id = 3, Code = "KH003", Name = "Siêu thị Hòa Bình", Phone = "0988777666", Email = "hoabinh@example.com", Address = "TP. Hồ Chí Minh", IsActive = true }
     ];
 }

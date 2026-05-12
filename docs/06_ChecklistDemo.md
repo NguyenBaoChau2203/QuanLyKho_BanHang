@@ -28,6 +28,6 @@
 
 - Ứng dụng dùng mô hình 3 lớp.
 - UI không gọi database trực tiếp.
-- DAL dùng ADO.NET và transaction cho nghiệp vụ quan trọng.
+- DAL/repository thật sẽ do Dũ và Hùng hoàn thiện theo contract chung; hiện phần UI Châu đang dùng BLL và stub/fallback demo an toàn ở các chỗ backend chưa sẵn sàng.
 - OpenSpec giúp nhóm thống nhất yêu cầu trước khi code.
 - Dashboard và trợ lý quản lý là điểm nâng cấp so với CRUD thông thường.

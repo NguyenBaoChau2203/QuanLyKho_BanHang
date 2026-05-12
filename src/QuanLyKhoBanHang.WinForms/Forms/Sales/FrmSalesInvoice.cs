@@ -409,14 +409,18 @@ public sealed class FrmSalesInvoice : Form
 
     private static List<ProductDto> CreateStubProducts() =>
     [
-        new ProductDto { Id = 1, Code = "SP-001", Name = "Bút bi Thiên Long", SellingPrice = 5000, QuantityOnHand = 120 },
-        new ProductDto { Id = 2, Code = "SP-002", Name = "Sổ tay A5", SellingPrice = 18000, QuantityOnHand = 15 },
-        new ProductDto { Id = 3, Code = "SP-003", Name = "Thùng carton 5 lớp", SellingPrice = 45000, QuantityOnHand = 8 }
+        new ProductDto { Id = 1, Code = "SP001", Name = "Nước suối 500ml", SellingPrice = 6000, QuantityOnHand = 110 },
+        new ProductDto { Id = 2, Code = "SP002", Name = "Nước ngọt cola lon", SellingPrice = 11000, QuantityOnHand = 68 },
+        new ProductDto { Id = 3, Code = "SP003", Name = "Mì gói bò", SellingPrice = 5000, QuantityOnHand = 195 },
+        new ProductDto { Id = 4, Code = "SP004", Name = "Nước rửa chén 750ml", SellingPrice = 25000, QuantityOnHand = 32 },
+        new ProductDto { Id = 5, Code = "SP005", Name = "Kem đánh răng 110g", SellingPrice = 18000, QuantityOnHand = 30 },
+        new ProductDto { Id = 6, Code = "SP006", Name = "Khăn giấy 100 tờ", SellingPrice = 12500, QuantityOnHand = 118 }
     ];
 
     private static List<CustomerDto> CreateStubCustomers() =>
     [
-        new CustomerDto { Id = 1, Code = "KH-01", Name = "Nguyễn Văn An", Phone = "0912345678", Email = "an@example.com", Address = "Quận 1, TP.HCM" },
-        new CustomerDto { Id = 2, Code = "KH-02", Name = "Trần Thị Mai", Phone = "0987654321", Email = "mai@example.com", Address = "Thủ Dầu Một, Bình Dương" }
+        new CustomerDto { Id = 1, Code = "KH001", Name = "Khách lẻ" },
+        new CustomerDto { Id = 2, Code = "KH002", Name = "Cửa hàng Tạp hóa An Phú", Phone = "0911111111", Email = "anphu@example.com", Address = "Bình Dương" },
+        new CustomerDto { Id = 3, Code = "KH003", Name = "Siêu thị Hòa Bình", Phone = "0988777666", Email = "hoabinh@example.com", Address = "TP. Hồ Chí Minh" }
     ];
 }

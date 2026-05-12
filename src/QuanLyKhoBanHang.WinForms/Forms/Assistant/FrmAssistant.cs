@@ -588,42 +588,35 @@ public sealed class FrmAssistant : Form
     [
         new ProductDto
         {
-            Code = "SP-012",
-            Name = "Keo dán đa năng",
-            QuantityOnHand = 4,
-            MinStockLevel = 12,
-            Unit = "chai"
+            Code = "SP004",
+            Name = "Nước rửa chén 750ml",
+            QuantityOnHand = 32,
+            MinStockLevel = 35,
+            Unit = "Chai"
         },
         new ProductDto
         {
-            Code = "SP-018",
-            Name = "Băng keo trong",
-            QuantityOnHand = 9,
-            MinStockLevel = 20,
-            Unit = "cuộn"
-        },
-        new ProductDto
-        {
-            Code = "SP-024",
-            Name = "Thùng carton 3 lớp",
-            QuantityOnHand = 14,
-            MinStockLevel = 25,
-            Unit = "thùng"
+            Code = "SP005",
+            Name = "Kem đánh răng 110g",
+            QuantityOnHand = 30,
+            MinStockLevel = 35,
+            Unit = "Tuýp"
         }
     ];
 
     private static List<ProductSalesSummaryDto> CreateStubTopProducts() =>
     [
-        new ProductSalesSummaryDto { ProductId = 1, ProductCode = "SP-001", ProductName = "Bút bi Thiên Long", QuantitySold = 120, Revenue = 600000 },
-        new ProductSalesSummaryDto { ProductId = 2, ProductCode = "SP-014", ProductName = "Sổ tay A5", QuantitySold = 86, Revenue = 1548000 },
-        new ProductSalesSummaryDto { ProductId = 3, ProductCode = "SP-020", ProductName = "Thùng carton 5 lớp", QuantitySold = 44, Revenue = 1980000 }
+        new ProductSalesSummaryDto { ProductId = 2, ProductCode = "SP002", ProductName = "Nước ngọt cola lon", QuantitySold = 12, Revenue = 132000 },
+        new ProductSalesSummaryDto { ProductId = 4, ProductCode = "SP004", ProductName = "Nước rửa chén 750ml", QuantitySold = 4, Revenue = 100000 },
+        new ProductSalesSummaryDto { ProductId = 1, ProductCode = "SP001", ProductName = "Nước suối 500ml", QuantitySold = 10, Revenue = 60000 },
+        new ProductSalesSummaryDto { ProductId = 6, ProductCode = "SP006", ProductName = "Khăn giấy 100 tờ", QuantitySold = 2, Revenue = 25000 }
     ];
 
     private static List<CustomerPurchaseSummaryDto> CreateStubTopCustomers() =>
     [
-        new CustomerPurchaseSummaryDto { CustomerId = 1, CustomerName = "Nguyễn Văn An", InvoiceCount = 7, TotalAmount = 12850000 },
-        new CustomerPurchaseSummaryDto { CustomerId = 2, CustomerName = "Trần Thị Mai", InvoiceCount = 5, TotalAmount = 9450000 },
-        new CustomerPurchaseSummaryDto { CustomerId = 3, CustomerName = "Công ty Minh Phát", InvoiceCount = 4, TotalAmount = 8760000 }
+        new CustomerPurchaseSummaryDto { CustomerId = 2, CustomerName = "Cửa hàng Tạp hóa An Phú", InvoiceCount = 1, TotalAmount = 198000 },
+        new CustomerPurchaseSummaryDto { CustomerId = 1, CustomerName = "Khách lẻ", InvoiceCount = 1, TotalAmount = 106000 },
+        new CustomerPurchaseSummaryDto { CustomerId = 3, CustomerName = "Siêu thị Hòa Bình", InvoiceCount = 0, TotalAmount = 0 }
     ];
 
     private static List<StocktakeDto> CreateStubStocktakes(DateTime today) =>

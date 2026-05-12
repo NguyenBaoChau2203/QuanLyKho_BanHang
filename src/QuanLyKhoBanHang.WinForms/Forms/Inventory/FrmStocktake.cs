@@ -88,8 +88,11 @@ public sealed class FrmStocktake : Form
 
     private static List<ProductDto> CreateStubProducts() =>
     [
-        new ProductDto { Id = 1, Code = "SP-001", Name = "Bút bi Thiên Long", QuantityOnHand = 120 },
-        new ProductDto { Id = 2, Code = "SP-002", Name = "Sổ tay A5", QuantityOnHand = 15 },
-        new ProductDto { Id = 3, Code = "SP-003", Name = "Thùng carton 5 lớp", QuantityOnHand = 8 }
+        new ProductDto { Id = 1, Code = "SP001", Name = "Nước suối 500ml", QuantityOnHand = 110 },
+        new ProductDto { Id = 2, Code = "SP002", Name = "Nước ngọt cola lon", QuantityOnHand = 68 },
+        new ProductDto { Id = 3, Code = "SP003", Name = "Mì gói bò", QuantityOnHand = 195 },
+        new ProductDto { Id = 4, Code = "SP004", Name = "Nước rửa chén 750ml", QuantityOnHand = 32 },
+        new ProductDto { Id = 5, Code = "SP005", Name = "Kem đánh răng 110g", QuantityOnHand = 30 },
+        new ProductDto { Id = 6, Code = "SP006", Name = "Khăn giấy 100 tờ", QuantityOnHand = 118 }
     ];
 }

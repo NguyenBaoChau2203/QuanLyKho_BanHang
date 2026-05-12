@@ -323,32 +323,32 @@ public sealed class FrmDashboard : Form
 
     private static DashboardSummaryDto CreateStubSummary() => new()
     {
-        TodayRevenue = 12850000,
-        MonthRevenue = 248760000,
-        TodayInvoiceCount = 18,
-        LowStockProductCount = 4,
+        TodayRevenue = 304000,
+        MonthRevenue = 304000,
+        TodayInvoiceCount = 2,
+        LowStockProductCount = 2,
         TopSellingProducts = CreateStubTopProducts()
     };
 
     private static List<ProductSalesSummaryDto> CreateStubTopProducts() =>
     [
-        new ProductSalesSummaryDto { ProductId = 1, ProductCode = "SP-001", ProductName = "Bút bi Thiên Long", QuantitySold = 120, Revenue = 600000 },
-        new ProductSalesSummaryDto { ProductId = 2, ProductCode = "SP-014", ProductName = "Sổ tay A5", QuantitySold = 86, Revenue = 1548000 },
-        new ProductSalesSummaryDto { ProductId = 3, ProductCode = "SP-020", ProductName = "Thùng carton 5 lớp", QuantitySold = 44, Revenue = 1980000 }
+        new ProductSalesSummaryDto { ProductId = 2, ProductCode = "SP002", ProductName = "Nước ngọt cola lon", QuantitySold = 12, Revenue = 132000 },
+        new ProductSalesSummaryDto { ProductId = 4, ProductCode = "SP004", ProductName = "Nước rửa chén 750ml", QuantitySold = 4, Revenue = 100000 },
+        new ProductSalesSummaryDto { ProductId = 1, ProductCode = "SP001", ProductName = "Nước suối 500ml", QuantitySold = 10, Revenue = 60000 },
+        new ProductSalesSummaryDto { ProductId = 6, ProductCode = "SP006", ProductName = "Khăn giấy 100 tờ", QuantitySold = 2, Revenue = 25000 }
     ];
 
     private static List<ProductDto> CreateStubLowStock() =>
     [
-        new ProductDto { Id = 11, Code = "SP-011", Name = "Bìa hồ sơ", QuantityOnHand = 7, MinStockLevel = 10 },
-        new ProductDto { Id = 12, Code = "SP-012", Name = "Băng keo trong", QuantityOnHand = 3, MinStockLevel = 12 },
-        new ProductDto { Id = 13, Code = "SP-013", Name = "Giấy in A4", QuantityOnHand = 0, MinStockLevel = 15 }
+        new ProductDto { Id = 4, Code = "SP004", Name = "Nước rửa chén 750ml", QuantityOnHand = 32, MinStockLevel = 35 },
+        new ProductDto { Id = 5, Code = "SP005", Name = "Kem đánh răng 110g", QuantityOnHand = 30, MinStockLevel = 35 }
     ];
 
     private static List<StockTransactionDto> CreateStubActivities() =>
     [
-        new StockTransactionDto { ProductName = "Giấy in A4", TransactionType = StockTransactionType.Purchase, QuantityChange = 20, QuantityAfter = 120, ReferenceCode = "PN-2401", CreatedAt = DateTime.Now.AddHours(-2) },
-        new StockTransactionDto { ProductName = "Bút bi Thiên Long", TransactionType = StockTransactionType.Sale, QuantityChange = -12, QuantityAfter = 108, ReferenceCode = "HD-1024", CreatedAt = DateTime.Now.AddHours(-4) },
-        new StockTransactionDto { ProductName = "Băng keo trong", TransactionType = StockTransactionType.StocktakeAdjustment, QuantityChange = -2, QuantityAfter = 6, ReferenceCode = "KK-2026-05", CreatedAt = DateTime.Now.AddDays(-1) }
+        new StockTransactionDto { ProductName = "Nước ngọt cola lon", TransactionType = StockTransactionType.Sale, QuantityChange = -12, QuantityAfter = 68, ReferenceCode = "HD0002", CreatedAt = DateTime.Today.AddHours(10) },
+        new StockTransactionDto { ProductName = "Nước rửa chén 750ml", TransactionType = StockTransactionType.Sale, QuantityChange = -4, QuantityAfter = 32, ReferenceCode = "HD0002", CreatedAt = DateTime.Today.AddHours(10).AddMinutes(10) },
+        new StockTransactionDto { ProductName = "Nước rửa chén 750ml", TransactionType = StockTransactionType.StocktakeAdjustment, QuantityChange = -2, QuantityAfter = 30, ReferenceCode = "KK0001", CreatedAt = DateTime.Today.AddHours(18) }
     ];
 
     private sealed class ProductSalesRow
