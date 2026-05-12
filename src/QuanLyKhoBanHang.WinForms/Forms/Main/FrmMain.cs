@@ -1,5 +1,4 @@
 using QuanLyKhoBanHang.WinForms.Forms.Assistant;
-using QuanLyKhoBanHang.WinForms.Forms.Common;
 using QuanLyKhoBanHang.WinForms.Forms.Dashboard;
 using QuanLyKhoBanHang.WinForms.Forms.Inventory;
 using QuanLyKhoBanHang.WinForms.Forms.MasterData;
@@ -31,11 +30,8 @@ public sealed class FrmMain : Form
         root.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 248));
         root.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
 
-        var sidebar = BuildSidebar(fullName);
-        var shell = BuildShell();
-
-        root.Controls.Add(sidebar, 0, 0);
-        root.Controls.Add(shell, 1, 0);
+        root.Controls.Add(BuildSidebar(fullName), 0, 0);
+        root.Controls.Add(BuildShell(), 1, 0);
         Controls.Add(root);
 
         LoadView(new FrmDashboard());
@@ -53,12 +49,15 @@ public sealed class FrmMain : Form
         var stack = new TableLayoutPanel
         {
             Dock = DockStyle.Fill,
-            RowCount = 10,
+            RowCount = 12,
             ColumnCount = 1,
         };
-        for (var i = 0; i < 10; i++)
+        stack.RowStyles.Add(new RowStyle(SizeType.Absolute, 92));
+        stack.RowStyles.Add(new RowStyle(SizeType.Absolute, 44));
+        stack.RowStyles.Add(new RowStyle(SizeType.Absolute, 10));
+        for (var i = 3; i < 12; i++)
         {
-            stack.RowStyles.Add(i == 0 ? new RowStyle(SizeType.Absolute, 92) : new RowStyle(SizeType.Absolute, 46));
+            stack.RowStyles.Add(new RowStyle(SizeType.Absolute, 46));
         }
 
         stack.Controls.Add(new Label
@@ -79,14 +78,15 @@ public sealed class FrmMain : Form
             TextAlign = ContentAlignment.MiddleLeft
         }, 0, 1);
 
-        AddNavButton(stack, "Dashboard", () => new FrmDashboard(), 2);
-        AddNavButton(stack, "Sản phẩm", () => new FrmProduct(), 3);
-        AddNavButton(stack, "Loại hàng", () => new FrmCategory(), 4);
-        AddNavButton(stack, "Nhà cung cấp", () => new FrmSupplier(), 5);
-        AddNavButton(stack, "Khách hàng", () => new FrmCustomer(), 6);
-        AddNavButton(stack, "Nhập kho", () => new FrmPurchaseReceipt(), 7);
-        AddNavButton(stack, "Tồn kho", () => new FrmInventory(), 8);
-        AddNavButton(stack, "Kiểm kê", () => new FrmStocktake(), 9);
+        AddNavButton(stack, "Dashboard", () => new FrmDashboard(), 3);
+        AddNavButton(stack, "Sản phẩm", () => new FrmProduct(), 4);
+        AddNavButton(stack, "Loại hàng", () => new FrmCategory(), 5);
+        AddNavButton(stack, "Nhà cung cấp", () => new FrmSupplier(), 6);
+        AddNavButton(stack, "Khách hàng", () => new FrmCustomer(), 7);
+        AddNavButton(stack, "Nhập kho", () => new FrmPurchaseReceipt(), 8);
+        AddNavButton(stack, "Tồn kho", () => new FrmInventory(), 9);
+        AddNavButton(stack, "Kiểm kê", () => new FrmStocktake(), 10);
+        AddNavButton(stack, "Bán hàng", () => new FrmSalesInvoice(), 11);
 
         sidebar.Controls.Add(stack);
         return sidebar;
@@ -155,7 +155,6 @@ public sealed class FrmMain : Form
         shell.Controls.Add(header, 0, 0);
         shell.Controls.Add(_contentHost, 0, 1);
         shell.Controls.Add(statusStrip, 0, 2);
-        Controls.Add(shell);
         return shell;
     }
 

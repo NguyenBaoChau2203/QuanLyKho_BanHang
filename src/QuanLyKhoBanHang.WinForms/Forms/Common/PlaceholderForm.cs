@@ -13,11 +13,12 @@ public class PlaceholderForm : Form
         {
             Dock = DockStyle.Fill,
             ColumnCount = 1,
-            RowCount = 3,
+            RowCount = 4,
             Padding = new Padding(24)
         };
         root.RowStyles.Add(new RowStyle(SizeType.Absolute, 52));
-        root.RowStyles.Add(new RowStyle(SizeType.Absolute, 8));
+        root.RowStyles.Add(new RowStyle(SizeType.Absolute, 10));
+        root.RowStyles.Add(new RowStyle(SizeType.Absolute, 160));
         root.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
 
         var titleLabel = new Label
@@ -37,9 +38,25 @@ public class PlaceholderForm : Form
             AutoSize = false
         };
 
+        var infoCard = new Panel
+        {
+            Dock = DockStyle.Fill,
+            BackColor = Color.FromArgb(245, 248, 252),
+            Padding = new Padding(18),
+            Margin = new Padding(0, 6, 0, 6)
+        };
+        infoCard.Controls.Add(new Label
+        {
+            Text = "Khu vực này sẽ dùng lại style chung khi các màn hình nghiệp vụ thật được triển khai.",
+            Dock = DockStyle.Fill,
+            Font = new Font("Segoe UI", 10F),
+            ForeColor = Color.FromArgb(96, 108, 129),
+            TextAlign = ContentAlignment.MiddleLeft
+        });
+
         root.Controls.Add(titleLabel, 0, 0);
-        root.SetRowSpan(bodyLabel, 2);
         root.Controls.Add(bodyLabel, 0, 2);
+        root.Controls.Add(infoCard, 0, 3);
         Controls.Add(root);
     }
 }
