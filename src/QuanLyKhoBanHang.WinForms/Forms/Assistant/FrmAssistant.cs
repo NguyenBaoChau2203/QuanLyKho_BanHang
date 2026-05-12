@@ -308,7 +308,7 @@ public sealed class FrmAssistant : Form
 
         var badge = new Label
         {
-            Text = isDemoFallback ? "Demo /stub" : "BLL",
+            Text = isDemoFallback ? "Demo stub" : "BLL",
             Dock = DockStyle.Fill,
             Font = AppTheme.BodyFont(9F),
             ForeColor = AppTheme.TextMuted,
@@ -417,7 +417,7 @@ public sealed class FrmAssistant : Form
             AssistantIntent.TopProducts => BuildTopProducts(),
             AssistantIntent.TopCustomers => BuildTopCustomers(),
             AssistantIntent.StocktakeToday => BuildStocktakeToday(),
-            _ => ("Trợ lý", "Không xử lý được yêu cầu này trong demo.", false)
+            _ => ("Trợ lý quản lý", "Không xử lý được yêu cầu này trong demo. Hãy dùng các lệnh gợi ý để xem báo cáo, tồn kho, kiểm kê và top sản phẩm.", false)
         };
     }
 

@@ -92,9 +92,8 @@ public sealed class FrmReport : Form
         _exportButton.Text = "Xuất báo cáo";
         _exportButton.Width = 130;
         _exportButton.Height = 34;
-        _exportButton.Enabled = false;
         _exportButton.TextAlign = ContentAlignment.MiddleCenter;
-        _exportButton.Click += (_, _) => SetStatus("Xuất báo cáo chưa được triển khai.");
+        _exportButton.Click += (_, _) => ExportReport();
         layout.Controls.Add(_exportButton);
 
         _statusLabel.AutoSize = true;
@@ -255,6 +254,11 @@ public sealed class FrmReport : Form
     {
         _statusLabel.Text = message;
         _statusLabel.ForeColor = isError ? AppTheme.Error : AppTheme.StatusText;
+    }
+
+    private void ExportReport()
+    {
+        SetStatus("Xuất báo cáo đang ở chế độ demo an toàn. Vui lòng chụp màn hình hoặc dùng dữ liệu trên màn hình để thuyết trình.");
     }
 
     private static List<RevenueSummaryDto> CreateStubRevenue(DateTime from, DateTime to)
