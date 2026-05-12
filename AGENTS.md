@@ -34,3 +34,11 @@ Tên method cần rõ nghĩa, ví dụ:
 - `PurchaseService.CreateReceipt(receipt)`
 - `SalesService.CreateInvoice(invoice)`
 - `ReportService.GetRevenue(fromDate, toDate)`
+
+## OpenSpec khi dùng Codex
+
+- Khi tạo, review hoặc implement tính năng lớn, dùng Codex skill `openspec-sdd`.
+- Prompt nên bắt đầu bằng: `Use the openspec-sdd skill.`
+- Không code tính năng lớn trước khi có OpenSpec change hợp lệ.
+- Validate bằng `openspec validate <change-name>` hoặc `npx --yes --package @fission-ai/openspec openspec validate <change-name>`.
+- Xem chi tiết tại `docs/09_CodexOpenSpecWorkflow.md`.
