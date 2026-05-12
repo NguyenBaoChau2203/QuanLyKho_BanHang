@@ -331,15 +331,20 @@ public sealed class FrmAssistant : Form
             BorderStyle = BorderStyle.FixedSingle
         };
 
+        var flowWidth = Math.Max(200, card.Width - card.Padding.Horizontal);
+
         var titleRow = new TableLayoutPanel
         {
             Dock = DockStyle.Top,
             Height = 28,
+            Width = flowWidth,
             ColumnCount = 2,
-            RowCount = 1
+            RowCount = 1,
+            Margin = Padding.Empty,
+            Padding = Padding.Empty
         };
         titleRow.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
-        titleRow.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 180));
+        titleRow.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
 
         var titleLabel = new Label
         {
@@ -347,31 +352,27 @@ public sealed class FrmAssistant : Form
             Dock = DockStyle.Fill,
             Font = AppTheme.SectionFont(11F),
             ForeColor = PrimaryBlue,
-            TextAlign = ContentAlignment.MiddleLeft
+            TextAlign = ContentAlignment.MiddleLeft,
+            UseMnemonic = false,
+            AutoEllipsis = true
         };
 
         var badge = new Label
         {
             Text = badgeText,
-            Dock = DockStyle.Fill,
+            AutoSize = true,
             Font = AppTheme.BodyFont(9F),
             ForeColor = AppTheme.TextMuted,
-            TextAlign = ContentAlignment.MiddleRight
+            TextAlign = ContentAlignment.MiddleRight,
+            UseMnemonic = false,
+            Margin = new Padding(8, 0, 0, 0)
         };
 
         titleRow.Controls.Add(titleLabel, 0, 0);
         titleRow.Controls.Add(badge, 1, 0);
 
-        var flowWidth = Math.Max(200, card.Width - card.Padding.Horizontal);
-        titleRow.Width = flowWidth;
-        titleRow.Margin = Padding.Empty;
-
-        var topSection = new FlowLayoutPanel
+        var topSection = new Panel
         {
-            FlowDirection = FlowDirection.TopDown,
-            WrapContents = false,
-            AutoSize = true,
-            AutoSizeMode = AutoSizeMode.GrowAndShrink,
             Dock = DockStyle.Top,
             Width = flowWidth,
             BackColor = AppTheme.SurfaceMuted,
@@ -380,6 +381,7 @@ public sealed class FrmAssistant : Form
         };
         topSection.Controls.Add(titleRow);
 
+        var questionBlockH = 0;
         if (!string.IsNullOrWhiteSpace(relatedQuestion))
         {
             var questionLine = new Label
@@ -387,6 +389,7 @@ public sealed class FrmAssistant : Form
                 Text = "Câu hỏi của bạn: " + relatedQuestion.Trim(),
                 AutoSize = true,
                 MaximumSize = new Size(flowWidth, 0),
+                Dock = DockStyle.Top,
                 Font = AppTheme.BodyFont(9F),
                 ForeColor = AppTheme.TextMuted,
                 BackColor = AppTheme.SurfaceMuted,
@@ -394,7 +397,11 @@ public sealed class FrmAssistant : Form
                 UseMnemonic = false
             };
             topSection.Controls.Add(questionLine);
+            questionLine.PerformLayout();
+            questionBlockH = questionLine.PreferredSize.Height + questionLine.Margin.Bottom;
         }
+
+        topSection.Height = titleRow.Height + questionBlockH;
 
         var bodyBox = new TextBox
         {
@@ -416,7 +423,7 @@ public sealed class FrmAssistant : Form
 
         var innerWidth = flowWidth - 8;
         topSection.PerformLayout();
-        var topH = topSection.PreferredSize.Height;
+        var topH = topSection.Height;
         var bodyHeight = TextRenderer.MeasureText(body, bodyBox.Font,
             new Size(innerWidth, int.MaxValue),
             TextFormatFlags.WordBreak | TextFormatFlags.TextBoxControl).Height;
