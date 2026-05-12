@@ -19,5 +19,12 @@ Tài khoản demo:
 
 - Username: `admin`
 - Password: `admin123`
+- Username: `du`
+- Password: `123456`
+- Username: `hung`
+- Password: `123456`
 
-Ghi chú: `seed.sql` lưu password dạng text demo để tiện thuyết trình ban đầu. Khi triển khai thật, DAL/BLL phải chuyển sang hash + salt.
+Demo readiness:
+
+- `seed.sql` có dữ liệu cho đăng nhập, dashboard, master data, tồn kho đầu kỳ và một số giao dịch bán/nhập/kiểm kê mẫu.
+- `PasswordHash` trong seed vẫn là text demo để dễ trình diễn; khi backend thật sẵn sàng cần chuyển sang hash + salt.
