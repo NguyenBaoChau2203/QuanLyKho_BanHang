@@ -12,6 +12,7 @@ feature/sales-report-hung
 
 ## Phạm vi chính
 
+- Đọc và tuân thủ `docs/07_ContractFoundation.md` trước khi code.
 - Viết DTO/DAL/BLL cho khách hàng và bán hàng.
 - Viết repository ADO.NET cho hóa đơn và báo cáo.
 - Viết validation nghiệp vụ bán hàng trong BLL.
@@ -99,3 +100,10 @@ Khi tạo pull request, Hùng cần ghi rõ:
 - DTO nào có thay đổi.
 - Có cần chạy lại `schema.sql` hoặc cập nhật database không.
 - Cách test nhanh luồng bán hàng và báo cáo.
+
+## Quy định làm song song
+
+- Hùng không cần chờ UI của Châu hoàn thành mới làm backend.
+- Hùng code theo database/DTO/service contract đã chốt ở Phase 0.
+- Nếu cần đổi bảng/cột/DTO/public method, phải ghi rõ trong PR để Châu review trước khi merge.
+- Nếu chỉ đổi implementation bên trong DAL/BLL và không đổi contract, Châu không cần sửa UI.

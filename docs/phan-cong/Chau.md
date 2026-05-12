@@ -12,12 +12,25 @@ feature/project-ui-chau
 
 ## Phạm vi chính
 
+- Thực hiện Phase 0 - Contract Foundation để cả nhóm làm song song không chờ nhau.
 - Thiết lập và giữ ổn định kiến trúc project 3 lớp.
 - Quản lý OpenSpec, specs, tasks và tiến độ chung.
 - Thiết kế database tổng thể, viết `database/schema.sql`, viết `database/seed.sql` và review schema cuối trước khi demo.
 - Làm toàn bộ WinForms UI.
 - Tự tích hợp service của Dũ và Hùng vào UI.
 - Chuẩn bị báo cáo kỹ thuật và demo cuối.
+
+## Phase 0 - Contract Foundation
+
+Châu cần chốt sớm các phần sau và merge lên `main` để Dũ/Hùng kéo về làm backend song song:
+
+- Database schema và seed data.
+- DTO chính cho sản phẩm, nhập kho, tồn kho, kiểm kê, khách hàng, bán hàng, báo cáo.
+- Public method signature của BLL services.
+- Mock/stub behavior cho service khi backend thật chưa hoàn thành.
+- File ownership và quy định đổi contract.
+
+Sau Phase 0, Châu làm UI dựa trên contract đã chốt, không cần chờ Dũ/Hùng code xong service thật.
 
 ## Database cần phụ trách
 
@@ -84,6 +97,7 @@ feature/project-ui-chau
 ## Checklist hoàn thành
 
 - [ ] UI mở được tất cả menu chính.
+- [ ] Phase 0 đã chốt database, DTO và service contract đủ để cả nhóm làm song song.
 - [ ] `database/schema.sql` chạy được trên SQL Server LocalDB.
 - [ ] `database/seed.sql` tạo được dữ liệu demo.
 - [ ] Database có đủ bảng cho nhập kho, bán hàng, kiểm kê, dashboard và báo cáo.

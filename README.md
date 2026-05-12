@@ -31,6 +31,7 @@
 - [Quy chuẩn chung](docs/04_QuyChuanChung.md)
 - [OpenSpec workflow](docs/05_OpenSpecWorkflow.md)
 - [Checklist demo](docs/06_ChecklistDemo.md)
+- [Contract Foundation - làm song song không chờ nhau](docs/07_ContractFoundation.md)
 
 ## Quy tắc quan trọng
 
@@ -39,3 +40,4 @@
 - DAL chứa SQL, mapping dữ liệu và transaction.
 - DTO chỉ chứa dữ liệu.
 - Mọi thay đổi lớn phải cập nhật docs hoặc OpenSpec change trước khi code sâu.
+- Trước khi code song song, cả nhóm phải đọc `docs/07_ContractFoundation.md` để nắm database/DTO/service contract.
