@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using FontAwesome.Sharp;
 using QuanLyKhoBanHang.BLL.Common;
 using QuanLyKhoBanHang.BLL.Services;
 using QuanLyKhoBanHang.DTO.Common;
@@ -42,20 +43,23 @@ public sealed class FrmDashboard : Form
         {
             Dock = DockStyle.Fill,
             ColumnCount = 1,
-            RowCount = 4,
-            Padding = AppTheme.PagePadding
+            RowCount = 5,
+            Padding = new Padding(18, 16, 18, 18),
+            BackColor = AppTheme.AppBackground
         };
-        root.RowStyles.Add(new RowStyle(SizeType.Absolute, 68));
+        root.RowStyles.Add(new RowStyle(SizeType.Absolute, 58));
         root.RowStyles.Add(new RowStyle(SizeType.Absolute, 126));
-        root.RowStyles.Add(new RowStyle(SizeType.Percent, 44));
-        root.RowStyles.Add(new RowStyle(SizeType.Percent, 56));
+        root.RowStyles.Add(new RowStyle(SizeType.Absolute, 14));
+        root.RowStyles.Add(new RowStyle(SizeType.Percent, 42));
+        root.RowStyles.Add(new RowStyle(SizeType.Percent, 58));
 
-        root.Controls.Add(UiFactory.HeaderPanel(
+        root.Controls.Add(UiFactory.SectionHeader(
             "Tổng quan vận hành",
-            "Theo dõi nhanh doanh thu, đơn hàng, tồn kho và cảnh báo quan trọng."), 0, 0);
+            "Theo dõi nhanh doanh thu, đơn hàng, tồn kho và cảnh báo quan trọng.",
+            IconChar.ChartColumn), 0, 0);
         root.Controls.Add(BuildKpiRow(), 0, 1);
-        root.Controls.Add(BuildUpperBody(), 0, 2);
-        root.Controls.Add(BuildLowerBody(), 0, 3);
+        root.Controls.Add(BuildUpperBody(), 0, 3);
+        root.Controls.Add(BuildLowerBody(), 0, 4);
 
         Controls.Add(root);
     }
@@ -65,7 +69,8 @@ public sealed class FrmDashboard : Form
         var cards = new TableLayoutPanel
         {
             Dock = DockStyle.Fill,
-            ColumnCount = 4
+            ColumnCount = 4,
+            RowCount = 1
         };
 
         for (var i = 0; i < 4; i++)
@@ -73,26 +78,69 @@ public sealed class FrmDashboard : Form
             cards.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25));
         }
 
-        cards.Controls.Add(CreateKpiCard("Doanh thu hôm nay", _revenueTodayValue, Color.FromArgb(5, 150, 105)), 0, 0);
-        cards.Controls.Add(CreateKpiCard("Doanh thu tháng này", _revenueMonthValue, Color.FromArgb(37, 99, 235)), 1, 0);
-        cards.Controls.Add(CreateKpiCard("Hóa đơn hôm nay", _invoiceTodayValue, Color.FromArgb(217, 119, 6)), 2, 0);
-        cards.Controls.Add(CreateKpiCard("Sản phẩm sắp hết", _lowStockValue, AppTheme.Error), 3, 0);
+        var revenueToday = UiFactory.MetricCard(
+            "Doanh thu hôm nay",
+            _revenueTodayValue,
+            IconChar.ChartLine,
+            AppTheme.Success,
+            AppTheme.SuccessSoft);
+
+        var revenueMonth = UiFactory.MetricCard(
+            "Doanh thu tháng này",
+            _revenueMonthValue,
+            IconChar.CalendarDays,
+            AppTheme.Primary,
+            AppTheme.PrimarySoft);
+
+        var invoiceToday = UiFactory.MetricCard(
+            "Hóa đơn hôm nay",
+            _invoiceTodayValue,
+            IconChar.FileInvoice,
+            AppTheme.Warning,
+            AppTheme.WarningSoft);
+
+        var lowStock = UiFactory.MetricCard(
+            "Sản phẩm sắp hết",
+            _lowStockValue,
+            IconChar.TriangleExclamation,
+            AppTheme.Danger,
+            AppTheme.DangerSoft);
+        lowStock.Margin = Padding.Empty;
+
+        cards.Controls.Add(revenueToday, 0, 0);
+        cards.Controls.Add(revenueMonth, 1, 0);
+        cards.Controls.Add(invoiceToday, 2, 0);
+        cards.Controls.Add(lowStock, 3, 0);
         return cards;
     }
 
     private Control BuildUpperBody()
     {
-        var splitter = UiFactory.HorizontalSplitter(600, 320);
-        splitter.Panel1.Controls.Add(BuildTopProductsPanel());
-        splitter.Panel2.Controls.Add(BuildLowStockPanel());
-        return splitter;
+        var layout = new TableLayoutPanel
+        {
+            Dock = DockStyle.Fill,
+            ColumnCount = 2,
+            RowCount = 1
+        };
+        layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50));
+        layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50));
+
+        var topProducts = BuildTopProductsPanel();
+        topProducts.Margin = new Padding(0, 0, 7, 0);
+
+        var lowStock = BuildLowStockPanel();
+        lowStock.Margin = new Padding(7, 0, 0, 0);
+
+        layout.Controls.Add(topProducts, 0, 0);
+        layout.Controls.Add(lowStock, 1, 0);
+        return layout;
     }
 
     private Control BuildLowerBody()
     {
         var panel = UiFactory.Card();
-        panel.Padding = new Padding(14);
-        panel.Margin = new Padding(0, 12, 0, 0);
+        panel.Padding = new Padding(16);
+        panel.Margin = new Padding(0, 14, 0, 0);
 
         var layout = new TableLayoutPanel
         {
@@ -100,31 +148,31 @@ public sealed class FrmDashboard : Form
             ColumnCount = 1,
             RowCount = 2
         };
-        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 34));
+        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 44));
         layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
 
-        var header = new Panel { Dock = DockStyle.Fill };
-        header.Controls.Add(new Label
+        var header = new TableLayoutPanel
         {
-            Text = "Hoạt động gần đây",
-            Dock = DockStyle.Left,
-            Width = 220,
-            Font = AppTheme.SectionFont(12F),
-            ForeColor = Color.FromArgb(31, 41, 55)
-        });
-        header.Controls.Add(_updatedLabel);
-        _updatedLabel.Dock = DockStyle.Right;
-        _updatedLabel.Width = 220;
+            Dock = DockStyle.Fill,
+            ColumnCount = 2,
+            RowCount = 1
+        };
+        header.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+        header.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 260));
+        header.Controls.Add(UiFactory.SectionHeader(
+            "Hoạt động gần đây",
+            string.Empty,
+            IconChar.ClockRotateLeft), 0, 0);
+        header.Controls.Add(_updatedLabel, 1, 0);
+
+        _updatedLabel.Dock = DockStyle.Fill;
         _updatedLabel.TextAlign = ContentAlignment.MiddleRight;
         _updatedLabel.ForeColor = AppTheme.TextMuted;
+        _updatedLabel.Font = AppTheme.BodyFont(9.5F);
 
         _activityGrid.DataSource = _activitySource;
         ConfigureGrid(_activityGrid);
-        _activityGrid.AutoGenerateColumns = false;
-        _activityGrid.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = nameof(ActivityRow.When), HeaderText = "Thời gian", Width = 140 });
-        _activityGrid.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = nameof(ActivityRow.Category), HeaderText = "Loại", Width = 120 });
-        _activityGrid.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = nameof(ActivityRow.Description), HeaderText = "Mô tả" });
-        _activityGrid.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = nameof(ActivityRow.Reference), HeaderText = "Tham chiếu", Width = 140 });
+        ConfigureActivityColumns();
 
         layout.Controls.Add(header, 0, 0);
         layout.Controls.Add(_activityGrid, 0, 1);
@@ -135,91 +183,93 @@ public sealed class FrmDashboard : Form
     private Control BuildTopProductsPanel()
     {
         var panel = UiFactory.Card();
-        panel.Margin = new Padding(0, 0, 12, 0);
-        panel.Padding = new Padding(14);
-
-        var layout = BuildSectionLayout("Top sản phẩm bán chạy", "Sản phẩm bán chạy trong kỳ gần nhất.", _topProductsGrid, _topProductsSource);
-        panel.Controls.Add(layout);
+        panel.Padding = new Padding(16);
+        panel.Controls.Add(BuildSectionLayout(
+            "Top sản phẩm bán chạy",
+            "Sản phẩm bán chạy trong kỳ gần nhất.",
+            IconChar.Trophy,
+            _topProductsGrid,
+            _topProductsSource,
+            ConfigureTopProductColumns));
         return panel;
     }
 
     private Control BuildLowStockPanel()
     {
         var panel = UiFactory.Card();
-        panel.Padding = new Padding(14);
-
-        var layout = BuildSectionLayout("Tồn thấp cần nhập", "Các mặt hàng dưới ngưỡng cảnh báo.", _lowStockGrid, _lowStockSource);
-        panel.Controls.Add(layout);
+        panel.Padding = new Padding(16);
+        panel.Controls.Add(BuildSectionLayout(
+            "Tồn thấp cần nhập",
+            "Các mặt hàng dưới ngưỡng cảnh báo.",
+            IconChar.BoxesStacked,
+            _lowStockGrid,
+            _lowStockSource,
+            ConfigureLowStockColumns));
         return panel;
     }
 
-    private Control BuildSectionLayout(string title, string subtitle, DataGridView grid, BindingSource source)
+    private static Control BuildSectionLayout(
+        string title,
+        string subtitle,
+        IconChar icon,
+        DataGridView grid,
+        BindingSource source,
+        Action configureColumns)
     {
         var layout = new TableLayoutPanel
         {
             Dock = DockStyle.Fill,
             ColumnCount = 1,
-            RowCount = 3
+            RowCount = 2
         };
-        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 46));
-        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 22));
+        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 64));
         layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
 
-        layout.Controls.Add(new Label
-        {
-            Text = title,
-            Dock = DockStyle.Fill,
-            Font = AppTheme.SectionFont(12F),
-            ForeColor = Color.FromArgb(31, 41, 55)
-        }, 0, 0);
-        layout.Controls.Add(new Label
-        {
-            Text = subtitle,
-            Dock = DockStyle.Fill,
-            Font = AppTheme.BodyFont(),
-            ForeColor = AppTheme.TextMuted
-        }, 0, 1);
+        layout.Controls.Add(UiFactory.SectionHeader(title, subtitle, icon), 0, 0);
 
         grid.DataSource = source;
         ConfigureGrid(grid);
-        layout.Controls.Add(grid, 0, 2);
+        configureColumns();
+        layout.Controls.Add(grid, 0, 1);
         return layout;
     }
 
-    private static Panel CreateKpiCard(string title, Label valueLabel, Color accent)
+    private void ConfigureTopProductColumns()
     {
-        var panel = UiFactory.Card();
-        panel.Margin = new Padding(0, 0, 12, 0);
-        panel.BackColor = AppTheme.Surface;
-        panel.Padding = new Padding(18, 16, 18, 16);
-
-        var accentBar = new Panel
+        _topProductsGrid.Columns.Clear();
+        _topProductsGrid.AutoGenerateColumns = false;
+        _topProductsGrid.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = nameof(ProductSalesRow.Rank), HeaderText = "Rank", FillWeight = 65 });
+        _topProductsGrid.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = nameof(ProductSalesRow.ProductCode), HeaderText = "ProductCode", FillWeight = 120 });
+        _topProductsGrid.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = nameof(ProductSalesRow.ProductName), HeaderText = "ProductName", FillWeight = 170 });
+        _topProductsGrid.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = nameof(ProductSalesRow.QuantitySold), HeaderText = "QuantitySold", FillWeight = 120 });
+        _topProductsGrid.Columns.Add(new DataGridViewTextBoxColumn
         {
-            Dock = DockStyle.Left,
-            Width = 6,
-            BackColor = accent
-        };
-        panel.Controls.Add(accentBar);
-
-        var body = new Panel { Dock = DockStyle.Fill, Padding = new Padding(14, 0, 0, 0) };
-        body.Controls.Add(valueLabel);
-        body.Controls.Add(new Label
-        {
-            Text = title,
-            Dock = DockStyle.Top,
-            Height = 24,
-            Font = AppTheme.BodyFont(),
-            ForeColor = AppTheme.TextMuted
+            DataPropertyName = nameof(ProductSalesRow.Revenue),
+            HeaderText = "Revenue",
+            FillWeight = 120,
+            DefaultCellStyle = { Format = "N0" }
         });
+    }
 
-        valueLabel.Dock = DockStyle.Fill;
-        valueLabel.Font = AppTheme.TitleFont(22F);
-        valueLabel.TextAlign = ContentAlignment.MiddleLeft;
-        valueLabel.ForeColor = Color.FromArgb(17, 24, 39);
-        valueLabel.Text = "--";
+    private void ConfigureLowStockColumns()
+    {
+        _lowStockGrid.Columns.Clear();
+        _lowStockGrid.AutoGenerateColumns = false;
+        _lowStockGrid.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = nameof(LowStockRow.ProductCode), HeaderText = "ProductCode", FillWeight = 110 });
+        _lowStockGrid.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = nameof(LowStockRow.ProductName), HeaderText = "ProductName", FillWeight = 170 });
+        _lowStockGrid.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = nameof(LowStockRow.QuantityOnHand), HeaderText = "QuantityOnHand", FillWeight = 130 });
+        _lowStockGrid.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = nameof(LowStockRow.MinStockLevel), HeaderText = "MinStockLevel", FillWeight = 120 });
+        _lowStockGrid.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = nameof(LowStockRow.Status), HeaderText = "Status", FillWeight = 110 });
+    }
 
-        panel.Controls.Add(body);
-        return panel;
+    private void ConfigureActivityColumns()
+    {
+        _activityGrid.Columns.Clear();
+        _activityGrid.AutoGenerateColumns = false;
+        _activityGrid.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = nameof(ActivityRow.When), HeaderText = "Thời gian", FillWeight = 160 });
+        _activityGrid.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = nameof(ActivityRow.Category), HeaderText = "Loại", FillWeight = 120 });
+        _activityGrid.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = nameof(ActivityRow.Description), HeaderText = "Mô tả", FillWeight = 300 });
+        _activityGrid.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = nameof(ActivityRow.Reference), HeaderText = "Tham chiếu", FillWeight = 130 });
     }
 
     private static void ConfigureGrid(DataGridView grid)
@@ -228,6 +278,8 @@ public sealed class FrmDashboard : Form
         grid.Dock = DockStyle.Fill;
         grid.ReadOnly = true;
         grid.AllowUserToResizeRows = false;
+        grid.AllowUserToAddRows = false;
+        grid.AllowUserToDeleteRows = false;
         grid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
         grid.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
         grid.MultiSelect = false;
@@ -243,7 +295,7 @@ public sealed class FrmDashboard : Form
         if (summaryResult.Success && summaryResult.Data is { } summary)
         {
             ApplySummary(summary);
-            SetStatus(summaryResult.Message, false);
+            SetStatus(summaryResult.Message);
         }
         else
         {
@@ -328,8 +380,7 @@ public sealed class FrmDashboard : Form
     [
         new ProductSalesSummaryDto { ProductId = 2, ProductCode = "SP002", ProductName = "Nước ngọt cola lon", QuantitySold = 12, Revenue = 132000 },
         new ProductSalesSummaryDto { ProductId = 4, ProductCode = "SP004", ProductName = "Nước rửa chén 750ml", QuantitySold = 4, Revenue = 100000 },
-        new ProductSalesSummaryDto { ProductId = 1, ProductCode = "SP001", ProductName = "Nước suối 500ml", QuantitySold = 10, Revenue = 60000 },
-        new ProductSalesSummaryDto { ProductId = 6, ProductCode = "SP006", ProductName = "Khăn giấy 100 tờ", QuantitySold = 2, Revenue = 25000 }
+        new ProductSalesSummaryDto { ProductId = 1, ProductCode = "SP001", ProductName = "Nước suối 500ml", QuantitySold = 10, Revenue = 60000 }
     ];
 
     private static List<ProductDto> CreateStubLowStock() =>
@@ -340,9 +391,15 @@ public sealed class FrmDashboard : Form
 
     private static List<StockTransactionDto> CreateStubActivities() =>
     [
-        new StockTransactionDto { ProductName = "Nước ngọt cola lon", TransactionType = StockTransactionType.Sale, QuantityChange = -12, QuantityAfter = 68, ReferenceCode = "HD0002", CreatedAt = DateTime.Today.AddHours(10) },
-        new StockTransactionDto { ProductName = "Nước rửa chén 750ml", TransactionType = StockTransactionType.Sale, QuantityChange = -4, QuantityAfter = 32, ReferenceCode = "HD0002", CreatedAt = DateTime.Today.AddHours(10).AddMinutes(10) },
-        new StockTransactionDto { ProductName = "Nước rửa chén 750ml", TransactionType = StockTransactionType.StocktakeAdjustment, QuantityChange = -2, QuantityAfter = 30, ReferenceCode = "KK0001", CreatedAt = DateTime.Today.AddHours(18) }
+        new StockTransactionDto { ProductName = "Nước rửa chén 750ml", TransactionType = StockTransactionType.Purchase, QuantityChange = 18, QuantityAfter = 36, ReferenceCode = "PN0002", CreatedAt = new DateTime(2026, 5, 8, 9, 0, 0) },
+        new StockTransactionDto { ProductName = "Kem đánh răng 110g", TransactionType = StockTransactionType.Purchase, QuantityChange = 15, QuantityAfter = 30, ReferenceCode = "PN0002", CreatedAt = new DateTime(2026, 5, 8, 9, 10, 0) },
+        new StockTransactionDto { ProductName = "Khăn giấy 100 tờ", TransactionType = StockTransactionType.Purchase, QuantityChange = 60, QuantityAfter = 120, ReferenceCode = "PN0002", CreatedAt = new DateTime(2026, 5, 8, 9, 20, 0) },
+        new StockTransactionDto { ProductName = "Nước suối 500ml", TransactionType = StockTransactionType.Sale, QuantityChange = -10, QuantityAfter = 110, ReferenceCode = "HD0001", CreatedAt = new DateTime(2026, 5, 11, 15, 0, 0) },
+        new StockTransactionDto { ProductName = "Mì gói bò", TransactionType = StockTransactionType.Sale, QuantityChange = -5, QuantityAfter = 195, ReferenceCode = "HD0001", CreatedAt = new DateTime(2026, 5, 11, 15, 5, 0) },
+        new StockTransactionDto { ProductName = "Khăn giấy 100 tờ", TransactionType = StockTransactionType.Sale, QuantityChange = -2, QuantityAfter = 118, ReferenceCode = "HD0001", CreatedAt = new DateTime(2026, 5, 11, 15, 10, 0) },
+        new StockTransactionDto { ProductName = "Nước ngọt cola lon", TransactionType = StockTransactionType.Sale, QuantityChange = -12, QuantityAfter = 68, ReferenceCode = "HD0002", CreatedAt = new DateTime(2026, 5, 12, 10, 0, 0) },
+        new StockTransactionDto { ProductName = "Nước rửa chén 750ml", TransactionType = StockTransactionType.Sale, QuantityChange = -4, QuantityAfter = 32, ReferenceCode = "HD0002", CreatedAt = new DateTime(2026, 5, 12, 10, 10, 0) },
+        new StockTransactionDto { ProductName = "Nước rửa chén 750ml", TransactionType = StockTransactionType.StocktakeAdjustment, QuantityChange = -2, QuantityAfter = 30, ReferenceCode = "KK0001", CreatedAt = new DateTime(2026, 5, 12, 18, 0, 0) }
     ];
 
     private sealed class ProductSalesRow

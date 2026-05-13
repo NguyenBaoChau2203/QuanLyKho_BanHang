@@ -6,9 +6,9 @@ namespace QuanLyKhoBanHang.BLL.Services;
 
 public sealed class AssistantService
 {
-    private const string OfflineStatus = "Offline rule-based: chưa cấu hình DEEPSEEK_API_KEY.";
-    private const string AiReadyStatus = "AI online: DeepSeek đã được cấu hình, tự fallback nếu API lỗi.";
-    private const string AiFallbackStatus = "AI failed, fallback used: đã dùng trợ lý offline rule-based.";
+    private const string OfflineStatus = "Rule-based offline: chưa cấu hình API AI bên ngoài.";
+    private const string AiReadyStatus = "AI hybrid: API AI bên ngoài đã được cấu hình, tự chuyển về rule-based nếu API lỗi.";
+    private const string AiFallbackStatus = "AI API lỗi, đã dùng rule-based offline.";
 
     private readonly RuleBasedAssistantProvider _ruleBasedProvider;
     private readonly DeepSeekAssistantProvider _deepSeekProvider;
@@ -101,6 +101,17 @@ public sealed class AssistantService
             message = message[..140] + "...";
         }
 
-        return $"{AiFallbackStatus} Lý do: {message}";
+        return $"{AiFallbackStatus} Lý do: {SanitizeProviderMessage(message)}";
+    }
+
+    private static string SanitizeProviderMessage(string message)
+    {
+        return message
+            .Replace("DEEPSEEK_API_KEY", "khóa API AI", StringComparison.OrdinalIgnoreCase)
+            .Replace("DEEPSEEK_BASE_URL", "địa chỉ API AI", StringComparison.OrdinalIgnoreCase)
+            .Replace("DEEPSEEK_MODEL", "model AI", StringComparison.OrdinalIgnoreCase)
+            .Replace("api.deepseek.com", "AI API endpoint", StringComparison.OrdinalIgnoreCase)
+            .Replace("DeepSeek", "AI API", StringComparison.OrdinalIgnoreCase)
+            .Replace("deepseek", "AI API", StringComparison.OrdinalIgnoreCase);
     }
 }

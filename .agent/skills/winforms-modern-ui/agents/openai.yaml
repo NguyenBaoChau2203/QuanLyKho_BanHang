@@ -1,0 +1,7 @@
+interface:
+  display_name: "WinForms Modern UI"
+  short_description: "Restyle QuanLyKhoBanHang WinForms screens with the shared UI system"
+  default_prompt: "Use $winforms-modern-ui to build or polish a QuanLyKhoBanHang WinForms screen."
+
+policy:
+  allow_implicit_invocation: true

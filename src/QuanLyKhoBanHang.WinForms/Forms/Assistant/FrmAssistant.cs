@@ -34,7 +34,7 @@ public sealed class FrmAssistant : Form
             RefreshModeStatus();
             AppendAssistantCard(
                 "Trợ lý AI",
-                "Chào bạn! Tôi có thể dùng DeepSeek nếu đã cấu hình, và luôn tự fallback sang trợ lý offline khi thiếu API hoặc có lỗi mạng.\nChọn gợi ý bên dưới hoặc nhập câu hỏi tiếng Việt, sau đó bấm Gửi.");
+                "Chào bạn! Hệ thống AI hybrid có 2 chế độ: rule-based offline để trả lời ổn định bằng dữ liệu an toàn, và AI API bên ngoài để hỗ trợ nhận diện câu hỏi tiếng Việt tốt hơn khi đã cấu hình.\nNếu API thiếu hoặc lỗi, hệ thống tự chuyển về rule-based. Chọn gợi ý bên dưới hoặc nhập câu hỏi tiếng Việt, sau đó bấm Gửi.");
         };
 
         _txtQuestion.KeyDown += (_, e) =>
@@ -63,7 +63,7 @@ public sealed class FrmAssistant : Form
 
         root.Controls.Add(UiFactory.HeaderPanel(
             "Trợ lý AI",
-            "Hỏi nhanh bằng tiếng Việt, nhận câu trả lời từ AssistantService với DeepSeek tùy chọn và fallback offline an toàn."), 0, 0);
+            "Hỏi nhanh bằng tiếng Việt, dùng AI hybrid với rule-based offline và AI API bên ngoài khi đã cấu hình."), 0, 0);
 
         root.Controls.Add(BuildModeBar(), 0, 1);
         root.Controls.Add(BuildSuggestionBar(), 0, 2);
@@ -419,9 +419,9 @@ public sealed class FrmAssistant : Form
     {
         return mode switch
         {
-            "ai-online" => "AI online",
-            "ai-failed-fallback" => "AI failed, fallback used",
-            "offline-rule-based" => "Offline rule-based",
+            "ai-online" => "AI API hỗ trợ nhận diện câu hỏi",
+            "ai-failed-fallback" => "AI API lỗi, đang dùng rule-based",
+            "offline-rule-based" => "Rule-based offline",
             _ => "Không xác định"
         };
     }
