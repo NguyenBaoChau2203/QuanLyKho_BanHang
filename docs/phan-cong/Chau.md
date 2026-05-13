@@ -7,7 +7,7 @@ Châu là nhóm trưởng, phụ trách kiến trúc tổng thể, OpenSpec, dat
 ## Branch làm việc
 
 ```text
-feature/project-ui-chau
+feature/project-lead-chau
 ```
 
 ## Phạm vi chính

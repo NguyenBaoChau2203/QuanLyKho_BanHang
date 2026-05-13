@@ -3,7 +3,7 @@
 ## Branch
 
 - Branch chính: `main`
-- Branch của Châu: `feature/project-ui-chau`
+- Branch của Châu: `feature/project-lead-chau`
 - Branch của Dũ: `feature/inventory-du`
 - Branch của Hùng: `feature/sales-report-hung`
 

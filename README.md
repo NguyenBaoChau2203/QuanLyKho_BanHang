@@ -17,8 +17,10 @@
 3. Chạy script `database/seed.sql` để có dữ liệu demo.
 4. Set `QuanLyKhoBanHang.WinForms` làm startup project.
 5. Chạy app, dùng tài khoản demo:
-   - Username: `admin`
-   - Password: `admin123`
+   - `admin/admin123` - Admin
+   - `manager/123456` - Manager
+   - `du/123456` - WarehouseStaff
+   - `hung/123456` - SalesStaff
 
 ## Tài liệu nhóm
 

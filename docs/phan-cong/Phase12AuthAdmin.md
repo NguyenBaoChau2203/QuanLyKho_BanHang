@@ -38,7 +38,7 @@ Password hashing va auth flow can co mot owner chinh khi implement de tranh lech
   - `dotnet build QuanLyKhoBanHang.sln`
   - `dotnet test QuanLyKhoBanHang.sln --no-build --no-restore`
 
-Sau khi file nay va OpenSpec Phase 12 da co, Chau co the tiep tuc tinh chinh UI tren branch `feature/project-ui-chau`.
+Sau khi file nay va OpenSpec Phase 12 da co, Chau co the tiep tuc tinh chinh UI tren branch `feature/project-lead-chau`.
 
 ## Phan viec cua Du
 
