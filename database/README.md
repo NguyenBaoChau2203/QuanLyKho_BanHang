@@ -1,15 +1,39 @@
 # Database
 
-Database chính dùng SQL Server LocalDB:
+Database chính dùng SQL Server Developer qua SSMS:
 
 ```text
-Server=(localdb)\MSSQLLocalDB;Database=QuanLyKhoBanHang;Trusted_Connection=True;TrustServerCertificate=True
+Server=BaoChau2203;Database=QuanLyKhoBanHang;Trusted_Connection=True;TrustServerCertificate=True
 ```
 
 Thứ tự chạy:
 
 1. `schema.sql`
 2. `seed.sql`
+
+## Cách chạy bằng SSMS
+
+1. Mở SSMS.
+2. Connect server `BaoChau2203`.
+3. Mở `database/schema.sql` và bấm Execute.
+4. Mở `database/seed.sql` và bấm Execute.
+5. Refresh thư mục Databases, kiểm tra database `QuanLyKhoBanHang`.
+
+Nếu đã chạy seed bị lỗi hoặc muốn tạo lại từ đầu, chạy đoạn reset này trước:
+
+```sql
+USE master;
+GO
+
+IF DB_ID(N'QuanLyKhoBanHang') IS NOT NULL
+BEGIN
+    ALTER DATABASE QuanLyKhoBanHang SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+    DROP DATABASE QuanLyKhoBanHang;
+END
+GO
+```
+
+Sau đó chạy lại `schema.sql` rồi `seed.sql`.
 
 Người phụ trách chính database scripts: Châu.
 
@@ -19,6 +43,8 @@ Tài khoản demo:
 
 - Username: `admin`
 - Password: `admin123`
+- Username: `manager`
+- Password: `123456`
 - Username: `du`
 - Password: `123456`
 - Username: `hung`

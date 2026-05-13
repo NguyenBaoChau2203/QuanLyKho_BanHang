@@ -34,7 +34,7 @@ Sau Phase 0, Châu làm UI dựa trên contract đã chốt, không cần chờ 
 
 ## Database cần phụ trách
 
-- Thiết kế schema tổng thể cho SQL Server LocalDB.
+- Thiết kế schema tổng thể cho SQL Server Developer qua SSMS.
 - Viết và cập nhật `database/schema.sql`.
 - Viết và cập nhật `database/seed.sql`.
 - Quy định tên bảng, khóa chính, khóa ngoại, index và constraint.
@@ -43,7 +43,7 @@ Sau Phase 0, Châu làm UI dựa trên contract đã chốt, không cần chờ 
 
 ## Quy định khi làm database
 
-- Database chính dùng SQL Server LocalDB.
+- Database chính dùng SQL Server Developer qua SSMS.
 - Script phải chạy được theo thứ tự: `schema.sql` trước, `seed.sql` sau.
 - Tên bảng dùng tiếng Anh số nhiều: `Products`, `SalesInvoices`, `StockTransactions`.
 - Tên cột dùng PascalCase: `ProductId`, `CreatedAt`, `QuantityOnHand`.
@@ -98,7 +98,7 @@ Sau Phase 0, Châu làm UI dựa trên contract đã chốt, không cần chờ 
 
 - [x] UI mở được tất cả menu chính.
 - [x] Phase 0 đã chốt database, DTO và service contract đủ để cả nhóm làm song song.
-- [x] `database/schema.sql` chạy được trên SQL Server LocalDB.
+- [x] `database/schema.sql` chạy được trên SQL Server Developer qua SSMS.
 - [x] `database/seed.sql` tạo được dữ liệu demo.
 - [x] Database có đủ bảng cho nhập kho, bán hàng, kiểm kê, dashboard và báo cáo.
 - [x] Không có form nào gọi DAL trực tiếp.

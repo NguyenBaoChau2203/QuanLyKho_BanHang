@@ -7,6 +7,7 @@ VALUES (N'Admin'), (N'Quản lý'), (N'Nhân viên bán hàng'), (N'Thủ kho');
 INSERT INTO Users (Username, PasswordHash, FullName, RoleId)
 VALUES
     (N'admin', N'admin123', N'Châu', 1),
+    (N'manager', N'123456', N'Quản lý demo', 2),
     (N'du', N'123456', N'Dũ', 4),
     (N'hung', N'123456', N'Hùng', 3);
 
@@ -54,8 +55,8 @@ VALUES
 
 INSERT INTO SalesInvoices (InvoiceCode, CustomerId, InvoiceDate, CreatedByUserId, TotalAmount, DiscountAmount, Note)
 VALUES
-    (N'HD0001', 1, DATEADD(DAY, -2, SYSDATETIME()), 3, 106000, 6000, N'Bán demo quầy lẻ'),
-    (N'HD0002', 2, DATEADD(DAY, -1, SYSDATETIME()), 3, 198000, 0, N'Giao hàng cho khách sỉ');
+    (N'HD0001', 1, DATEADD(DAY, -2, SYSDATETIME()), 4, 106000, 6000, N'Bán demo quầy lẻ'),
+    (N'HD0002', 2, DATEADD(DAY, -1, SYSDATETIME()), 4, 198000, 0, N'Giao hàng cho khách sỉ');
 
 INSERT INTO SalesInvoiceDetails (SalesInvoiceId, ProductId, Quantity, UnitPrice)
 VALUES
@@ -76,15 +77,15 @@ VALUES
     (4, N'Purchase', 18, 36, N'PN0002', 1, N'Nhập thêm để demo báo cáo tồn kho'),
     (5, N'Purchase', 15, 30, N'PN0002', 1, N'Nhập thêm để demo báo cáo tồn kho'),
     (6, N'Purchase', 60, 120, N'PN0002', 1, N'Nhập thêm để demo báo cáo tồn kho'),
-    (1, N'Sales', -10, 110, N'HD0001', 3, N'Bán demo quầy lẻ'),
-    (3, N'Sales', -5, 195, N'HD0001', 3, N'Bán demo quầy lẻ'),
-    (6, N'Sales', -2, 118, N'HD0001', 3, N'Bán demo quầy lẻ'),
-    (2, N'Sales', -12, 68, N'HD0002', 3, N'Bán demo khách sỉ'),
-    (4, N'Sales', -4, 32, N'HD0002', 3, N'Bán demo khách sỉ');
+    (1, N'Sales', -10, 110, N'HD0001', 4, N'Bán demo quầy lẻ'),
+    (3, N'Sales', -5, 195, N'HD0001', 4, N'Bán demo quầy lẻ'),
+    (6, N'Sales', -2, 118, N'HD0001', 4, N'Bán demo quầy lẻ'),
+    (2, N'Sales', -12, 68, N'HD0002', 4, N'Bán demo khách sỉ'),
+    (4, N'Sales', -4, 32, N'HD0002', 4, N'Bán demo khách sỉ');
 
 INSERT INTO Stocktakes (StocktakeCode, StocktakeDate, CreatedByUserId, Note)
 VALUES
-    (N'KK0001', DATEADD(DAY, -1, SYSDATETIME()), 4, N'Kiểm kê demo quầy trưng bày');
+    (N'KK0001', DATEADD(DAY, -1, SYSDATETIME()), 3, N'Kiểm kê demo quầy trưng bày');
 
 INSERT INTO StocktakeDetails (StocktakeId, ProductId, SystemQuantity, ActualQuantity)
 VALUES
@@ -96,5 +97,5 @@ INSERT INTO AuditLogs (UserId, Action, EntityName, EntityId, Description)
 VALUES
     (1, N'SEED', N'Users', 1, N'Tạo dữ liệu demo ban đầu'),
     (1, N'SEED', N'Products', 1, N'Tạo dữ liệu demo sản phẩm'),
-    (3, N'SEED', N'SalesInvoices', 1, N'Tạo dữ liệu hóa đơn demo');
+    (4, N'SEED', N'SalesInvoices', 1, N'Tạo dữ liệu hóa đơn demo');
 GO
