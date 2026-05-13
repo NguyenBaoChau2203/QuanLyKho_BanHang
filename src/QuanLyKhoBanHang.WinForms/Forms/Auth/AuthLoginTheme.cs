@@ -13,11 +13,11 @@ internal static class AuthLoginTheme
 
     public const string FontFamily = "Segoe UI";
 
-    public static Font CardTitleFont() => new(FontFamily, 20F, FontStyle.Bold);
+    public static Font CardTitleFont() => new(FontFamily, 21F, FontStyle.Bold);
 
-    public static Font FieldLabelFont() => new(FontFamily, 10.25F, FontStyle.Bold);
+    public static Font FieldLabelFont() => new(FontFamily, 10.5F, FontStyle.Bold);
 
-    public static Font BodyFont() => new(FontFamily, 10.25F, FontStyle.Regular);
+    public static Font BodyFont() => new(FontFamily, 10.5F, FontStyle.Regular);
 
     public static Font PrimaryButtonFont() => new(FontFamily, 12F, FontStyle.Bold);
 }

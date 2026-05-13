@@ -6,6 +6,9 @@ namespace QuanLyKhoBanHang.WinForms.Forms.Auth;
 
 public sealed class FrmLogin : Form
 {
+    private const int AuthCardWidth = 380;
+    private const int AuthCardHeight = 450;
+
     private readonly AuthService _authService = new();
 
     private readonly PictureBox _brandingPicture = new();
@@ -17,7 +20,6 @@ public sealed class FrmLogin : Form
     private readonly TextBox _txtLoginPassword = new();
     private readonly CheckBox _chkRemember = new();
     private readonly Button _btnLogin = new();
-    private readonly Button _btnTogglePassword = new();
     private readonly LinkLabel _lnkRegister = new();
     private readonly LinkLabel _lnkForgot = new();
 
@@ -32,16 +34,14 @@ public sealed class FrmLogin : Form
     private readonly Button _btnForgotSend = new();
     private readonly LinkLabel _lnkBackFromForgot = new();
 
-    private bool _passwordVisible;
-
     public FrmLogin()
     {
         Text = "Đăng nhập - Quản lý kho & bán hàng";
         StartPosition = FormStartPosition.CenterScreen;
         FormBorderStyle = FormBorderStyle.FixedDialog;
         MaximizeBox = false;
-        ClientSize = new Size(860, 560);
-        MinimumSize = new Size(860, 560);
+        ClientSize = new Size(900, 560);
+        MinimumSize = new Size(900, 560);
         BackColor = AuthLoginTheme.FormBackground;
         Font = AuthLoginTheme.BodyFont();
         DoubleBuffered = true;
@@ -51,36 +51,56 @@ public sealed class FrmLogin : Form
             Dock = DockStyle.Fill,
             ColumnCount = 2,
             RowCount = 1,
-            Padding = new Padding(20)
+            Padding = new Padding(24)
         };
-        root.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 52F));
-        root.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 48F));
+        root.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 54F));
+        root.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 46F));
 
         _brandingPicture.Dock = DockStyle.Fill;
         _brandingPicture.SizeMode = PictureBoxSizeMode.Zoom;
-        _brandingPicture.Margin = new Padding(0, 0, 10, 0);
+        _brandingPicture.Margin = new Padding(12, 12, 12, 12);
         _brandingPicture.BorderStyle = BorderStyle.None;
         _brandingPicture.BackColor = AuthLoginTheme.FormBackground;
         Load += (_, _) => LoadBrandingImage();
 
-        var rightHost = new TableLayoutPanel
+        var rightCenter = new TableLayoutPanel
         {
             Dock = DockStyle.Fill,
             ColumnCount = 3,
-            RowCount = 1,
-            Margin = new Padding(10, 0, 0, 0),
-            BackColor = AuthLoginTheme.FormBackground
+            RowCount = 3,
+            BackColor = AuthLoginTheme.FormBackground,
+            Margin = new Padding(0)
         };
-        rightHost.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
-        rightHost.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 384F));
-        rightHost.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+        rightCenter.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+        rightCenter.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, AuthCardWidth));
+        rightCenter.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+        rightCenter.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
+        rightCenter.RowStyles.Add(new RowStyle(SizeType.Absolute, AuthCardHeight));
+        rightCenter.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
 
-        rightHost.Controls.Add(new Panel { Dock = DockStyle.Fill, BackColor = AuthLoginTheme.FormBackground }, 0, 0);
-        rightHost.Controls.Add(BuildCardHost(), 1, 0);
-        rightHost.Controls.Add(new Panel { Dock = DockStyle.Fill, BackColor = AuthLoginTheme.FormBackground }, 2, 0);
+        void AddSpacer(int col, int row)
+        {
+            rightCenter.Controls.Add(new Panel
+            {
+                Dock = DockStyle.Fill,
+                BackColor = AuthLoginTheme.FormBackground
+            }, col, row);
+        }
+
+        AddSpacer(0, 0);
+        AddSpacer(1, 0);
+        AddSpacer(2, 0);
+        AddSpacer(0, 1);
+        var cardHost = BuildCardHost();
+        cardHost.Dock = DockStyle.Fill;
+        rightCenter.Controls.Add(cardHost, 1, 1);
+        AddSpacer(2, 1);
+        AddSpacer(0, 2);
+        AddSpacer(1, 2);
+        AddSpacer(2, 2);
 
         root.Controls.Add(_brandingPicture, 0, 0);
-        root.Controls.Add(rightHost, 1, 0);
+        root.Controls.Add(rightCenter, 1, 0);
         Controls.Add(root);
 
         BuildLoginPanel();
@@ -98,7 +118,7 @@ public sealed class FrmLogin : Form
         {
             Dock = DockStyle.Fill,
             BackColor = AuthLoginTheme.ShadowTint,
-            Padding = new Padding(0, 0, 3, 3),
+            Padding = new Padding(0, 0, 2, 2),
             Margin = new Padding(0)
         };
 
@@ -113,7 +133,8 @@ public sealed class FrmLogin : Form
         {
             Dock = DockStyle.Fill,
             BackColor = AuthLoginTheme.CardSurface,
-            Padding = new Padding(24)
+            Padding = new Padding(28),
+            AutoScroll = true
         };
 
         _pnlLogin.Dock = DockStyle.Fill;
@@ -135,7 +156,7 @@ public sealed class FrmLogin : Form
             Dock = DockStyle.Fill,
             ColumnCount = 1,
             RowCount = 8,
-            AutoScroll = true
+            AutoScroll = false
         };
 
         int r = 0;
@@ -149,99 +170,76 @@ public sealed class FrmLogin : Form
             AutoSize = true,
             ForeColor = AuthLoginTheme.Navy,
             Font = AuthLoginTheme.CardTitleFont(),
-            Margin = new Padding(0, 0, 0, 8)
+            Margin = new Padding(0, 0, 0, 6)
         }, 0, r++);
 
         RowAuto();
         layout.Controls.Add(MakeFieldLabel("Tên đăng nhập"), 0, r++);
 
         RowAbs(38);
-        _txtLoginUser.Dock = DockStyle.Fill;
-        _txtLoginUser.BorderStyle = BorderStyle.FixedSingle;
-        _txtLoginUser.PlaceholderText = "Nhập tên đăng nhập";
+        layout.Controls.Add(WrapLightBorderTextBox(_txtLoginUser, "Nhập tên đăng nhập", password: false), 0, r++);
         _txtLoginUser.TabIndex = 0;
-        layout.Controls.Add(_txtLoginUser, 0, r++);
 
         RowAuto();
-        layout.Controls.Add(MakeFieldLabel("Mật khẩu", topPad: 10), 0, r++);
+        layout.Controls.Add(MakeFieldLabel("Mật khẩu", topPad: 8), 0, r++);
 
         RowAbs(38);
-        var passRow = new TableLayoutPanel
-        {
-            Dock = DockStyle.Fill,
-            ColumnCount = 2,
-            RowCount = 1,
-            Margin = new Padding(0)
-        };
-        passRow.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
-        passRow.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 56F));
-
-        _txtLoginPassword.Dock = DockStyle.Fill;
-        _txtLoginPassword.BorderStyle = BorderStyle.FixedSingle;
-        _txtLoginPassword.PlaceholderText = "Nhập mật khẩu";
-        _txtLoginPassword.UseSystemPasswordChar = true;
+        layout.Controls.Add(WrapLightBorderTextBox(_txtLoginPassword, "Nhập mật khẩu", password: true), 0, r++);
         _txtLoginPassword.TabIndex = 1;
-        passRow.Controls.Add(_txtLoginPassword, 0, 0);
-
-        _btnTogglePassword.Text = "Hiện";
-        _btnTogglePassword.Dock = DockStyle.Fill;
-        _btnTogglePassword.Margin = new Padding(6, 0, 0, 0);
-        _btnTogglePassword.TabIndex = 2;
-        _btnTogglePassword.FlatStyle = FlatStyle.Flat;
-        _btnTogglePassword.FlatAppearance.BorderColor = AuthLoginTheme.Border;
-        _btnTogglePassword.FlatAppearance.BorderSize = 1;
-        _btnTogglePassword.BackColor = AuthLoginTheme.CardSurface;
-        _btnTogglePassword.ForeColor = AuthLoginTheme.MutedText;
-        _btnTogglePassword.Font = AuthLoginTheme.BodyFont();
-        _btnTogglePassword.Cursor = Cursors.Hand;
-        _btnTogglePassword.Click += ToggleLoginPasswordVisibility;
-        passRow.Controls.Add(_btnTogglePassword, 1, 0);
-        layout.Controls.Add(passRow, 0, r++);
 
         RowAuto();
         _chkRemember.Text = "Nhớ đăng nhập";
         _chkRemember.AutoSize = true;
-        _chkRemember.Margin = new Padding(0, 12, 0, 0);
+        _chkRemember.Margin = new Padding(0, 10, 0, 0);
         _chkRemember.ForeColor = AuthLoginTheme.MutedText;
-        _chkRemember.TabIndex = 3;
+        _chkRemember.TabIndex = 2;
         _chkRemember.FlatStyle = FlatStyle.Flat;
         layout.Controls.Add(_chkRemember, 0, r++);
 
         RowAbs(44);
         _btnLogin.Text = "Đăng nhập";
         _btnLogin.Dock = DockStyle.Fill;
-        _btnLogin.Margin = new Padding(0, 16, 0, 0);
-        _btnLogin.TabIndex = 4;
+        _btnLogin.Margin = new Padding(0, 14, 0, 0);
+        _btnLogin.TabIndex = 3;
         StylePrimaryButton(_btnLogin);
         _btnLogin.Click += HandleLogin;
         layout.Controls.Add(_btnLogin, 0, r++);
 
         RowAuto();
-        var links = new FlowLayoutPanel
+        var links = new TableLayoutPanel
         {
             AutoSize = true,
-            AutoSizeMode = AutoSizeMode.GrowAndShrink,
-            FlowDirection = FlowDirection.LeftToRight,
-            WrapContents = false,
-            Margin = new Padding(0, 14, 0, 0)
+            ColumnCount = 3,
+            RowCount = 1,
+            Margin = new Padding(0, 12, 0, 0),
+            BackColor = Color.Transparent
         };
-        StyleLink(_lnkRegister, "Đăng ký tài khoản");
+        links.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+        links.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+        links.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+
+        StyleSecondaryLink(_lnkRegister, "Đăng ký tài khoản");
         _lnkRegister.Margin = new Padding(0, 2, 0, 0);
-        _lnkRegister.TabIndex = 5;
+        _lnkRegister.TabIndex = 4;
         _lnkRegister.Click += (_, _) => ShowAuthView(AuthView.Register);
-        links.Controls.Add(_lnkRegister);
-        links.Controls.Add(new Label
+        links.Controls.Add(_lnkRegister, 0, 0);
+
+        var sep = new Label
         {
             Text = "|",
             AutoSize = true,
             ForeColor = AuthLoginTheme.Border,
-            Margin = new Padding(10, 2, 10, 0)
-        });
-        StyleLink(_lnkForgot, "Quên mật khẩu?");
+            Margin = new Padding(12, 4, 12, 0),
+            TextAlign = ContentAlignment.MiddleCenter
+        };
+        links.Controls.Add(sep, 1, 0);
+
+        StyleSecondaryLink(_lnkForgot, "Quên mật khẩu?");
         _lnkForgot.Margin = new Padding(0, 2, 0, 0);
-        _lnkForgot.TabIndex = 6;
+        _lnkForgot.TabIndex = 5;
         _lnkForgot.Click += (_, _) => ShowAuthView(AuthView.ForgotPassword);
-        links.Controls.Add(_lnkForgot);
+        links.Controls.Add(_lnkForgot, 2, 0);
+
         layout.Controls.Add(links, 0, r++);
 
         _pnlLogin.Controls.Add(layout);
@@ -254,7 +252,7 @@ public sealed class FrmLogin : Form
             Dock = DockStyle.Fill,
             ColumnCount = 1,
             RowCount = 12,
-            AutoScroll = true
+            AutoScroll = false
         };
 
         int r = 0;
@@ -276,7 +274,7 @@ public sealed class FrmLogin : Form
         {
             Text = "Tài khoản mới cần quản trị viên phê duyệt và phân quyền trước khi đăng nhập.",
             AutoSize = false,
-            Height = 42,
+            Height = 40,
             ForeColor = AuthLoginTheme.MutedText,
             Font = AuthLoginTheme.BodyFont(),
             Margin = new Padding(0, 0, 0, 4)
@@ -285,43 +283,39 @@ public sealed class FrmLogin : Form
         RowAuto();
         layout.Controls.Add(MakeFieldLabel("Họ và tên"), 0, r++);
         RowAbs(38);
-        StyleTextBox(_txtRegFullName, "Nhập họ và tên", password: false);
+        layout.Controls.Add(WrapLightBorderTextBox(_txtRegFullName, "Nhập họ và tên", password: false), 0, r++);
         _txtRegFullName.TabIndex = 0;
-        layout.Controls.Add(_txtRegFullName, 0, r++);
 
         RowAuto();
-        layout.Controls.Add(MakeFieldLabel("Tên đăng nhập", topPad: 8), 0, r++);
+        layout.Controls.Add(MakeFieldLabel("Tên đăng nhập", topPad: 6), 0, r++);
         RowAbs(38);
-        StyleTextBox(_txtRegUsername, "Chọn tên đăng nhập", password: false);
+        layout.Controls.Add(WrapLightBorderTextBox(_txtRegUsername, "Chọn tên đăng nhập", password: false), 0, r++);
         _txtRegUsername.TabIndex = 1;
-        layout.Controls.Add(_txtRegUsername, 0, r++);
 
         RowAuto();
-        layout.Controls.Add(MakeFieldLabel("Mật khẩu", topPad: 8), 0, r++);
+        layout.Controls.Add(MakeFieldLabel("Mật khẩu", topPad: 6), 0, r++);
         RowAbs(38);
-        StyleTextBox(_txtRegPassword, "Nhập mật khẩu", password: true);
+        layout.Controls.Add(WrapLightBorderTextBox(_txtRegPassword, "Nhập mật khẩu", password: true), 0, r++);
         _txtRegPassword.TabIndex = 2;
-        layout.Controls.Add(_txtRegPassword, 0, r++);
 
         RowAuto();
-        layout.Controls.Add(MakeFieldLabel("Xác nhận mật khẩu", topPad: 8), 0, r++);
+        layout.Controls.Add(MakeFieldLabel("Xác nhận mật khẩu", topPad: 6), 0, r++);
         RowAbs(38);
-        StyleTextBox(_txtRegConfirm, "Nhập lại mật khẩu", password: true);
+        layout.Controls.Add(WrapLightBorderTextBox(_txtRegConfirm, "Nhập lại mật khẩu", password: true), 0, r++);
         _txtRegConfirm.TabIndex = 3;
-        layout.Controls.Add(_txtRegConfirm, 0, r++);
 
         RowAbs(44);
         _btnRegister.Text = "Tạo tài khoản";
         _btnRegister.Dock = DockStyle.Fill;
-        _btnRegister.Margin = new Padding(0, 16, 0, 0);
+        _btnRegister.Margin = new Padding(0, 12, 0, 0);
         _btnRegister.TabIndex = 4;
         StylePrimaryButton(_btnRegister);
         _btnRegister.Click += HandleRegisterStub;
         layout.Controls.Add(_btnRegister, 0, r++);
 
         RowAuto();
-        StyleLink(_lnkBackFromRegister, "← Quay lại đăng nhập");
-        _lnkBackFromRegister.Margin = new Padding(0, 12, 0, 0);
+        StyleSecondaryLink(_lnkBackFromRegister, "← Quay lại đăng nhập");
+        _lnkBackFromRegister.Margin = new Padding(0, 10, 0, 0);
         _lnkBackFromRegister.TabIndex = 5;
         _lnkBackFromRegister.Click += (_, _) => ShowAuthView(AuthView.Login);
         layout.Controls.Add(_lnkBackFromRegister, 0, r++);
@@ -336,7 +330,7 @@ public sealed class FrmLogin : Form
             Dock = DockStyle.Fill,
             ColumnCount = 1,
             RowCount = 6,
-            AutoScroll = true
+            AutoScroll = false
         };
 
         int r = 0;
@@ -350,7 +344,7 @@ public sealed class FrmLogin : Form
             AutoSize = true,
             ForeColor = AuthLoginTheme.Navy,
             Font = AuthLoginTheme.CardTitleFont(),
-            Margin = new Padding(0, 0, 0, 8)
+            Margin = new Padding(0, 0, 0, 6)
         }, 0, r++);
 
         RowAuto();
@@ -358,7 +352,7 @@ public sealed class FrmLogin : Form
         {
             Text = "Nhập tên đăng nhập hoặc email đã đăng ký. Phiên bản thật sẽ gửi hướng dẫn qua email.",
             AutoSize = false,
-            Height = 44,
+            Height = 42,
             ForeColor = AuthLoginTheme.MutedText,
             Font = AuthLoginTheme.BodyFont()
         }, 0, r++);
@@ -367,29 +361,44 @@ public sealed class FrmLogin : Form
         layout.Controls.Add(MakeFieldLabel("Tên đăng nhập hoặc email"), 0, r++);
 
         RowAbs(38);
-        _txtForgotIdentity.Dock = DockStyle.Fill;
-        _txtForgotIdentity.BorderStyle = BorderStyle.FixedSingle;
-        _txtForgotIdentity.PlaceholderText = "Nhập tên đăng nhập hoặc email";
+        layout.Controls.Add(WrapLightBorderTextBox(_txtForgotIdentity, "Nhập tên đăng nhập hoặc email", password: false), 0, r++);
         _txtForgotIdentity.TabIndex = 0;
-        layout.Controls.Add(_txtForgotIdentity, 0, r++);
 
         RowAbs(44);
         _btnForgotSend.Text = "Gửi yêu cầu khôi phục";
         _btnForgotSend.Dock = DockStyle.Fill;
-        _btnForgotSend.Margin = new Padding(0, 16, 0, 0);
+        _btnForgotSend.Margin = new Padding(0, 14, 0, 0);
         _btnForgotSend.TabIndex = 1;
         StylePrimaryButton(_btnForgotSend);
         _btnForgotSend.Click += HandleForgotStub;
         layout.Controls.Add(_btnForgotSend, 0, r++);
 
         RowAuto();
-        StyleLink(_lnkBackFromForgot, "← Quay lại đăng nhập");
-        _lnkBackFromForgot.Margin = new Padding(0, 12, 0, 0);
+        StyleSecondaryLink(_lnkBackFromForgot, "← Quay lại đăng nhập");
+        _lnkBackFromForgot.Margin = new Padding(0, 10, 0, 0);
         _lnkBackFromForgot.TabIndex = 2;
         _lnkBackFromForgot.Click += (_, _) => ShowAuthView(AuthView.Login);
         layout.Controls.Add(_lnkBackFromForgot, 0, r++);
 
         _pnlForgot.Controls.Add(layout);
+    }
+
+    private static Panel WrapLightBorderTextBox(TextBox textBox, string placeholder, bool password)
+    {
+        textBox.BorderStyle = BorderStyle.None;
+        textBox.BackColor = Color.White;
+        textBox.PlaceholderText = placeholder;
+        textBox.UseSystemPasswordChar = password;
+        textBox.Dock = DockStyle.Fill;
+
+        var host = new Panel
+        {
+            Dock = DockStyle.Fill,
+            BackColor = AuthLoginTheme.Border,
+            Padding = new Padding(1)
+        };
+        host.Controls.Add(textBox);
+        return host;
     }
 
     private static Label MakeFieldLabel(string text, int topPad = 0) =>
@@ -399,25 +408,18 @@ public sealed class FrmLogin : Form
             AutoSize = true,
             ForeColor = AuthLoginTheme.Navy,
             Font = AuthLoginTheme.FieldLabelFont(),
-            Margin = new Padding(0, topPad, 0, 4)
+            Margin = new Padding(0, topPad, 0, 3)
         };
 
-    private static void StyleTextBox(TextBox box, string placeholder, bool password)
-    {
-        box.Dock = DockStyle.Fill;
-        box.BorderStyle = BorderStyle.FixedSingle;
-        box.PlaceholderText = placeholder;
-        box.UseSystemPasswordChar = password;
-    }
-
-    private static void StyleLink(LinkLabel link, string text)
+    private static void StyleSecondaryLink(LinkLabel link, string text)
     {
         link.Text = text;
         link.AutoSize = true;
         link.LinkBehavior = LinkBehavior.HoverUnderline;
-        link.LinkColor = AuthLoginTheme.PrimaryBlue;
-        link.ActiveLinkColor = AuthLoginTheme.Navy;
-        link.VisitedLinkColor = AuthLoginTheme.PrimaryBlue;
+        link.LinkColor = AuthLoginTheme.MutedText;
+        link.ActiveLinkColor = AuthLoginTheme.PrimaryBlue;
+        link.VisitedLinkColor = AuthLoginTheme.MutedText;
+        link.DisabledLinkColor = AuthLoginTheme.MutedText;
         link.BackColor = Color.Transparent;
         link.TabStop = true;
     }
@@ -431,13 +433,6 @@ public sealed class FrmLogin : Form
         b.Font = AuthLoginTheme.PrimaryButtonFont();
         b.Cursor = Cursors.Hand;
         b.UseVisualStyleBackColor = false;
-    }
-
-    private void ToggleLoginPasswordVisibility(object? sender, EventArgs e)
-    {
-        _passwordVisible = !_passwordVisible;
-        _txtLoginPassword.UseSystemPasswordChar = !_passwordVisible;
-        _btnTogglePassword.Text = _passwordVisible ? "Ẩn" : "Hiện";
     }
 
     private void LoadBrandingImage()
