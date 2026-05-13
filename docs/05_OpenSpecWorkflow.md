@@ -66,6 +66,14 @@ Hướng dẫn chi tiết và prompt mẫu nằm ở:
 docs/09_CodexOpenSpecWorkflow.md
 ```
 
+## Khi Dùng Antigravity
+
+Antigravity đọc `AGENTS.md` và `GEMINI.md` ở root project. Xem hướng dẫn riêng tại:
+
+```text
+docs/10_AntigravityOpenSpecWorkflow.md
+```
+
 ## Quy Định Nhóm
 
 - Tính năng lớn phải có OpenSpec change hoặc cập nhật docs trước.
