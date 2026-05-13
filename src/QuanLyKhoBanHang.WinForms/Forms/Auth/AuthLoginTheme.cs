@@ -20,6 +20,4 @@ internal static class AuthLoginTheme
     public static Font BodyFont() => new(FontFamily, 10.25F, FontStyle.Regular);
 
     public static Font PrimaryButtonFont() => new(FontFamily, 12F, FontStyle.Bold);
-
-    public static Font DemoHintFont() => new(FontFamily, 9F, FontStyle.Regular);
 }

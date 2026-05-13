@@ -134,7 +134,7 @@ public sealed class FrmLogin : Form
         {
             Dock = DockStyle.Fill,
             ColumnCount = 1,
-            RowCount = 9,
+            RowCount = 8,
             AutoScroll = true
         };
 
@@ -243,25 +243,6 @@ public sealed class FrmLogin : Form
         _lnkForgot.Click += (_, _) => ShowAuthView(AuthView.ForgotPassword);
         links.Controls.Add(_lnkForgot);
         layout.Controls.Add(links, 0, r++);
-
-        RowAbs(56);
-        var demoPanel = new Panel
-        {
-            Dock = DockStyle.Fill,
-            Margin = new Padding(0, 16, 0, 0),
-            BackColor = Color.FromArgb(240, 247, 255),
-            BorderStyle = BorderStyle.FixedSingle,
-            Padding = new Padding(10, 8, 10, 8)
-        };
-        demoPanel.Controls.Add(new Label
-        {
-            Dock = DockStyle.Fill,
-            Text = "Tài khoản demo: admin/admin123 · manager/123456 · du/123456 · hung/123456",
-            ForeColor = AuthLoginTheme.MutedText,
-            Font = AuthLoginTheme.DemoHintFont(),
-            TextAlign = ContentAlignment.MiddleLeft
-        });
-        layout.Controls.Add(demoPanel, 0, r++);
 
         _pnlLogin.Controls.Add(layout);
     }
@@ -561,7 +542,7 @@ public sealed class FrmLogin : Form
 
         MessageBox.Show(
             "Phiên bản demo: Không gửi email thật. Vui lòng liên hệ quản trị viên để đặt lại mật khẩu, "
-            + "hoặc dùng tài khoản demo được cung cấp trên màn hình đăng nhập.",
+            + "hoặc dùng tài khoản demo theo tài liệu hướng dẫn dự án.",
             "Khôi phục mật khẩu",
             MessageBoxButtons.OK,
             MessageBoxIcon.Information);
