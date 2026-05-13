@@ -5,7 +5,7 @@
 ## Stack
 
 - C# WinForms .NET 8
-- SQL Server LocalDB
+- SQL Server Developer qua SSMS
 - ADO.NET thuần ở tầng DAL
 - Kiến trúc 3 lớp: WinForms -> BLL -> DAL -> DTO
 - OpenSpec để quản lý yêu cầu, thiết kế và task theo từng thay đổi
@@ -13,12 +13,14 @@
 ## Cách chạy nhanh
 
 1. Mở `QuanLyKhoBanHang.sln` bằng Visual Studio.
-2. Chạy script `database/schema.sql` trên SQL Server LocalDB.
+2. Chạy script `database/schema.sql` trên SQL Server Developer qua SSMS.
 3. Chạy script `database/seed.sql` để có dữ liệu demo.
 4. Set `QuanLyKhoBanHang.WinForms` làm startup project.
 5. Chạy app, dùng tài khoản demo:
-   - Username: `admin`
-   - Password: `admin123`
+   - `admin/admin123` - Admin
+   - `manager/123456` - Manager
+   - `du/123456` - WarehouseStaff
+   - `hung/123456` - SalesStaff
 
 ## Tài liệu nhóm
 

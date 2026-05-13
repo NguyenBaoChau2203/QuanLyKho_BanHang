@@ -7,7 +7,7 @@ Châu là nhóm trưởng, phụ trách kiến trúc tổng thể, OpenSpec, dat
 ## Branch làm việc
 
 ```text
-feature/project-ui-chau
+feature/project-lead-chau
 ```
 
 ## Phạm vi chính
@@ -34,7 +34,7 @@ Sau Phase 0, Châu làm UI dựa trên contract đã chốt, không cần chờ 
 
 ## Database cần phụ trách
 
-- Thiết kế schema tổng thể cho SQL Server LocalDB.
+- Thiết kế schema tổng thể cho SQL Server Developer qua SSMS.
 - Viết và cập nhật `database/schema.sql`.
 - Viết và cập nhật `database/seed.sql`.
 - Quy định tên bảng, khóa chính, khóa ngoại, index và constraint.
@@ -43,7 +43,7 @@ Sau Phase 0, Châu làm UI dựa trên contract đã chốt, không cần chờ 
 
 ## Quy định khi làm database
 
-- Database chính dùng SQL Server LocalDB.
+- Database chính dùng SQL Server Developer qua SSMS.
 - Script phải chạy được theo thứ tự: `schema.sql` trước, `seed.sql` sau.
 - Tên bảng dùng tiếng Anh số nhiều: `Products`, `SalesInvoices`, `StockTransactions`.
 - Tên cột dùng PascalCase: `ProductId`, `CreatedAt`, `QuantityOnHand`.
@@ -96,20 +96,20 @@ Sau Phase 0, Châu làm UI dựa trên contract đã chốt, không cần chờ 
 
 ## Checklist hoàn thành
 
-- [ ] UI mở được tất cả menu chính.
-- [ ] Phase 0 đã chốt database, DTO và service contract đủ để cả nhóm làm song song.
-- [ ] `database/schema.sql` chạy được trên SQL Server LocalDB.
-- [ ] `database/seed.sql` tạo được dữ liệu demo.
-- [ ] Database có đủ bảng cho nhập kho, bán hàng, kiểm kê, dashboard và báo cáo.
-- [ ] Không có form nào gọi DAL trực tiếp.
-- [ ] Login chạy được với tài khoản seed.
-- [ ] Dashboard có layout rõ ràng và sẵn sàng nhận dữ liệu thật.
-- [ ] Form nhập kho gọi được `PurchaseService`.
-- [ ] Form bán hàng gọi được `SalesService`.
-- [ ] Form báo cáo gọi được `ReportService`.
-- [ ] Trợ lý quản lý gọi được `AssistantService`.
-- [ ] Build solution thành công trước khi merge.
-- [ ] Chuẩn bị dữ liệu demo và kịch bản thuyết trình.
+- [x] UI mở được tất cả menu chính.
+- [x] Phase 0 đã chốt database, DTO và service contract đủ để cả nhóm làm song song.
+- [x] `database/schema.sql` chạy được trên SQL Server Developer qua SSMS.
+- [x] `database/seed.sql` tạo được dữ liệu demo.
+- [x] Database có đủ bảng cho nhập kho, bán hàng, kiểm kê, dashboard và báo cáo.
+- [x] Không có form nào gọi DAL trực tiếp.
+- [x] Login chạy được với tài khoản seed.
+- [x] Dashboard có layout rõ ràng và sẵn sàng nhận dữ liệu thật.
+- [x] Form nhập kho gọi được `PurchaseService`.
+- [x] Form bán hàng gọi được `SalesService`.
+- [x] Form báo cáo gọi được `ReportService`.
+- [x] Trợ lý quản lý gọi được `AssistantService`.
+- [x] Build solution thành công trước khi merge.
+- [x] Chuẩn bị dữ liệu demo và kịch bản thuyết trình.
 
 ## Bàn giao cuối
 

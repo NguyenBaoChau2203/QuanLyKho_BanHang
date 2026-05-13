@@ -1,0 +1,7 @@
+interface:
+  display_name: "OpenSpec SDD"
+  short_description: "OpenSpec workflow for this repo"
+  default_prompt: "Use $openspec-sdd to create, validate, review, or implement an OpenSpec change."
+
+policy:
+  allow_implicit_invocation: true

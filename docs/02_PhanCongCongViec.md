@@ -20,7 +20,7 @@ File này là mục lục phân công. Mỗi thành viên mở đúng file của
 
 ## Branch làm việc
 
-- Châu: `feature/project-ui-chau`
+- Châu: `feature/project-lead-chau`
 - Dũ: `feature/inventory-du`
 - Hùng: `feature/sales-report-hung`
 

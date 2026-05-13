@@ -1,10 +1,49 @@
 using QuanLyKhoBanHang.BLL.Common;
+using QuanLyKhoBanHang.BLL.Services.Assistant;
 using QuanLyKhoBanHang.DTO.Assistant;
 
 namespace QuanLyKhoBanHang.BLL.Services;
 
 public sealed class AssistantService
 {
+    private const string OfflineStatus = "Offline rule-based: chưa cấu hình DEEPSEEK_API_KEY.";
+    private const string AiReadyStatus = "AI online: DeepSeek đã được cấu hình, tự fallback nếu API lỗi.";
+    private const string AiFallbackStatus = "AI failed, fallback used: đã dùng trợ lý offline rule-based.";
+
+    private readonly RuleBasedAssistantProvider _ruleBasedProvider;
+    private readonly DeepSeekAssistantProvider _deepSeekProvider;
+    private readonly DeepSeekOptions _deepSeekOptions;
+
+    public AssistantService()
+        : this(null, null)
+    {
+    }
+
+    public AssistantService(HttpClient? deepSeekHttpClient, TimeSpan? deepSeekTimeout = null)
+    {
+        _ruleBasedProvider = new RuleBasedAssistantProvider(
+            new ReportService(),
+            new InventoryService(),
+            new StocktakeService());
+        _deepSeekOptions = DeepSeekOptions.FromEnvironment();
+        _deepSeekProvider = new DeepSeekAssistantProvider(_deepSeekOptions, deepSeekHttpClient, deepSeekTimeout);
+    }
+
+    public ServiceResult<AssistantResponseDto> GetModeStatus()
+    {
+        var mode = _deepSeekOptions.IsEnabled ? AssistantModes.AiOnline : AssistantModes.OfflineRuleBased;
+        var status = _deepSeekOptions.IsEnabled ? AiReadyStatus : OfflineStatus;
+
+        return ServiceResult<AssistantResponseDto>.Ok(new AssistantResponseDto
+        {
+            Intent = AssistantIntentCatalog.Unknown,
+            Handled = false,
+            Mode = mode,
+            StatusMessage = status,
+            IsFallback = !_deepSeekOptions.IsEnabled
+        }, status);
+    }
+
     public ServiceResult<AssistantResponseDto> Ask(string question)
     {
         if (string.IsNullOrWhiteSpace(question))
@@ -12,34 +51,56 @@ public sealed class AssistantService
             return ServiceResult<AssistantResponseDto>.Fail("Vui lòng nhập câu hỏi hoặc câu lệnh.");
         }
 
-        var normalized = question.Trim().ToLowerInvariant();
-        var response = new AssistantResponseDto
+        if (!_deepSeekOptions.IsEnabled)
         {
-            Intent = "unknown",
-            Handled = true
-        };
-
-        if (normalized.Contains("doanh thu"))
-        {
-            response.Intent = "revenue";
-            response.Answer = "Đã nhận câu hỏi doanh thu. Hùng sẽ nối ReportService để trả dữ liệu thật.";
-        }
-        else if (normalized.Contains("sắp hết") || normalized.Contains("tồn thấp"))
-        {
-            response.Intent = "low-stock";
-            response.Answer = "Đã nhận câu hỏi tồn thấp. Dũ sẽ nối InventoryService để trả dữ liệu thật.";
-        }
-        else if (normalized.Contains("top") || normalized.Contains("bán chạy"))
-        {
-            response.Intent = "top-products";
-            response.Answer = "Đã nhận câu hỏi top sản phẩm bán chạy. Hùng sẽ nối ReportService để trả dữ liệu thật.";
-        }
-        else
-        {
-            response.Handled = false;
-            response.Answer = "Trợ lý chưa hiểu câu này. Hãy thử: doanh thu hôm nay, hàng sắp hết, top sản phẩm bán chạy.";
+            var offline = _ruleBasedProvider.Ask(
+                question,
+                AssistantModes.OfflineRuleBased,
+                OfflineStatus,
+                isFallback: true);
+            return ServiceResult<AssistantResponseDto>.Ok(offline, offline.StatusMessage);
         }
 
-        return ServiceResult<AssistantResponseDto>.Ok(response);
+        try
+        {
+            var safeContexts = _ruleBasedProvider.BuildSafeContexts();
+            var ai = _deepSeekProvider.Ask(question, safeContexts);
+            var online = new AssistantResponseDto
+            {
+                Intent = ai.Intent,
+                Answer = ai.Answer,
+                Handled = ai.Handled,
+                Mode = AssistantModes.AiOnline,
+                StatusMessage = AiReadyStatus,
+                IsFallback = false
+            };
+
+            return ServiceResult<AssistantResponseDto>.Ok(online, online.StatusMessage);
+        }
+        catch (Exception ex)
+        {
+            var fallback = _ruleBasedProvider.Ask(
+                question,
+                AssistantModes.AiFailedFallback,
+                BuildFallbackStatus(ex),
+                isFallback: true);
+            return ServiceResult<AssistantResponseDto>.Ok(fallback, fallback.StatusMessage);
+        }
+    }
+
+    private static string BuildFallbackStatus(Exception ex)
+    {
+        var message = string.IsNullOrWhiteSpace(ex.Message) ? ex.GetType().Name : ex.Message;
+        message = message
+            .Replace(Environment.NewLine, " ", StringComparison.Ordinal)
+            .Replace("\r", " ", StringComparison.Ordinal)
+            .Replace("\n", " ", StringComparison.Ordinal);
+
+        if (message.Length > 140)
+        {
+            message = message[..140] + "...";
+        }
+
+        return $"{AiFallbackStatus} Lý do: {message}";
     }
 }

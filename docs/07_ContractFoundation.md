@@ -46,6 +46,26 @@ Phase 0 giải quyết chuyện đó bằng cách chốt contract trước, impl
 - UI chỉ phụ thuộc vào service contract, không phụ thuộc implementation bên trong.
 - Khi backend chưa xong, service có thể trả mock/stub data hợp lệ để UI làm tiếp.
 
+## Phase 0 contract chốt nhanh
+
+### File ownership
+
+- Châu sở hữu `database/schema.sql`, `database/seed.sql`, `docs/`, `openspec/` và phần chốt contract chung.
+- Dũ sở hữu backend kho, nhập kho, tồn kho, kiểm kê ở DAL/BLL.
+- Hùng sở hữu backend khách hàng, bán hàng, báo cáo và assistant rule liên quan doanh thu.
+
+### Rule đổi contract
+
+- Bất kỳ thay đổi nào về schema, DTO property, hoặc public service signature đều là thay đổi contract.
+- Thay đổi contract phải được Châu review trước khi merge.
+- Không thêm `PrintInvoice` trong Phase 0.
+
+### Rule stub/mock
+
+- Service public có thể trả dữ liệu seed, empty list hợp lệ, hoặc fail validation có chủ đích.
+- Không tạo hidden business logic khiến Dũ/Hùng phải gỡ bỏ lại ở phase sau.
+- WinForms chỉ đi qua BLL, không gọi DAL trực tiếp.
+
 ## Làm song song sau Phase 0
 
 ### Châu
