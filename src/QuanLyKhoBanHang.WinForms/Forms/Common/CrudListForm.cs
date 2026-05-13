@@ -71,6 +71,9 @@ public abstract class CrudListForm<TItem> : Form where TItem : class, new()
         NameBox.Width = 260;
         DescriptionBox.Width = 260;
         ActiveBox.Text = "Đang hoạt động";
+        ActiveBox.AutoSize = true;
+        ActiveBox.MinimumSize = new Size(160, 30);
+        ActiveBox.Margin = new Padding(0, 6, 0, 8);
 
         MessageLabel.Text = "Sẵn sàng";
     }

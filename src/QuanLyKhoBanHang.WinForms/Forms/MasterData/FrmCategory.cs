@@ -17,7 +17,7 @@ public sealed class FrmCategory : CrudListForm<CategoryDto>
         Grid.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = nameof(CategoryDto.Code), HeaderText = "Mã", FillWeight = 20 });
         Grid.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = nameof(CategoryDto.Name), HeaderText = "Tên", FillWeight = 28 });
         Grid.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = nameof(CategoryDto.Description), HeaderText = "Mô tả", FillWeight = 42 });
-        Grid.Columns.Add(new DataGridViewCheckBoxColumn { DataPropertyName = nameof(CategoryDto.IsActive), HeaderText = "Hoạt động", FillWeight = 10 });
+        Grid.Columns.Add(new DataGridViewCheckBoxColumn { DataPropertyName = nameof(CategoryDto.IsActive), HeaderText = "Hoạt động", Width = 96, MinimumWidth = 96, AutoSizeMode = DataGridViewAutoSizeColumnMode.None });
         RefreshData();
         ToggleEditing(false);
     }

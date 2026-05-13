@@ -118,7 +118,7 @@ public sealed class FrmProduct : CrudListForm<ProductDto>
         Grid.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = nameof(ProductDto.Unit), HeaderText = "Đơn vị" });
         Grid.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = nameof(ProductDto.SellingPrice), HeaderText = "Giá bán", DefaultCellStyle = { Format = "N0" } });
         Grid.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = nameof(ProductDto.QuantityOnHand), HeaderText = "Tồn kho" });
-        Grid.Columns.Add(new DataGridViewCheckBoxColumn { DataPropertyName = nameof(ProductDto.IsActive), HeaderText = "Hoạt động" });
+        Grid.Columns.Add(new DataGridViewCheckBoxColumn { DataPropertyName = nameof(ProductDto.IsActive), HeaderText = "Hoạt động", Width = 96, MinimumWidth = 96, AutoSizeMode = DataGridViewAutoSizeColumnMode.None });
     }
 
     private static List<ProductDto> CreateStubItems() =>

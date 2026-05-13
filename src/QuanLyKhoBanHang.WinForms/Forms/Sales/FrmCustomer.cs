@@ -20,7 +20,7 @@ public sealed class FrmCustomer : CrudListForm<CustomerDto>
         Grid.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = nameof(CustomerDto.Phone), HeaderText = "Điện thoại", FillWeight = 16 });
         Grid.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = nameof(CustomerDto.Email), HeaderText = "Email", FillWeight = 20 });
         Grid.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = nameof(CustomerDto.Address), HeaderText = "Địa chỉ", FillWeight = 20 });
-        Grid.Columns.Add(new DataGridViewCheckBoxColumn { DataPropertyName = nameof(CustomerDto.IsActive), HeaderText = "Hoạt động", FillWeight = 10 });
+        Grid.Columns.Add(new DataGridViewCheckBoxColumn { DataPropertyName = nameof(CustomerDto.IsActive), HeaderText = "Hoạt động", Width = 96, MinimumWidth = 96, AutoSizeMode = DataGridViewAutoSizeColumnMode.None });
         RefreshData();
         ToggleEditing(false);
     }

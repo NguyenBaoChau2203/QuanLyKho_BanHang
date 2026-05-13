@@ -50,7 +50,7 @@ public sealed class FrmMain : Form
         var stack = new TableLayoutPanel
         {
             Dock = DockStyle.Fill,
-            RowCount = 13,
+            RowCount = 14,
             ColumnCount = 1,
         };
         stack.RowStyles.Add(new RowStyle(SizeType.Absolute, 92));
@@ -60,6 +60,7 @@ public sealed class FrmMain : Form
         {
             stack.RowStyles.Add(new RowStyle(SizeType.Absolute, 44));
         }
+        stack.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
 
         stack.Controls.Add(new Label
         {
