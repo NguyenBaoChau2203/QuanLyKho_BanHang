@@ -13,9 +13,9 @@ public sealed class FrmLogin : Form
     {
         Text = "Đăng nhập - Quản lý kho bán hàng";
         StartPosition = FormStartPosition.CenterScreen;
-        Width = 440;
-        Height = 340;
-        MinimumSize = new Size(440, 340);
+        Width = 480;
+        Height = 410;
+        MinimumSize = new Size(480, 410);
         FormBorderStyle = FormBorderStyle.FixedDialog;
         MaximizeBox = false;
         BackColor = AppTheme.AppBackground;
@@ -24,23 +24,33 @@ public sealed class FrmLogin : Form
         var panel = new TableLayoutPanel
         {
             Dock = DockStyle.Fill,
-            Padding = new Padding(28),
+            Padding = new Padding(30),
             ColumnCount = 1,
-            RowCount = 7
+            RowCount = 9
         };
-        panel.RowStyles.Add(new RowStyle(SizeType.Absolute, 52));
+        panel.RowStyles.Add(new RowStyle(SizeType.Absolute, 54));
+        panel.RowStyles.Add(new RowStyle(SizeType.Absolute, 48));
         panel.RowStyles.Add(new RowStyle(SizeType.Absolute, 28));
         panel.RowStyles.Add(new RowStyle(SizeType.Absolute, 42));
         panel.RowStyles.Add(new RowStyle(SizeType.Absolute, 28));
         panel.RowStyles.Add(new RowStyle(SizeType.Absolute, 42));
         panel.RowStyles.Add(new RowStyle(SizeType.Absolute, 14));
         panel.RowStyles.Add(new RowStyle(SizeType.Absolute, 42));
+        panel.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
 
         var title = new Label
         {
             Text = "Quản lý kho & bán hàng",
             Dock = DockStyle.Fill,
             Font = AppTheme.TitleFont(16F),
+            TextAlign = ContentAlignment.MiddleCenter
+        };
+
+        var demoHint = new Label
+        {
+            Text = "Demo: admin/admin123, manager/123456, du/123456, hung/123456",
+            Dock = DockStyle.Fill,
+            ForeColor = AppTheme.TextMuted,
             TextAlign = ContentAlignment.MiddleCenter
         };
 
@@ -64,14 +74,14 @@ public sealed class FrmLogin : Form
         };
         loginButton.Click += HandleLogin;
 
-        panel.Controls.Add(title);
-        panel.Controls.Add(new Label { Text = "Tên đăng nhập", Dock = DockStyle.Fill, TextAlign = ContentAlignment.BottomLeft });
-        panel.Controls.Add(_txtUsername);
-        panel.Controls.Add(new Label { Text = "Mật khẩu", Dock = DockStyle.Fill, TextAlign = ContentAlignment.BottomLeft });
-        panel.Controls.Add(_txtPassword);
-        panel.Controls.Add(new Panel { Dock = DockStyle.Fill });
-        panel.Controls.Add(new Panel { Dock = DockStyle.Fill });
-        panel.Controls.Add(loginButton);
+        panel.Controls.Add(title, 0, 0);
+        panel.Controls.Add(demoHint, 0, 1);
+        panel.Controls.Add(new Label { Text = "Tên đăng nhập", Dock = DockStyle.Fill, TextAlign = ContentAlignment.BottomLeft }, 0, 2);
+        panel.Controls.Add(_txtUsername, 0, 3);
+        panel.Controls.Add(new Label { Text = "Mật khẩu", Dock = DockStyle.Fill, TextAlign = ContentAlignment.BottomLeft }, 0, 4);
+        panel.Controls.Add(_txtPassword, 0, 5);
+        panel.Controls.Add(new Panel { Dock = DockStyle.Fill }, 0, 6);
+        panel.Controls.Add(loginButton, 0, 7);
 
         Controls.Add(panel);
         AcceptButton = loginButton;
@@ -88,7 +98,7 @@ public sealed class FrmLogin : Form
         }
 
         Hide();
-        using var main = new Main.FrmMain(result.Data.FullName);
+        using var main = new Main.FrmMain(result.Data);
         main.ShowDialog(this);
         Close();
     }

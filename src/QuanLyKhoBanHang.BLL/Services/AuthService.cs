@@ -1,6 +1,5 @@
 using QuanLyKhoBanHang.BLL.Common;
 using QuanLyKhoBanHang.DTO.Auth;
-using QuanLyKhoBanHang.DTO.Common;
 
 namespace QuanLyKhoBanHang.BLL.Services;
 
@@ -13,17 +12,12 @@ public sealed class AuthService
             return ServiceResult<UserDto>.Fail("Vui lòng nhập tên đăng nhập và mật khẩu.");
         }
 
-        if (username == "admin" && password == "admin123")
+        var user = UserAccountService.AuthenticateDemoUser(username, password);
+        if (user is not null)
         {
-            return ServiceResult<UserDto>.Ok(new UserDto
-            {
-                Id = 1,
-                Username = "admin",
-                FullName = "Châu",
-                Role = UserRole.Admin
-            });
+            return ServiceResult<UserDto>.Ok(user, "Đăng nhập thành công.");
         }
 
-        return ServiceResult<UserDto>.Fail("Thông tin đăng nhập không đúng.");
+        return ServiceResult<UserDto>.Fail("Thông tin đăng nhập không đúng hoặc tài khoản đã ngừng kích hoạt.");
     }
 }
