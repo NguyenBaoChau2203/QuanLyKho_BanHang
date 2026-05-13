@@ -85,18 +85,29 @@ internal static class UiFactory
         return button;
     }
 
-    public static Button SidebarButton(string text) => new()
+    public static Button SidebarButton(string text)
     {
-        Text = text,
-        Dock = DockStyle.Fill,
-        Height = 40,
-        FlatStyle = FlatStyle.Flat,
-        BackColor = AppTheme.SidebarButton,
-        ForeColor = Color.White,
-        Font = AppTheme.BodyFont(),
-        TextAlign = ContentAlignment.MiddleLeft,
-        Padding = new Padding(12, 0, 0, 0)
-    };
+        var button = new Button
+        {
+            Text = text,
+            Dock = DockStyle.Fill,
+            Height = 40,
+            FlatStyle = FlatStyle.Flat,
+            BackColor = AppTheme.SidebarButton,
+            ForeColor = Color.White,
+            Font = AppTheme.BodyFont(),
+            TextAlign = ContentAlignment.MiddleLeft,
+            Padding = new Padding(12, 0, 0, 0),
+            UseVisualStyleBackColor = false
+        };
+
+        // Avoid stacked 1px borders between adjacent nav rows (double-line artifact).
+        button.FlatAppearance.BorderSize = 0;
+        button.FlatAppearance.BorderColor = AppTheme.SidebarButton;
+        button.FlatAppearance.MouseOverBackColor = Color.FromArgb(52, 78, 115);
+        button.FlatAppearance.MouseDownBackColor = Color.FromArgb(58, 88, 128);
+        return button;
+    }
 
     public static DataGridView ReadOnlyGrid(BindingSource? source = null)
     {
