@@ -39,9 +39,11 @@ public sealed class FrmSalesInvoice : Form
     private List<ProductDto> _products = [];
     private List<CustomerDto> _customers = [];
     private int? _selectedCustomerId;
+    private readonly int _currentUserId;
 
-    public FrmSalesInvoice()
+    public FrmSalesInvoice(int currentUserId)
     {
+        _currentUserId = currentUserId;
         Text = "Bán hàng";
         BackColor = AppTheme.AppBackground;
         Font = AppTheme.BodyFont();
@@ -526,7 +528,7 @@ public sealed class FrmSalesInvoice : Form
         {
             InvoiceCode = _invoiceCode.Text.Trim(),
             CustomerId = _selectedCustomerId,
-            CreatedByUserId = 1,
+            CreatedByUserId = _currentUserId,
             InvoiceDate = _saleDate.Value.Date,
             Note = _note.Text,
             Lines = _lines.Select(x => new SalesInvoiceLineDto

@@ -24,9 +24,11 @@ public sealed class FrmStocktake : Form
     private readonly Label _excessLabel = new();
     private readonly Label _unchangedLabel = new();
     private List<StocktakeLineRow> _lines = [];
+    private readonly int _currentUserId;
 
-    public FrmStocktake()
+    public FrmStocktake(int currentUserId)
     {
+        _currentUserId = currentUserId;
         Text = "Kiểm kê";
         BackColor = AppTheme.AppBackground;
         Font = AppTheme.BodyFont();
@@ -307,7 +309,7 @@ public sealed class FrmStocktake : Form
             StocktakeCode = $"KK-{DateTime.Now:yyyyMMdd-HHmm}",
             StocktakeDate = _stocktakeDate.Value.Date,
             Note = _note.Text.Trim(),
-            CreatedByUserId = 1,
+            CreatedByUserId = _currentUserId,
             Lines = _lines.Select(x => new StocktakeLineDto
             {
                 ProductId = x.ProductId,

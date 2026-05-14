@@ -34,9 +34,11 @@ public sealed class FrmPurchaseReceipt : Form
     private readonly Label _totalCostLabel = new();
     private readonly List<PurchaseLineRow> _lines = [];
     private List<ProductDto> _products = [];
+    private readonly int _currentUserId;
 
-    public FrmPurchaseReceipt()
+    public FrmPurchaseReceipt(int currentUserId)
     {
+        _currentUserId = currentUserId;
         Text = "Nhập kho";
         BackColor = AppTheme.AppBackground;
         Font = AppTheme.BodyFont();
@@ -483,7 +485,7 @@ public sealed class FrmPurchaseReceipt : Form
         {
             ReceiptCode = _receiptCode.Text.Trim(),
             SupplierId = 1,
-            CreatedByUserId = 1,
+            CreatedByUserId = _currentUserId,
             ReceiptDate = _receiptDate.Value.Date,
             Note = string.Join(" - ", new[] { _supplier.Text.Trim(), _supplierNote.Text.Trim(), _note.Text.Trim() }.Where(x => !string.IsNullOrWhiteSpace(x))),
             Lines = _lines.Select(x => new PurchaseReceiptLineDto

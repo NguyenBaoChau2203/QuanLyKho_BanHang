@@ -459,7 +459,7 @@ public sealed class FrmMain : Form
         _statusLabel.Text = $"Đã chuyển sang {form.Text}";
     }
 
-    private static Dictionary<string, Func<Form>> BuildFormFactories()
+    private Dictionary<string, Func<Form>> BuildFormFactories()
     {
         return new Dictionary<string, Func<Form>>(StringComparer.OrdinalIgnoreCase)
         {
@@ -468,10 +468,10 @@ public sealed class FrmMain : Form
             [PermissionService.FeatureCategory] = () => new FrmCategory(),
             [PermissionService.FeatureSupplier] = () => new FrmSupplier(),
             [PermissionService.FeatureCustomer] = () => new FrmCustomer(),
-            [PermissionService.FeaturePurchaseReceipt] = () => new FrmPurchaseReceipt(),
+            [PermissionService.FeaturePurchaseReceipt] = () => new FrmPurchaseReceipt(_currentUser.Id),
             [PermissionService.FeatureInventory] = () => new FrmInventory(),
-            [PermissionService.FeatureStocktake] = () => new FrmStocktake(),
-            [PermissionService.FeatureSalesInvoice] = () => new FrmSalesInvoice(),
+            [PermissionService.FeatureStocktake] = () => new FrmStocktake(_currentUser.Id),
+            [PermissionService.FeatureSalesInvoice] = () => new FrmSalesInvoice(_currentUser.Id),
             [PermissionService.FeatureReport] = () => new FrmReport(),
             [PermissionService.FeatureAssistant] = () => new FrmAssistant(),
             [PermissionService.FeatureUserManagement] = () => new FrmUserManagement(),
