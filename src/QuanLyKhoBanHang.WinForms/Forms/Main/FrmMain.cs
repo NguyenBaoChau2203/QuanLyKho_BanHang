@@ -1,3 +1,4 @@
+using FontAwesome.Sharp;
 using QuanLyKhoBanHang.BLL.Services;
 using QuanLyKhoBanHang.DTO.Auth;
 using QuanLyKhoBanHang.WinForms.Forms.Admin;
@@ -16,10 +17,13 @@ public sealed class FrmMain : Form
     private readonly UserDto _currentUser;
     private readonly PermissionService _permissionService = new();
     private readonly Dictionary<string, Func<Form>> _formFactories;
+    private readonly Dictionary<string, Button> _navButtons = new(StringComparer.OrdinalIgnoreCase);
     private readonly Panel _contentHost = new();
     private readonly Label _titleLabel = new();
     private readonly Label _subtitleLabel = new();
     private readonly ToolStripStatusLabel _statusLabel = new();
+
+    public bool LogoutRequested { get; private set; }
 
     public FrmMain(UserDto currentUser)
     {
@@ -37,7 +41,7 @@ public sealed class FrmMain : Form
             ColumnCount = 2,
             RowCount = 1
         };
-        root.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 236));
+        root.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 248));
         root.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
 
         root.Controls.Add(BuildSidebar(), 0, 0);
@@ -53,7 +57,7 @@ public sealed class FrmMain : Form
         {
             Dock = DockStyle.Fill,
             BackColor = AppTheme.Sidebar,
-            Padding = new Padding(18)
+            Padding = new Padding(16, 18, 16, 18)
         };
 
         var permissions = _permissionService.GetAccessibleFeatures(_currentUser.Role).Data ?? [];
@@ -62,84 +66,211 @@ public sealed class FrmMain : Form
         var stack = new TableLayoutPanel
         {
             Dock = DockStyle.Fill,
-            RowCount = entries.Count + 4,
-            ColumnCount = 1
+            ColumnCount = 1,
+            RowCount = 5
         };
-        stack.RowStyles.Add(new RowStyle(SizeType.Absolute, 86));
-        stack.RowStyles.Add(new RowStyle(SizeType.Absolute, 50));
-        stack.RowStyles.Add(new RowStyle(SizeType.Absolute, 8));
-
-        stack.Controls.Add(new Label
-        {
-            Text = "QUẢN LÝ KHO\n& BÁN HÀNG",
-            Dock = DockStyle.Fill,
-            ForeColor = Color.White,
-            Font = AppTheme.TitleFont(15F),
-            TextAlign = ContentAlignment.MiddleLeft
-        }, 0, 0);
-
-        stack.Controls.Add(BuildUserBadge(), 0, 1);
-
-        var row = 3;
-        foreach (var entry in entries)
-        {
-            if (entry.IsSection)
-            {
-                stack.RowStyles.Add(new RowStyle(SizeType.Absolute, 22));
-                stack.Controls.Add(new Label
-                {
-                    Text = entry.Text.ToUpperInvariant(),
-                    Dock = DockStyle.Fill,
-                    ForeColor = AppTheme.SidebarTextMuted,
-                    Font = AppTheme.SectionFont(8.5F),
-                    TextAlign = ContentAlignment.BottomLeft
-                }, 0, row++);
-                continue;
-            }
-
-            stack.RowStyles.Add(new RowStyle(SizeType.Absolute, 40));
-            var button = CreateNavButton(entry.Text);
-            button.Click += (_, _) => OpenFeature(entry.FeatureKey);
-            stack.Controls.Add(button, 0, row++);
-        }
-
+        stack.RowStyles.Add(new RowStyle(SizeType.Absolute, 76));
+        stack.RowStyles.Add(new RowStyle(SizeType.Absolute, 84));
+        stack.RowStyles.Add(new RowStyle(SizeType.Absolute, 12));
         stack.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
+        stack.RowStyles.Add(new RowStyle(SizeType.Absolute, 50));
+
+        stack.Controls.Add(BuildBrand(), 0, 0);
+        stack.Controls.Add(BuildUserBadge(), 0, 1);
+        stack.Controls.Add(BuildMenu(entries), 0, 3);
+        stack.Controls.Add(BuildLogoutButton(), 0, 4);
         sidebar.Controls.Add(stack);
         return sidebar;
     }
 
-    private Control BuildUserBadge()
+    private static Control BuildBrand()
     {
-        var panel = new TableLayoutPanel
+        var layout = new TableLayoutPanel
         {
             Dock = DockStyle.Fill,
-            ColumnCount = 1,
-            RowCount = 2
+            ColumnCount = 2,
+            RowCount = 1
         };
-        panel.RowStyles.Add(new RowStyle(SizeType.Percent, 54));
-        panel.RowStyles.Add(new RowStyle(SizeType.Percent, 46));
+        layout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 42));
+        layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
 
-        panel.Controls.Add(new Label
+        layout.Controls.Add(new IconPictureBox
         {
-            Text = _currentUser.FullName,
             Dock = DockStyle.Fill,
-            ForeColor = Color.White,
-            Font = AppTheme.SectionFont(10F),
-            TextAlign = ContentAlignment.BottomLeft,
-            AutoEllipsis = true
+            BackColor = Color.Transparent,
+            IconChar = IconChar.BoxesStacked,
+            IconColor = Color.White,
+            IconFont = IconFont.Auto,
+            IconSize = 28,
+            Padding = new Padding(0, 14, 10, 14)
         }, 0, 0);
 
-        panel.Controls.Add(new Label
+        layout.Controls.Add(new Label
+        {
+            Text = "QuanLyKhoBanHang",
+            Dock = DockStyle.Fill,
+            ForeColor = Color.White,
+            Font = AppTheme.SectionFont(11F),
+            TextAlign = ContentAlignment.MiddleLeft,
+            AutoEllipsis = true
+        }, 1, 0);
+
+        return layout;
+    }
+
+    private Control BuildUserBadge()
+    {
+        var badge = new RoundedPanel
+        {
+            Dock = DockStyle.Fill,
+            FillColor = Color.FromArgb(34, 57, 87),
+            BorderColor = Color.FromArgb(52, 78, 115),
+            Radius = 8,
+            ShadowSize = 0,
+            Padding = new Padding(10, 8, 10, 8)
+        };
+
+        var layout = new TableLayoutPanel
+        {
+            Dock = DockStyle.Fill,
+            ColumnCount = 2,
+            RowCount = 1
+        };
+        layout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 44));
+        layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+
+        layout.Controls.Add(new IconPictureBox
+        {
+            Dock = DockStyle.Fill,
+            BackColor = Color.Transparent,
+            IconChar = IconChar.CircleUser,
+            IconColor = AppTheme.SidebarTextMuted,
+            IconFont = IconFont.Auto,
+            IconSize = 34,
+            Padding = new Padding(0, 5, 10, 5)
+        }, 0, 0);
+
+        var textStack = new FlowLayoutPanel
+        {
+            Dock = DockStyle.Fill,
+            FlowDirection = FlowDirection.TopDown,
+            WrapContents = false,
+            Padding = new Padding(0, 9, 0, 0)
+        };
+        var nameLabel = new Label
+        {
+            Text = _currentUser.FullName,
+            Width = 140,
+            Height = 22,
+            ForeColor = Color.White,
+            Font = AppTheme.SectionFont(9.5F),
+            TextAlign = ContentAlignment.MiddleLeft,
+            AutoEllipsis = true,
+            Margin = Padding.Empty
+        };
+
+        var roleLabel = new Label
         {
             Text = PermissionService.GetRoleDisplayName(_currentUser.Role),
-            Dock = DockStyle.Fill,
+            Width = 140,
+            Height = 20,
             ForeColor = AppTheme.SidebarTextMuted,
-            Font = AppTheme.BodyFont(9F),
-            TextAlign = ContentAlignment.TopLeft,
-            AutoEllipsis = true
-        }, 0, 1);
+            Font = AppTheme.BodyFont(8.8F),
+            TextAlign = ContentAlignment.MiddleLeft,
+            AutoEllipsis = true,
+            Margin = new Padding(0, 1, 0, 0)
+        };
 
-        return panel;
+        textStack.Controls.Add(nameLabel);
+        textStack.Controls.Add(roleLabel);
+        textStack.SizeChanged += (_, _) =>
+        {
+            var width = Math.Max(80, textStack.ClientSize.Width - 2);
+            nameLabel.Width = width;
+            roleLabel.Width = width;
+        };
+
+        layout.Controls.Add(textStack, 1, 0);
+        badge.Controls.Add(layout);
+        return badge;
+    }
+
+    private Control BuildMenu(IReadOnlyList<SidebarEntry> entries)
+    {
+        var menu = new FlowLayoutPanel
+        {
+            Dock = DockStyle.Fill,
+            FlowDirection = FlowDirection.TopDown,
+            WrapContents = false,
+            AutoScroll = true,
+            Padding = new Padding(0, 2, 0, 0)
+        };
+
+        foreach (var entry in entries)
+        {
+            if (entry.IsSection)
+            {
+                menu.Controls.Add(new Label
+                {
+                    Text = entry.Text.ToUpperInvariant(),
+                    Height = 30,
+                    Margin = new Padding(2, 8, 0, 2),
+                    ForeColor = AppTheme.SidebarTextMuted,
+                    Font = AppTheme.SectionFont(8.5F),
+                    TextAlign = ContentAlignment.BottomLeft
+                });
+                continue;
+            }
+
+            var button = CreateNavButton(entry);
+            button.Click += (_, _) => OpenFeature(entry.FeatureKey);
+            _navButtons[entry.FeatureKey] = button;
+            menu.Controls.Add(button);
+        }
+
+        menu.SizeChanged += (_, _) => ResizeSidebarMenuItems(menu);
+        menu.HandleCreated += (_, _) => ResizeSidebarMenuItems(menu);
+        return menu;
+    }
+
+    private Control BuildLogoutButton()
+    {
+        var button = new IconButton
+        {
+            Text = "Đăng xuất",
+            Dock = DockStyle.Fill,
+            Height = 42,
+            Margin = new Padding(0, 6, 0, 0),
+            FlatStyle = FlatStyle.Flat,
+            BackColor = Color.FromArgb(54, 73, 104),
+            ForeColor = Color.White,
+            Font = AppTheme.BodyFont(),
+            IconChar = IconChar.RightFromBracket,
+            IconColor = AppTheme.SidebarTextMuted,
+            IconFont = IconFont.Auto,
+            IconSize = 18,
+            TextAlign = ContentAlignment.MiddleLeft,
+            TextImageRelation = TextImageRelation.ImageBeforeText,
+            ImageAlign = ContentAlignment.MiddleLeft,
+            Padding = new Padding(12, 0, 0, 0),
+            UseVisualStyleBackColor = false,
+            Cursor = Cursors.Hand
+        };
+
+        button.FlatAppearance.BorderSize = 0;
+        button.FlatAppearance.MouseOverBackColor = Color.FromArgb(69, 92, 126);
+        button.FlatAppearance.MouseDownBackColor = Color.FromArgb(84, 105, 137);
+        button.Click += HandleLogout;
+        return button;
+    }
+
+    private static void ResizeSidebarMenuItems(FlowLayoutPanel menu)
+    {
+        var width = Math.Max(120, menu.ClientSize.Width - 8);
+        foreach (Control control in menu.Controls)
+        {
+            control.Width = width;
+        }
     }
 
     private Control BuildShell()
@@ -149,10 +280,10 @@ public sealed class FrmMain : Form
             Dock = DockStyle.Fill,
             ColumnCount = 1,
             RowCount = 3,
-            Padding = new Padding(0, 0, 18, 18),
-            BackColor = Color.Transparent
+            Padding = new Padding(0, 0, 0, 0),
+            BackColor = AppTheme.ShellBackground
         };
-        shell.RowStyles.Add(new RowStyle(SizeType.Absolute, 84));
+        shell.RowStyles.Add(new RowStyle(SizeType.Absolute, 86));
         shell.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
         shell.RowStyles.Add(new RowStyle(SizeType.Absolute, 28));
 
@@ -160,11 +291,12 @@ public sealed class FrmMain : Form
         {
             Dock = DockStyle.Fill,
             BackColor = AppTheme.Surface,
-            Padding = new Padding(20, 16, 20, 16)
+            Padding = new Padding(22, 16, 22, 14)
         };
 
         _titleLabel.Text = "Sẵn sàng";
         _titleLabel.Font = AppTheme.TitleFont();
+        _titleLabel.ForeColor = AppTheme.Text;
         _titleLabel.Dock = DockStyle.Top;
         _titleLabel.Height = 36;
 
@@ -180,8 +312,8 @@ public sealed class FrmMain : Form
         header.Controls.Add(_titleLabel);
 
         _contentHost.Dock = DockStyle.Fill;
-        _contentHost.BackColor = AppTheme.Surface;
-        _contentHost.Padding = new Padding(18);
+        _contentHost.BackColor = AppTheme.AppBackground;
+        _contentHost.Padding = Padding.Empty;
 
         var statusStrip = new StatusStrip
         {
@@ -202,20 +334,20 @@ public sealed class FrmMain : Form
         var quickActions = new FlowLayoutPanel
         {
             Dock = DockStyle.Right,
-            Width = 430,
-            FlowDirection = FlowDirection.LeftToRight,
+            Width = 450,
+            FlowDirection = FlowDirection.RightToLeft,
             WrapContents = false,
             Padding = new Padding(0, 4, 0, 0)
         };
 
-        AddQuickActionIfAllowed(quickActions, PermissionService.FeatureSalesInvoice, "Bán hàng", 92);
-        AddQuickActionIfAllowed(quickActions, PermissionService.FeaturePurchaseReceipt, "Nhập kho", 92);
-        AddQuickActionIfAllowed(quickActions, PermissionService.FeatureReport, "Báo cáo", 92);
-        AddQuickActionIfAllowed(quickActions, PermissionService.FeatureAssistant, "Trợ lý AI", 104);
+        AddQuickActionIfAllowed(quickActions, PermissionService.FeatureAssistant, "Trợ lý AI", IconChar.Robot, 112);
+        AddQuickActionIfAllowed(quickActions, PermissionService.FeatureReport, "Báo cáo", IconChar.ChartBar, 104);
+        AddQuickActionIfAllowed(quickActions, PermissionService.FeaturePurchaseReceipt, "Nhập kho", IconChar.TruckRampBox, 112);
+        AddQuickActionIfAllowed(quickActions, PermissionService.FeatureSalesInvoice, "Bán hàng", IconChar.CartShopping, 112);
         return quickActions;
     }
 
-    private void AddQuickActionIfAllowed(FlowLayoutPanel panel, string featureKey, string text, int width)
+    private void AddQuickActionIfAllowed(FlowLayoutPanel panel, string featureKey, string text, IconChar icon, int width)
     {
         var result = _permissionService.CanAccess(_currentUser.Role, featureKey);
         if (!result.Success || result.Data != true)
@@ -223,7 +355,7 @@ public sealed class FrmMain : Form
             return;
         }
 
-        panel.Controls.Add(CreateActionButton(text, featureKey, width));
+        panel.Controls.Add(CreateActionButton(text, icon, featureKey, width));
     }
 
     private void LoadDefaultView()
@@ -235,7 +367,7 @@ public sealed class FrmMain : Form
             return;
         }
 
-        OpenFeature(result.Data);
+        OpenFeature(PermissionService.FeatureSupplier);
     }
 
     private void OpenFeature(string featureKey)
@@ -263,21 +395,49 @@ public sealed class FrmMain : Form
         }
 
         LoadView(factory());
+        SetActiveNav(featureKey);
     }
 
-    private Button CreateNavButton(string text)
+    private void HandleLogout(object? sender, EventArgs e)
     {
-        var button = UiFactory.SidebarButton(text);
-        button.Height = 38;
-        button.Margin = new Padding(0, 0, 0, 4);
+        var confirm = MessageBox.Show(
+            "Bạn muốn đăng xuất và quay lại màn hình đăng nhập?",
+            "Đăng xuất",
+            MessageBoxButtons.YesNo,
+            MessageBoxIcon.Question,
+            MessageBoxDefaultButton.Button2);
+
+        if (confirm != DialogResult.Yes)
+        {
+            return;
+        }
+
+        LogoutRequested = true;
+        _statusLabel.Text = "Đang đăng xuất...";
+        Close();
+    }
+
+    private IconButton CreateNavButton(SidebarEntry entry)
+    {
+        var button = UiFactory.SidebarButton(entry.Text, GetFeatureIcon(entry.FeatureKey));
+        button.Height = 42;
+        button.Margin = new Padding(0, 0, 0, 5);
         return button;
     }
 
-    private Button CreateActionButton(string text, string featureKey, int width)
+    private Button CreateActionButton(string text, IconChar icon, string featureKey, int width)
     {
-        var button = UiFactory.ActionButton(text, (_, _) => OpenFeature(featureKey), width);
+        var button = UiFactory.IconActionButton(text, icon, (_, _) => OpenFeature(featureKey), width);
         button.Height = 34;
         return button;
+    }
+
+    private void SetActiveNav(string featureKey)
+    {
+        foreach (var pair in _navButtons)
+        {
+            UiFactory.SetSidebarButtonState(pair.Value, pair.Key.Equals(featureKey, StringComparison.OrdinalIgnoreCase));
+        }
     }
 
     private void LoadView(Form form)
@@ -317,6 +477,28 @@ public sealed class FrmMain : Form
             [PermissionService.FeatureUserManagement] = () => new FrmUserManagement(),
             [PermissionService.FeatureRolePermission] = () => new FrmRolePermission(),
             [PermissionService.FeatureAuditLog] = () => new FrmAuditLog()
+        };
+    }
+
+    private static IconChar GetFeatureIcon(string featureKey)
+    {
+        return featureKey switch
+        {
+            PermissionService.FeatureDashboard => IconChar.House,
+            PermissionService.FeatureProduct => IconChar.BoxOpen,
+            PermissionService.FeatureCategory => IconChar.Tags,
+            PermissionService.FeatureSupplier => IconChar.Truck,
+            PermissionService.FeatureCustomer => IconChar.Users,
+            PermissionService.FeaturePurchaseReceipt => IconChar.TruckRampBox,
+            PermissionService.FeatureInventory => IconChar.Warehouse,
+            PermissionService.FeatureStocktake => IconChar.ClipboardCheck,
+            PermissionService.FeatureSalesInvoice => IconChar.CartShopping,
+            PermissionService.FeatureReport => IconChar.ChartBar,
+            PermissionService.FeatureAssistant => IconChar.Robot,
+            PermissionService.FeatureUserManagement => IconChar.UserGear,
+            PermissionService.FeatureRolePermission => IconChar.ShieldHalved,
+            PermissionService.FeatureAuditLog => IconChar.ClockRotateLeft,
+            _ => IconChar.Circle
         };
     }
 
