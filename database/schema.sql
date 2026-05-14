@@ -15,11 +15,14 @@ CREATE TABLE Roles (
 CREATE TABLE Users (
     Id INT IDENTITY(1,1) PRIMARY KEY,
     Username NVARCHAR(50) NOT NULL UNIQUE,
-    PasswordHash NVARCHAR(255) NOT NULL,
+    PasswordHash NVARCHAR(512) NOT NULL,
     FullName NVARCHAR(100) NOT NULL,
     RoleId INT NOT NULL,
     IsActive BIT NOT NULL DEFAULT 1,
+    MustChangePassword BIT NOT NULL DEFAULT 0,
     CreatedAt DATETIME2 NOT NULL DEFAULT SYSDATETIME(),
+    UpdatedAt DATETIME2 NULL,
+    LastLoginAt DATETIME2 NULL,
     CONSTRAINT FK_Users_Roles FOREIGN KEY (RoleId) REFERENCES Roles(Id)
 );
 
@@ -164,5 +167,32 @@ CREATE TABLE AuditLogs (
 CREATE INDEX IX_Products_Name ON Products(Name);
 CREATE INDEX IX_StockTransactions_ProductId ON StockTransactions(ProductId);
 CREATE INDEX IX_SalesInvoices_InvoiceDate ON SalesInvoices(InvoiceDate);
+CREATE TABLE Permissions (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    FeatureKey NVARCHAR(80) NOT NULL UNIQUE,
+    FeatureName NVARCHAR(100) NOT NULL,
+    GroupName NVARCHAR(80) NOT NULL,
+    Note NVARCHAR(255) NULL
+);
+
+CREATE TABLE RolePermissions (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    RoleId INT NOT NULL,
+    PermissionId INT NOT NULL,
+    CONSTRAINT FK_RolePermissions_Roles FOREIGN KEY (RoleId) REFERENCES Roles(Id),
+    CONSTRAINT FK_RolePermissions_Permissions FOREIGN KEY (PermissionId) REFERENCES Permissions(Id),
+    CONSTRAINT UQ_RolePermissions_RolePermission UNIQUE (RoleId, PermissionId)
+);
+
+CREATE TABLE PasswordRecoveryRequests (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    UserId INT NOT NULL,
+    RequestCode NVARCHAR(64) NOT NULL UNIQUE,
+    IsResolved BIT NOT NULL DEFAULT 0,
+    CreatedAt DATETIME2 NOT NULL DEFAULT SYSDATETIME(),
+    ResolvedAt DATETIME2 NULL,
+    CONSTRAINT FK_PasswordRecoveryRequests_Users FOREIGN KEY (UserId) REFERENCES Users(Id)
+);
+
 CREATE INDEX IX_PurchaseReceipts_ReceiptDate ON PurchaseReceipts(ReceiptDate);
 GO

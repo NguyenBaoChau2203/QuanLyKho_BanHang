@@ -46,8 +46,8 @@ public sealed class SalesService
 
         try
         {
-            _repo.CreateSalesInvoice(invoice);
-            return ServiceResult<int>.Ok(1, "Lưu hóa đơn và cập nhật kho thành công!");
+            var invoiceId = _repo.CreateSalesInvoice(invoice);
+            return ServiceResult<int>.Ok(invoiceId, "Lưu hóa đơn và cập nhật kho thành công!");
         }
         catch (Exception ex)
         {

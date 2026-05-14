@@ -3,17 +3,29 @@ using QuanLyKhoBanHang.DTO;
 using QuanLyKhoBanHang.DTO.Sales;
 using System;
 using System.Collections.Generic; // Bổ sung thư viện này để dùng được List
+using QuanLyKhoBanHang.DAL.Data;
 
 namespace QuanLyKhoBanHang.DAL
 {
     public class SalesRepository
     {
-        private readonly string _connStr = "Server=BaoChau2203;Database=QuanLyKhoBanHang;Trusted_Connection=True;TrustServerCertificate=True";
+        private readonly DatabaseOptions _options;
+        private string _connStr => _options.ConnectionString;
+
+        public SalesRepository()
+        {
+            _options = new DatabaseOptions();
+        }
+
+        public SalesRepository(DatabaseOptions options)
+        {
+            _options = options ?? throw new ArgumentNullException(nameof(options));
+        }
 
         // ---------------------------------------------------
         // 1. HÀM TẠO HÓA ĐƠN (LƯU VÀ TRỪ TỒN KHO)
         // ---------------------------------------------------
-        public void CreateSalesInvoice(SalesInvoiceDto invoice)
+        public int CreateSalesInvoice(SalesInvoiceDto invoice)
         {
             using (var conn = new SqlConnection(_connStr))
             {
@@ -97,6 +109,7 @@ namespace QuanLyKhoBanHang.DAL
 
                         // Nếu code chạy trót lọt đến đây -> Ghi nhận toàn bộ!
                         trans.Commit();
+                        return invoiceId;
                     }
                     catch
                     {

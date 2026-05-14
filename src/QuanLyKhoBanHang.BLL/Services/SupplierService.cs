@@ -9,6 +9,10 @@ public sealed class SupplierService
 {
     private readonly SupplierRepository _supplierRepository;
 
+    public SupplierService() : this(new DatabaseOptions())
+    {
+    }
+
     public SupplierService(DatabaseOptions options)
     {
         _supplierRepository = new SupplierRepository(options);

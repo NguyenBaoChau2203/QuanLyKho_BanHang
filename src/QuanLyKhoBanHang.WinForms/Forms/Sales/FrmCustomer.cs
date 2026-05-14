@@ -198,13 +198,45 @@ public sealed class FrmCustomer : CrudListForm<CustomerDto>
             return;
         }
 
-        ToggleEditing(false);
-        _selectedStateLabel.Text = "Đã lưu giao diện. Dữ liệu thật sẽ do BLL/DAL xử lý sau.";
-        _editModeLabel.Text = "Đang xem dữ liệu đã lưu.";
-        UiFactory.SetMessage(_gridStateLabel, SelectedId <= 0
-            ? "Đã lưu tạm khách hàng mới trong chế độ stub."
-            : "Đã lưu thay đổi khách hàng trong chế độ stub.");
-        UpdateSelectionState();
+        var dto = new CustomerDto
+        {
+            Id = SelectedId,
+            Code = CodeBox.Text.Trim(),
+            Name = NameBox.Text.Trim(),
+            Phone = _phoneBox.Text.Trim(),
+            Email = _emailBox.Text.Trim(),
+            Address = _addressBox.Text.Trim(),
+            IsActive = ActiveBox.Checked
+        };
+
+        if (SelectedId <= 0)
+        {
+            var result = _service.CreateCustomer(dto);
+            if (result.Success)
+            {
+                ToggleEditing(false);
+                RefreshData();
+                UiFactory.SetMessage(_gridStateLabel, result.Message);
+            }
+            else
+            {
+                UiFactory.SetMessage(_gridStateLabel, result.Message, true);
+            }
+        }
+        else
+        {
+            var result = _service.UpdateCustomer(dto);
+            if (result.Success)
+            {
+                ToggleEditing(false);
+                RefreshData();
+                UiFactory.SetMessage(_gridStateLabel, result.Message);
+            }
+            else
+            {
+                UiFactory.SetMessage(_gridStateLabel, result.Message, true);
+            }
+        }
     }
 
     protected override void CancelEdit()
@@ -222,7 +254,16 @@ public sealed class FrmCustomer : CrudListForm<CustomerDto>
             return;
         }
 
-        UiFactory.SetMessage(_gridStateLabel, "Đã ghi nhận yêu cầu ngừng kích hoạt khách hàng ở lớp UI stub.");
+        var result = _service.DeactivateCustomer(SelectedId);
+        if (result.Success)
+        {
+            RefreshData();
+            UiFactory.SetMessage(_gridStateLabel, result.Message);
+        }
+        else
+        {
+            UiFactory.SetMessage(_gridStateLabel, result.Message, true);
+        }
     }
 
     private void ConfigureScreen()
@@ -731,7 +772,7 @@ public sealed class FrmCustomer : CrudListForm<CustomerDto>
 
     private static List<CustomerDto> CreateStubItems() =>
     [
-        new CustomerDto { Id = 1, Code = "KH001", Name = "Khách lẻ", Phone = null, Email = null, Address = null, IsActive = true },
+        new CustomerDto { Id = 1, Code = "KH001", Name = "Khách lẻ", Phone = "", Email = "", Address = "", IsActive = true },
         new CustomerDto { Id = 2, Code = "KH002", Name = "Cửa hàng Tạp hóa An Phú", Phone = "0911111111", Email = "anphu@example.com", Address = "Bình Dương", IsActive = true },
         new CustomerDto { Id = 3, Code = "KH003", Name = "Siêu thị Hòa Bình", Phone = "0988777666", Email = "hoabinh@example.com", Address = "TP. Hồ Chí Minh", IsActive = true }
     ];

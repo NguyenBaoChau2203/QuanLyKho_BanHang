@@ -2,12 +2,24 @@ using Microsoft.Data.SqlClient;
 using QuanLyKhoBanHang.DTO.Reports;
 using System;
 using System.Collections.Generic;
+using QuanLyKhoBanHang.DAL.Data;
 
 namespace QuanLyKhoBanHang.DAL
 {
     public class ReportRepository
     {
-        private readonly string _connStr = "Server=BaoChau2203;Database=QuanLyKhoBanHang;Trusted_Connection=True;TrustServerCertificate=True";
+        private readonly DatabaseOptions _options;
+        private string _connStr => _options.ConnectionString;
+
+        public ReportRepository()
+        {
+            _options = new DatabaseOptions();
+        }
+
+        public ReportRepository(DatabaseOptions options)
+        {
+            _options = options ?? throw new ArgumentNullException(nameof(options));
+        }
 
         // 1. Lấy Doanh thu (Gom nhóm theo ngày)
         public List<RevenueSummaryDto> GetRevenue(DateTime fromDate, DateTime toDate)

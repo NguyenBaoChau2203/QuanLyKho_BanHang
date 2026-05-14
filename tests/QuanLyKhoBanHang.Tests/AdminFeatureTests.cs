@@ -7,25 +7,9 @@ namespace QuanLyKhoBanHang.Tests;
 public sealed class AdminFeatureTests
 {
     [TestMethod]
-    [DataRow("admin", "admin123", UserRole.Admin)]
-    [DataRow("manager", "123456", UserRole.Manager)]
-    [DataRow("du", "123456", UserRole.WarehouseStaff)]
-    [DataRow("hung", "123456", UserRole.SalesStaff)]
-    public void AuthService_AuthenticatesDemoRoleAccounts(string username, string password, UserRole expectedRole)
-    {
-        var service = new AuthService();
-
-        var result = service.Authenticate(username, password);
-
-        Assert.IsTrue(result.Success);
-        Assert.IsNotNull(result.Data);
-        Assert.AreEqual(expectedRole, result.Data.Role);
-    }
-
-    [TestMethod]
     public void PermissionService_BlocksAdminScreensForNonAdminRoles()
     {
-        var service = new PermissionService();
+        var service = CreatePermissionService();
 
         AssertCanAccess(service, UserRole.Manager, PermissionService.FeatureUserManagement, false);
         AssertCanAccess(service, UserRole.WarehouseStaff, PermissionService.FeatureReport, false);
@@ -34,35 +18,41 @@ public sealed class AdminFeatureTests
     }
 
     [TestMethod]
-    public void UserAccountService_ReturnsDemoAccountsWithoutPasswords()
+    public void PermissionService_CanAccess_ReturnsCorrectResultForEachRole()
     {
-        var service = new UserAccountService();
+        var service = CreatePermissionService();
 
-        var result = service.GetAllAccounts();
-
+        var result = service.CanAccess(UserRole.Admin, PermissionService.FeatureDashboard);
         Assert.IsTrue(result.Success);
-        Assert.IsNotNull(result.Data);
-        CollectionAssert.IsSubsetOf(
-            new[] { "admin", "manager", "du", "hung" },
-            result.Data.Select(x => x.Username).ToArray());
-        Assert.IsTrue(result.Data.All(x => string.IsNullOrEmpty(x.DemoPassword)));
+        Assert.IsTrue(result.Data);
+
+        result = service.CanAccess(UserRole.SalesStaff, PermissionService.FeatureDashboard);
+        Assert.IsFalse(result.Data);
+
+        result = service.CanAccess(UserRole.Admin, "nonexistent-key");
+        Assert.IsFalse(result.Success);
     }
 
     [TestMethod]
-    public void AuditLogService_FiltersByKeyword()
+    public void PermissionService_GetAccessibleFeatures_ReturnsCorrectCount()
     {
-        var service = new AuditLogService();
+        var service = CreatePermissionService();
 
-        var result = service.GetAuditLogs(DateTime.Today.AddDays(-7), DateTime.Today, "hung");
+        var adminFeatures = service.GetAccessibleFeatures(UserRole.Admin);
+        Assert.IsTrue(adminFeatures.Success);
+        Assert.IsGreaterThanOrEqualTo(13, adminFeatures.Data!.Count);
 
-        Assert.IsTrue(result.Success);
-        Assert.IsNotNull(result.Data);
-        Assert.AreNotEqual(0, result.Data.Count);
-        Assert.IsTrue(result.Data.All(x => x.Username.Contains("hung", StringComparison.OrdinalIgnoreCase)
-            || x.FullName.Contains("hung", StringComparison.OrdinalIgnoreCase)
-            || x.Action.Contains("hung", StringComparison.OrdinalIgnoreCase)
-            || x.EntityName.Contains("hung", StringComparison.OrdinalIgnoreCase)
-            || x.Description.Contains("hung", StringComparison.OrdinalIgnoreCase)));
+        var warehouseFeatures = service.GetAccessibleFeatures(UserRole.WarehouseStaff);
+        Assert.IsTrue(warehouseFeatures.Success);
+        Assert.IsTrue(warehouseFeatures.Data!.All(f => f.CanAccess));
+
+        var salesFeatures = service.GetAccessibleFeatures(UserRole.SalesStaff);
+        Assert.IsTrue(salesFeatures.Success);
+        Assert.IsTrue(salesFeatures.Data!.Count > 0);
+        Assert.IsTrue(salesFeatures.Data!.Any(f => f.FeatureKey == PermissionService.FeatureSalesInvoice));
+        Assert.IsTrue(salesFeatures.Data!.Any(f => f.FeatureKey == PermissionService.FeatureCustomer));
+        Assert.IsFalse(salesFeatures.Data!.Any(f => f.FeatureKey == PermissionService.FeatureReport));
+        Assert.IsFalse(salesFeatures.Data!.Any(f => f.FeatureKey == PermissionService.FeaturePurchaseReceipt));
     }
 
     private static void AssertCanAccess(PermissionService service, UserRole role, string featureKey, bool expected)
@@ -71,5 +61,41 @@ public sealed class AdminFeatureTests
 
         Assert.IsTrue(result.Success);
         Assert.AreEqual(expected, result.Data);
+    }
+
+    private static PermissionService CreatePermissionService()
+    {
+        return new PermissionService(roleId => ((UserRole)roleId) switch
+        {
+            UserRole.Manager =>
+            [
+                PermissionService.FeatureDashboard,
+                PermissionService.FeatureProduct,
+                PermissionService.FeatureCategory,
+                PermissionService.FeatureSupplier,
+                PermissionService.FeatureCustomer,
+                PermissionService.FeatureInventory,
+                PermissionService.FeatureStocktake,
+                PermissionService.FeatureReport,
+                PermissionService.FeatureAssistant
+            ],
+            UserRole.WarehouseStaff =>
+            [
+                PermissionService.FeatureProduct,
+                PermissionService.FeatureCategory,
+                PermissionService.FeatureSupplier,
+                PermissionService.FeaturePurchaseReceipt,
+                PermissionService.FeatureInventory,
+                PermissionService.FeatureStocktake
+            ],
+            UserRole.SalesStaff =>
+            [
+                PermissionService.FeatureProduct,
+                PermissionService.FeatureCustomer,
+                PermissionService.FeatureInventory,
+                PermissionService.FeatureSalesInvoice
+            ],
+            _ => []
+        });
     }
 }

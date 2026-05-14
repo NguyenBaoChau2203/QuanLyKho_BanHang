@@ -13,6 +13,10 @@ public sealed class StocktakeService
     private readonly ProductRepository _productRepository;
     private readonly StockTransactionRepository _stockTransactionRepository;
 
+    public StocktakeService() : this(new DatabaseOptions())
+    {
+    }
+
     public StocktakeService(DatabaseOptions options)
     {
         _stocktakeRepository = new StocktakeRepository(options);

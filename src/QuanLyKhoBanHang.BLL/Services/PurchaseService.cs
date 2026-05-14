@@ -13,6 +13,10 @@ public sealed class PurchaseService
     private readonly ProductRepository _productRepository;
     private readonly StockTransactionRepository _stockTransactionRepository;
 
+    public PurchaseService() : this(new DatabaseOptions())
+    {
+    }
+
     public PurchaseService(DatabaseOptions options)
     {
         _purchaseRepository = new PurchaseRepository(options);

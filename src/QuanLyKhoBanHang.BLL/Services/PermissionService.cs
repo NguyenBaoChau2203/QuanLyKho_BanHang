@@ -1,6 +1,11 @@
 using QuanLyKhoBanHang.BLL.Common;
+using QuanLyKhoBanHang.DAL.Auth;
+using QuanLyKhoBanHang.DAL.Data;
 using QuanLyKhoBanHang.DTO.Admin;
 using QuanLyKhoBanHang.DTO.Common;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace QuanLyKhoBanHang.BLL.Services;
 
@@ -39,39 +44,6 @@ public sealed class PermissionService
         new(FeatureAuditLog, "Nhật ký hệ thống", "Quản trị", "Xem nhật ký thao tác demo.")
     ];
 
-    private static readonly Dictionary<UserRole, HashSet<string>> RoleFeatures = new()
-    {
-        [UserRole.Admin] = FeatureDefinitions.Select(x => x.Key).ToHashSet(StringComparer.OrdinalIgnoreCase),
-        [UserRole.Manager] =
-        [
-            FeatureDashboard,
-            FeatureProduct,
-            FeatureCategory,
-            FeatureSupplier,
-            FeatureCustomer,
-            FeatureInventory,
-            FeatureStocktake,
-            FeatureReport,
-            FeatureAssistant
-        ],
-        [UserRole.WarehouseStaff] =
-        [
-            FeatureProduct,
-            FeatureCategory,
-            FeatureSupplier,
-            FeaturePurchaseReceipt,
-            FeatureInventory,
-            FeatureStocktake
-        ],
-        [UserRole.SalesStaff] =
-        [
-            FeatureProduct,
-            FeatureCustomer,
-            FeatureInventory,
-            FeatureSalesInvoice
-        ]
-    };
-
     private static readonly UserRole[] OrderedRoles =
     [
         UserRole.Admin,
@@ -80,28 +52,71 @@ public sealed class PermissionService
         UserRole.SalesStaff
     ];
 
+    private readonly Func<int, HashSet<string>> _getFeatureKeysForRole;
+
+    public PermissionService()
+    {
+        var options = new DatabaseOptions();
+        var permissionRepo = new PermissionRepository(options);
+        _getFeatureKeysForRole = permissionRepo.GetFeatureKeysForRole;
+    }
+
+    public PermissionService(Func<int, IEnumerable<string>> featureKeyProvider)
+    {
+        ArgumentNullException.ThrowIfNull(featureKeyProvider);
+        _getFeatureKeysForRole = roleId => featureKeyProvider(roleId)
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+    }
+
     public ServiceResult<List<RolePermissionDto>> GetPermissionMatrix()
     {
-        var rows = OrderedRoles
-            .SelectMany(role => FeatureDefinitions.Select(feature => BuildPermission(role, feature)))
-            .ToList();
-
-        return ServiceResult<List<RolePermissionDto>>.Ok(rows, "Đã tải ma trận phân quyền demo.");
+        try
+        {
+            var rows = new List<RolePermissionDto>();
+            foreach (var role in OrderedRoles)
+            {
+                var keys = role == UserRole.Admin
+                    ? []
+                    : _getFeatureKeysForRole((int)role);
+                foreach (var feature in FeatureDefinitions)
+                {
+                    var isAllowed = role == UserRole.Admin || keys.Contains(feature.Key);
+                    rows.Add(BuildPermission(role, feature, isAllowed));
+                }
+            }
+            return ServiceResult<List<RolePermissionDto>>.Ok(rows, "Đã tải ma trận phân quyền demo.");
+        }
+        catch (Exception ex)
+        {
+            return ServiceResult<List<RolePermissionDto>>.Fail("Lỗi CSDL khi tải ma trận phân quyền: " + ex.Message);
+        }
     }
 
     public ServiceResult<List<RolePermissionDto>> GetAccessibleFeatures(UserRole role)
     {
-        if (!RoleFeatures.ContainsKey(role))
+        if (role == UserRole.Admin)
         {
-            return ServiceResult<List<RolePermissionDto>>.Fail("Vai trò không hợp lệ.");
+            var adminRows = FeatureDefinitions
+                .Select(feature => BuildPermission(role, feature, true))
+                .ToList();
+
+            return ServiceResult<List<RolePermissionDto>>.Ok(adminRows, "Đã tải menu theo vai trò.");
         }
 
-        var rows = FeatureDefinitions
-            .Where(feature => IsAllowed(role, feature.Key))
-            .Select(feature => BuildPermission(role, feature))
-            .ToList();
+        try
+        {
+            var keys = _getFeatureKeysForRole((int)role);
+            var rows = FeatureDefinitions
+                .Where(feature => keys.Contains(feature.Key))
+                .Select(feature => BuildPermission(role, feature, true))
+                .ToList();
 
-        return ServiceResult<List<RolePermissionDto>>.Ok(rows, "Đã tải menu theo vai trò.");
+            return ServiceResult<List<RolePermissionDto>>.Ok(rows, "Đã tải menu theo vai trò.");
+        }
+        catch (Exception ex)
+        {
+            return ServiceResult<List<RolePermissionDto>>.Fail("Không thể tải quyền từ CSDL: " + ex.Message);
+        }
     }
 
     public ServiceResult<bool> CanAccess(UserRole role, string featureKey)
@@ -117,18 +132,44 @@ public sealed class PermissionService
             return ServiceResult<bool>.Fail("Màn hình không tồn tại trong ma trận phân quyền.");
         }
 
-        return ServiceResult<bool>.Ok(IsAllowed(role, featureKey), "Đã kiểm tra quyền truy cập.");
+        if (role == UserRole.Admin)
+        {
+            return ServiceResult<bool>.Ok(true, "Đã kiểm tra quyền truy cập.");
+        }
+
+        try
+        {
+            var keys = _getFeatureKeysForRole((int)role);
+            return ServiceResult<bool>.Ok(keys.Contains(featureKey), "Đã kiểm tra quyền truy cập.");
+        }
+        catch
+        {
+            return ServiceResult<bool>.Fail("Lỗi CSDL khi kiểm tra quyền.");
+        }
     }
 
     public ServiceResult<string> GetDefaultFeature(UserRole role)
     {
-        var first = FeatureDefinitions.FirstOrDefault(feature => IsAllowed(role, feature.Key));
-        if (first is null)
+        if (role == UserRole.Admin)
         {
-            return ServiceResult<string>.Fail("Vai trò hiện tại chưa được cấp màn hình mặc định.");
+            return ServiceResult<string>.Ok(FeatureDefinitions.First().Key, "Đã xác định màn hình mặc định.");
         }
 
-        return ServiceResult<string>.Ok(first.Key, "Đã xác định màn hình mặc định.");
+        try
+        {
+            var keys = _getFeatureKeysForRole((int)role);
+            var first = FeatureDefinitions.FirstOrDefault(feature => keys.Contains(feature.Key));
+            if (first is null)
+            {
+                return ServiceResult<string>.Fail("Vai trò hiện tại chưa được cấp màn hình mặc định.");
+            }
+
+            return ServiceResult<string>.Ok(first.Key, "Đã xác định màn hình mặc định.");
+        }
+        catch
+        {
+            return ServiceResult<string>.Fail("Lỗi truy xuất CSDL.");
+        }
     }
 
     public static string GetRoleDisplayName(UserRole role)
@@ -143,7 +184,7 @@ public sealed class PermissionService
         };
     }
 
-    private static RolePermissionDto BuildPermission(UserRole role, FeatureDefinition feature)
+    private static RolePermissionDto BuildPermission(UserRole role, FeatureDefinition feature, bool canAccess)
     {
         return new RolePermissionDto
         {
@@ -152,14 +193,9 @@ public sealed class PermissionService
             FeatureKey = feature.Key,
             FeatureName = feature.Name,
             GroupName = feature.Group,
-            CanAccess = IsAllowed(role, feature.Key),
+            CanAccess = canAccess,
             Note = feature.Note
         };
-    }
-
-    private static bool IsAllowed(UserRole role, string featureKey)
-    {
-        return RoleFeatures.TryGetValue(role, out var features) && features.Contains(featureKey);
     }
 
     private sealed record FeatureDefinition(string Key, string Name, string Group, string Note);

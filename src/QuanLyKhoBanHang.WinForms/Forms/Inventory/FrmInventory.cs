@@ -199,12 +199,11 @@ public sealed class FrmInventory : Form
 
     private void LoadData()
     {
-        var productResult = _productService.GetAllProducts();
+        var productResult = _inventoryService.GetCurrentStock();
         _items = productResult.Success && productResult.Data is { Count: > 0 } ? productResult.Data! : CreateStubProducts();
-        _ = _inventoryService.GetCurrentStock();
         LoadFilterOptions();
         ApplyFilters();
-        SetMessage(productResult.Success ? "Đã cập nhật tồn kho." : productResult.Message);
+        SetMessage(productResult.Success ? productResult.Message : $"{productResult.Message} - Đang dùng dữ liệu demo.", !productResult.Success);
     }
 
     private void LoadFilterOptions()

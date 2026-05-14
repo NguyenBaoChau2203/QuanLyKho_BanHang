@@ -11,13 +11,14 @@ public sealed class FrmPurchaseReceipt : Form
 {
     private readonly ProductService _productService = new();
     private readonly PurchaseService _purchaseService = new();
+    private readonly SupplierService _supplierService = new();
     private readonly BindingSource _lineSource = new();
     private readonly BindingSource _productSource = new();
     private readonly DataGridView _lineGrid = new();
     private readonly DataGridView _productGrid = new();
     private readonly TextBox _productSearch = new();
     private readonly TextBox _receiptCode = new();
-    private readonly TextBox _supplier = new();
+    private readonly ComboBox _supplier = new();
     private readonly TextBox _supplierNote = new();
     private readonly TextBox _note = new();
     private readonly DateTimePicker _receiptDate = new();
@@ -34,9 +35,11 @@ public sealed class FrmPurchaseReceipt : Form
     private readonly Label _totalCostLabel = new();
     private readonly List<PurchaseLineRow> _lines = [];
     private List<ProductDto> _products = [];
+    private readonly int _currentUserId;
 
-    public FrmPurchaseReceipt()
+    public FrmPurchaseReceipt(int currentUserId)
     {
+        _currentUserId = currentUserId;
         Text = "Nhập kho";
         BackColor = AppTheme.AppBackground;
         Font = AppTheme.BodyFont();
@@ -145,11 +148,16 @@ public sealed class FrmPurchaseReceipt : Form
         layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 30));
         layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 20));
         layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 30));
-        _supplier.PlaceholderText = "Nhập hoặc chọn nhà cung cấp...";
         _supplierNote.PlaceholderText = "Mã đơn đặt hàng / số chứng từ liên quan...";
 
         layout.Controls.Add(BuildPlainFieldLabel("Nhà cung cấp"), 0, 0);
-        layout.Controls.Add(PreparePlainInput(_supplier), 0, 1);
+
+        _supplier.Dock = DockStyle.Top;
+        _supplier.Height = 26;
+        _supplier.Margin = new Padding(0, 0, 0, 6);
+        _supplier.BackColor = AppTheme.Surface;
+        layout.Controls.Add(_supplier, 0, 1);
+
         layout.Controls.Add(BuildPlainFieldLabel("Tham chiếu"), 0, 2);
         layout.Controls.Add(PreparePlainInput(_supplierNote), 0, 3);
         content.Controls.Add(layout, 0, 1);
@@ -370,8 +378,21 @@ public sealed class FrmPurchaseReceipt : Form
         _products = result.Success && result.Data is { Count: > 0 } ? result.Data! : CreateStubProducts();
         _receiptCode.Text = $"PN-{DateTime.Now:yyyyMMdd-HHmm}";
         _receiptDate.Value = DateTime.Today;
-        _supplier.Text = "NCC demo";
-        _supplierNote.Text = "Phiếu nhập demo";
+
+        var supplierResult = _supplierService.GetAllSuppliers();
+        _supplier.DisplayMember = nameof(SupplierDto.Name);
+        _supplier.ValueMember = nameof(SupplierDto.Id);
+        _supplier.DropDownStyle = ComboBoxStyle.DropDownList;
+        if (supplierResult.Success && supplierResult.Data is { Count: > 0 })
+        {
+            _supplier.DataSource = supplierResult.Data;
+        }
+        else
+        {
+            _supplier.DataSource = new BindingList<SupplierDto>();
+        }
+
+        _supplierNote.Clear();
         _quantity.Text = "1";
         _unitCost.Maximum = 100000000;
         _unitCost.ThousandsSeparator = true;
@@ -379,7 +400,13 @@ public sealed class FrmPurchaseReceipt : Form
         ApplyProductFilter();
         RefreshLineSource();
         UpdateTotal();
-        SetMessage("Sẵn sàng nhập kho.");
+        var loadMessage = result.Success ? "Sẵn sàng nhập kho." : $"{result.Message} - Đang dùng dữ liệu demo.";
+        if (!supplierResult.Success || supplierResult.Data is not { Count: > 0 })
+        {
+            loadMessage += " Chưa tải được danh sách nhà cung cấp.";
+        }
+
+        SetMessage(loadMessage, !result.Success || !supplierResult.Success || supplierResult.Data is not { Count: > 0 });
     }
 
     private void ApplyProductFilter()
@@ -479,10 +506,17 @@ public sealed class FrmPurchaseReceipt : Form
             return;
         }
 
+        if (_supplier.SelectedItem is not SupplierDto selectedSupplier || selectedSupplier.Id <= 0)
+        {
+            SetMessage("Vui lòng chọn nhà cung cấp hợp lệ.", true);
+            return;
+        }
+
         var receipt = new PurchaseReceiptDto
         {
             ReceiptCode = _receiptCode.Text.Trim(),
-            SupplierId = 1,
+            SupplierId = selectedSupplier.Id,
+            CreatedByUserId = _currentUserId,
             ReceiptDate = _receiptDate.Value.Date,
             Note = string.Join(" - ", new[] { _supplier.Text.Trim(), _supplierNote.Text.Trim(), _note.Text.Trim() }.Where(x => !string.IsNullOrWhiteSpace(x))),
             Lines = _lines.Select(x => new PurchaseReceiptLineDto
@@ -496,7 +530,15 @@ public sealed class FrmPurchaseReceipt : Form
         };
 
         var result = _purchaseService.CreateReceipt(receipt);
-        SetMessage(result.Message, !result.Success);
+        if (result.Success)
+        {
+            SetMessage(result.Message);
+            ResetForm();
+        }
+        else
+        {
+            SetMessage(result.Message, true);
+        }
     }
 
     private void ResetForm()

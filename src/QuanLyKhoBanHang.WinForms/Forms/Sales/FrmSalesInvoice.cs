@@ -39,9 +39,11 @@ public sealed class FrmSalesInvoice : Form
     private List<ProductDto> _products = [];
     private List<CustomerDto> _customers = [];
     private int? _selectedCustomerId;
+    private readonly int _currentUserId;
 
-    public FrmSalesInvoice()
+    public FrmSalesInvoice(int currentUserId)
     {
+        _currentUserId = currentUserId;
         Text = "Bán hàng";
         BackColor = AppTheme.AppBackground;
         Font = AppTheme.BodyFont();
@@ -382,7 +384,9 @@ public sealed class FrmSalesInvoice : Form
         SelectDefaultCustomer();
         RefreshLineSource();
         UpdateSummary();
-        SetMessage("Sẵn sàng lập hóa đơn.");
+        var success = productResult.Success && customerResult.Success;
+        var msg = success ? "Sẵn sàng lập hóa đơn." : $"{(productResult.Success ? customerResult.Message : productResult.Message)} - Đang dùng dữ liệu demo.";
+        SetMessage(msg, !success);
     }
 
     private void ApplyProductFilter()
@@ -526,6 +530,7 @@ public sealed class FrmSalesInvoice : Form
         {
             InvoiceCode = _invoiceCode.Text.Trim(),
             CustomerId = _selectedCustomerId,
+            CreatedByUserId = _currentUserId,
             InvoiceDate = _saleDate.Value.Date,
             Note = _note.Text,
             Lines = _lines.Select(x => new SalesInvoiceLineDto
@@ -540,7 +545,15 @@ public sealed class FrmSalesInvoice : Form
         };
 
         var result = _salesService.CreateInvoice(invoice);
-        SetMessage(result.Message, !result.Success);
+        if (result.Success)
+        {
+            SetMessage(result.Message);
+            ResetForm();
+        }
+        else
+        {
+            SetMessage(result.Message, true);
+        }
     }
 
     private void ResetForm()

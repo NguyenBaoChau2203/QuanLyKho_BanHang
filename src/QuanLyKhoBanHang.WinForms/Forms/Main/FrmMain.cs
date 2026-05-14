@@ -197,13 +197,23 @@ public sealed class FrmMain : Form
 
     private Control BuildMenu(IReadOnlyList<SidebarEntry> entries)
     {
-        var menu = new FlowLayoutPanel
+        var menuContainer = new Panel
         {
             Dock = DockStyle.Fill,
+            BackColor = Color.Transparent,
+            Margin = Padding.Empty,
+            Padding = Padding.Empty
+        };
+
+        var menu = new FlowLayoutPanel
+        {
+            Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left,
             FlowDirection = FlowDirection.TopDown,
             WrapContents = false,
             AutoScroll = true,
-            Padding = new Padding(0, 2, 0, 0)
+            Padding = new Padding(0, 2, 0, 0),
+            Margin = Padding.Empty,
+            Location = Point.Empty
         };
 
         foreach (var entry in entries)
@@ -228,9 +238,29 @@ public sealed class FrmMain : Form
             menu.Controls.Add(button);
         }
 
-        menu.SizeChanged += (_, _) => ResizeSidebarMenuItems(menu);
-        menu.HandleCreated += (_, _) => ResizeSidebarMenuItems(menu);
-        return menu;
+        menuContainer.Controls.Add(menu);
+
+        void ResizeMenu()
+        {
+            menu.Width = menuContainer.Width + SystemInformation.VerticalScrollBarWidth + 2;
+            menu.Height = menuContainer.Height;
+
+            var childWidth = Math.Max(120, menuContainer.Width);
+            menu.SuspendLayout();
+            foreach (Control control in menu.Controls)
+            {
+                if (control.Width != childWidth)
+                {
+                    control.Width = childWidth;
+                }
+            }
+            menu.ResumeLayout();
+        }
+
+        menuContainer.SizeChanged += (_, _) => ResizeMenu();
+        menuContainer.HandleCreated += (_, _) => ResizeMenu();
+        
+        return menuContainer;
     }
 
     private Control BuildLogoutButton()
@@ -264,14 +294,7 @@ public sealed class FrmMain : Form
         return button;
     }
 
-    private static void ResizeSidebarMenuItems(FlowLayoutPanel menu)
-    {
-        var width = Math.Max(120, menu.ClientSize.Width - 8);
-        foreach (Control control in menu.Controls)
-        {
-            control.Width = width;
-        }
-    }
+
 
     private Control BuildShell()
     {
@@ -367,7 +390,7 @@ public sealed class FrmMain : Form
             return;
         }
 
-        OpenFeature(PermissionService.FeatureSupplier);
+        OpenFeature(result.Data);
     }
 
     private void OpenFeature(string featureKey)
@@ -459,7 +482,7 @@ public sealed class FrmMain : Form
         _statusLabel.Text = $"Đã chuyển sang {form.Text}";
     }
 
-    private static Dictionary<string, Func<Form>> BuildFormFactories()
+    private Dictionary<string, Func<Form>> BuildFormFactories()
     {
         return new Dictionary<string, Func<Form>>(StringComparer.OrdinalIgnoreCase)
         {
@@ -468,10 +491,10 @@ public sealed class FrmMain : Form
             [PermissionService.FeatureCategory] = () => new FrmCategory(),
             [PermissionService.FeatureSupplier] = () => new FrmSupplier(),
             [PermissionService.FeatureCustomer] = () => new FrmCustomer(),
-            [PermissionService.FeaturePurchaseReceipt] = () => new FrmPurchaseReceipt(),
+            [PermissionService.FeaturePurchaseReceipt] = () => new FrmPurchaseReceipt(_currentUser.Id),
             [PermissionService.FeatureInventory] = () => new FrmInventory(),
-            [PermissionService.FeatureStocktake] = () => new FrmStocktake(),
-            [PermissionService.FeatureSalesInvoice] = () => new FrmSalesInvoice(),
+            [PermissionService.FeatureStocktake] = () => new FrmStocktake(_currentUser.Id),
+            [PermissionService.FeatureSalesInvoice] = () => new FrmSalesInvoice(_currentUser.Id),
             [PermissionService.FeatureReport] = () => new FrmReport(),
             [PermissionService.FeatureAssistant] = () => new FrmAssistant(),
             [PermissionService.FeatureUserManagement] = () => new FrmUserManagement(),
@@ -505,14 +528,14 @@ public sealed class FrmMain : Form
     private static List<SidebarEntry> BuildSidebarEntries(IReadOnlyList<QuanLyKhoBanHang.DTO.Admin.RolePermissionDto> permissions)
     {
         var entries = new List<SidebarEntry>();
-        var adminSectionAdded = false;
+        var currentGroup = string.Empty;
 
         foreach (var permission in permissions)
         {
-            if (permission.GroupName == "Quản trị" && !adminSectionAdded)
+            if (permission.GroupName != currentGroup)
             {
-                entries.Add(SidebarEntry.Section("Quản trị"));
-                adminSectionAdded = true;
+                currentGroup = permission.GroupName;
+                entries.Add(SidebarEntry.Section(currentGroup));
             }
 
             entries.Add(SidebarEntry.Button(permission.FeatureKey, permission.FeatureName));

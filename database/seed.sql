@@ -6,10 +6,10 @@ VALUES (N'Admin'), (N'Quản lý'), (N'Nhân viên bán hàng'), (N'Thủ kho');
 
 INSERT INTO Users (Username, PasswordHash, FullName, RoleId)
 VALUES
-    (N'admin', N'admin123', N'Châu', 1),
-    (N'manager', N'123456', N'Quản lý demo', 2),
-    (N'du', N'123456', N'Dũ', 4),
-    (N'hung', N'123456', N'Hùng', 3);
+    (N'admin', N'v1:100000:QWRtaW5TYWx0VjFGb3JTZQ==:0zD2l4lnoQvE1hsg9fyPoCE85OMwuAlYhNmIHV/rOEo=', N'Châu', 1),
+    (N'manager', N'v1:100000:PsZlg2HopgAMAyr/pGZbZQ==:lasevve/HmZtSZ7S3RLkvZo+SRtqj6qW29grRjfTvs4=', N'Quản lý demo', 2),
+    (N'du', N'v1:100000:v5R6S1rKhromA7+b0AYeVQ==:pLoDCK5zra96NBXKC9A1Ql3ObY0L62GKqxjmYcThWkM=', N'Dũ', 4),
+    (N'hung', N'v1:100000:EUGHejFLenJlt4MMe7YSOw==:Z4Clgdz2PWTk21m9tNon3eyWJUVOuAkAgcRUVdtAtM8=', N'Hùng', 3);
 
 INSERT INTO Categories (Code, Name, Description)
 VALUES
@@ -98,4 +98,28 @@ VALUES
     (1, N'SEED', N'Users', 1, N'Tạo dữ liệu demo ban đầu'),
     (1, N'SEED', N'Products', 1, N'Tạo dữ liệu demo sản phẩm'),
     (4, N'SEED', N'SalesInvoices', 1, N'Tạo dữ liệu hóa đơn demo');
+
+INSERT INTO Permissions (FeatureKey, FeatureName, GroupName, Note)
+VALUES
+    (N'dashboard', N'Dashboard', N'Điều hành', N'Tổng quan doanh thu, đơn hàng và cảnh báo tồn kho.'),
+    (N'product', N'Sản phẩm', N'Danh mục', N'Tra cứu và quản lý sản phẩm.'),
+    (N'category', N'Loại hàng', N'Danh mục', N'Quản lý nhóm sản phẩm.'),
+    (N'supplier', N'Nhà cung cấp', N'Danh mục', N'Quản lý nhà cung cấp.'),
+    (N'customer', N'Khách hàng', N'Bán hàng', N'Quản lý khách hàng.'),
+    (N'purchase-receipt', N'Nhập kho', N'Kho', N'Lập phiếu nhập hàng.'),
+    (N'inventory', N'Tồn kho', N'Kho', N'Tra cứu tồn kho và giao dịch kho.'),
+    (N'stocktake', N'Kiểm kê', N'Kho', N'Theo dõi và lập kiểm kê.'),
+    (N'sales-invoice', N'Bán hàng', N'Bán hàng', N'Lập hóa đơn bán hàng.'),
+    (N'report', N'Báo cáo', N'Điều hành', N'Xem báo cáo doanh thu và top sản phẩm.'),
+    (N'assistant', N'Trợ lý AI', N'Điều hành', N'Hỏi nhanh số liệu qua AssistantService.'),
+    (N'user-management', N'Tài khoản', N'Quản trị', N'Quản lý tài khoản.'),
+    (N'role-permission', N'Phân quyền', N'Quản trị', N'Xem ma trận quyền theo vai trò.'),
+    (N'audit-log', N'Nhật ký hệ thống', N'Quản trị', N'Xem nhật ký thao tác hệ thống.');
+
+INSERT INTO RolePermissions (RoleId, PermissionId)
+VALUES
+    (1, 1), (1, 2), (1, 3), (1, 4), (1, 5), (1, 6), (1, 7), (1, 8), (1, 9), (1, 10), (1, 11), (1, 12), (1, 13), (1, 14),
+    (2, 1), (2, 2), (2, 3), (2, 4), (2, 5), (2, 7), (2, 8), (2, 10), (2, 11),
+    (3, 2), (3, 5), (3, 7), (3, 9),
+    (4, 2), (4, 3), (4, 4), (4, 6), (4, 7), (4, 8);
 GO

@@ -9,4 +9,5 @@ public sealed class UserDto
     public string FullName { get; set; } = string.Empty;
     public UserRole Role { get; set; }
     public bool IsActive { get; set; } = true;
+    public bool MustChangePassword { get; set; }
 }

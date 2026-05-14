@@ -38,4 +38,4 @@
 - [x] Tạo `seed.sql`.
 - [ ] Dũ triển khai DAL/BLL thật cho kho.
 - [ ] Hùng triển khai DAL/BLL thật cho bán hàng và báo cáo.
-- [ ] Châu tích hợp service thật vào UI.
+- [x] Châu tích hợp service thật vào UI.
