@@ -1,4 +1,5 @@
 using QuanLyKhoBanHang.BLL.Services;
+using QuanLyKhoBanHang.DTO.Reports;
 
 namespace QuanLyKhoBanHang.Tests;
 
@@ -24,7 +25,10 @@ public sealed class DemoServiceTests
     [TestMethod]
     public void ReportService_GetRevenue_OutsideDemoRange_ReturnsEmptyList()
     {
-        var service = new ReportService();
+        var service = new ReportService(
+            (_, _) => [],
+            (_, _, _) => [],
+            (_, _, _) => []);
 
         var result = service.GetRevenue(DateTime.Today.AddDays(-30), DateTime.Today.AddDays(-20));
 

@@ -2,12 +2,24 @@ using Microsoft.Data.SqlClient;
 using QuanLyKhoBanHang.DTO.Sales;
 using System;
 using System.Collections.Generic;
+using QuanLyKhoBanHang.DAL.Data;
 
 namespace QuanLyKhoBanHang.DAL
 {
     public class CustomerRepository
     {
-        private readonly string _connStr = "Server=BaoChau2203;Database=QuanLyKhoBanHang;Trusted_Connection=True;TrustServerCertificate=True";
+        private readonly DatabaseOptions _options;
+        private string _connStr => _options.ConnectionString;
+
+        public CustomerRepository()
+        {
+            _options = new DatabaseOptions();
+        }
+
+        public CustomerRepository(DatabaseOptions options)
+        {
+            _options = options ?? throw new ArgumentNullException(nameof(options));
+        }
 
         public List<CustomerDto> GetAllCustomers()
         {
@@ -23,11 +35,11 @@ namespace QuanLyKhoBanHang.DAL
                         list.Add(new CustomerDto
                         {
                             Id = Convert.ToInt32(reader["Id"]),
-                            Code = reader["Code"]?.ToString(),
-                            Name = reader["Name"]?.ToString(),
-                            Phone = reader["Phone"]?.ToString(),
-                            Email = reader["Email"]?.ToString(),
-                            Address = reader["Address"]?.ToString(),
+                            Code = reader["Code"]?.ToString() ?? "",
+                            Name = reader["Name"]?.ToString() ?? "",
+                            Phone = reader["Phone"]?.ToString() ?? "",
+                            Email = reader["Email"]?.ToString() ?? "",
+                            Address = reader["Address"]?.ToString() ?? "",
                             IsActive = reader["IsActive"] != DBNull.Value ? Convert.ToBoolean(reader["IsActive"]) : true
                         });
                     }
@@ -51,11 +63,11 @@ namespace QuanLyKhoBanHang.DAL
                         list.Add(new CustomerDto
                         {
                             Id = Convert.ToInt32(reader["Id"]),
-                            Code = reader["Code"]?.ToString(),
-                            Name = reader["Name"]?.ToString(),
-                            Phone = reader["Phone"]?.ToString(),
-                            Email = reader["Email"]?.ToString(),
-                            Address = reader["Address"]?.ToString(),
+                            Code = reader["Code"]?.ToString() ?? "",
+                            Name = reader["Name"]?.ToString() ?? "",
+                            Phone = reader["Phone"]?.ToString() ?? "",
+                            Email = reader["Email"]?.ToString() ?? "",
+                            Address = reader["Address"]?.ToString() ?? "",
                             IsActive = true
                         });
                     }
@@ -79,11 +91,11 @@ namespace QuanLyKhoBanHang.DAL
                         customer = new CustomerDto
                         {
                             Id = Convert.ToInt32(reader["Id"]),
-                            Code = reader["Code"]?.ToString(),
-                            Name = reader["Name"]?.ToString(),
-                            Phone = reader["Phone"]?.ToString(),
-                            Email = reader["Email"]?.ToString(),
-                            Address = reader["Address"]?.ToString(),
+                            Code = reader["Code"]?.ToString() ?? "",
+                            Name = reader["Name"]?.ToString() ?? "",
+                            Phone = reader["Phone"]?.ToString() ?? "",
+                            Email = reader["Email"]?.ToString() ?? "",
+                            Address = reader["Address"]?.ToString() ?? "",
                             IsActive = reader["IsActive"] != DBNull.Value ? Convert.ToBoolean(reader["IsActive"]) : true
                         };
                     }

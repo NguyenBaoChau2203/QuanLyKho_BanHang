@@ -6,11 +6,31 @@ namespace QuanLyKhoBanHang.BLL.Services;
 
 public sealed class ReportService
 {
-    private readonly ReportRepository _repo;
+    private readonly Func<DateTime, DateTime, List<RevenueSummaryDto>> _getRevenue;
+    private readonly Func<DateTime, DateTime, int, List<ProductSalesSummaryDto>> _getTopSellingProducts;
+    private readonly Func<DateTime, DateTime, int, List<CustomerPurchaseSummaryDto>> _getTopCustomers;
 
     public ReportService()
+        : this(new ReportRepository())
     {
-        _repo = new ReportRepository();
+    }
+
+    public ReportService(ReportRepository repo)
+    {
+        ArgumentNullException.ThrowIfNull(repo);
+        _getRevenue = repo.GetRevenue;
+        _getTopSellingProducts = repo.GetTopSellingProducts;
+        _getTopCustomers = repo.GetTopCustomers;
+    }
+
+    public ReportService(
+        Func<DateTime, DateTime, List<RevenueSummaryDto>> getRevenue,
+        Func<DateTime, DateTime, int, List<ProductSalesSummaryDto>> getTopSellingProducts,
+        Func<DateTime, DateTime, int, List<CustomerPurchaseSummaryDto>> getTopCustomers)
+    {
+        _getRevenue = getRevenue ?? throw new ArgumentNullException(nameof(getRevenue));
+        _getTopSellingProducts = getTopSellingProducts ?? throw new ArgumentNullException(nameof(getTopSellingProducts));
+        _getTopCustomers = getTopCustomers ?? throw new ArgumentNullException(nameof(getTopCustomers));
     }
 
     public ServiceResult<List<RevenueSummaryDto>> GetRevenue(DateTime fromDate, DateTime toDate)
@@ -22,7 +42,7 @@ public sealed class ReportService
 
         try
         {
-            var rows = _repo.GetRevenue(fromDate, toDate);
+            var rows = _getRevenue(fromDate, toDate);
             return ServiceResult<List<RevenueSummaryDto>>.Ok(rows, "Lấy dữ liệu doanh thu thành công.");
         }
         catch (Exception ex)
@@ -40,7 +60,7 @@ public sealed class ReportService
 
         try
         {
-            var rows = _repo.GetTopSellingProducts(fromDate, toDate, top);
+            var rows = _getTopSellingProducts(fromDate, toDate, top);
             return ServiceResult<List<ProductSalesSummaryDto>>.Ok(rows, "Lấy danh sách top sản phẩm thành công.");
         }
         catch (Exception ex)
@@ -58,7 +78,7 @@ public sealed class ReportService
             
         try
         {
-            var rows = _repo.GetTopCustomers(fromDate, toDate, top);
+            var rows = _getTopCustomers(fromDate, toDate, top);
             return ServiceResult<List<CustomerPurchaseSummaryDto>>.Ok(rows, "Lấy danh sách top khách hàng thành công.");
         }
         catch (Exception ex)

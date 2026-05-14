@@ -15,6 +15,7 @@ public sealed class FrmLogin : Form
     private const int AuthCardTop = 30;
 
     private readonly AuthService _authService = new();
+    private readonly PasswordRecoveryService _passwordRecoveryService = new();
 
     private readonly Panel _backgroundPanel = new();
     private readonly Panel _pnlLogin = new();
@@ -344,7 +345,7 @@ public sealed class FrmLogin : Form
         RowAuto();
         layout.Controls.Add(new Label
         {
-            Text = "Nhập tên đăng nhập hoặc email đã đăng ký. Phiên bản thật sẽ gửi hướng dẫn qua email.",
+            Text = "Nhập tên đăng nhập. Yêu cầu khôi phục sẽ được ghi nhận và quản trị viên sẽ hỗ trợ bạn.",
             AutoSize = false,
             Dock = DockStyle.Fill,
             Height = 42,
@@ -506,6 +507,16 @@ public sealed class FrmLogin : Form
             return;
         }
 
+        if (result.Data.MustChangePassword)
+        {
+            using var changePwd = new FrmChangePassword(result.Data.Id, _txtLoginPassword.Text);
+            if (changePwd.ShowDialog(this) != DialogResult.OK)
+            {
+                return;
+            }
+            result.Data.MustChangePassword = false;
+        }
+
         SaveLoginPrefs();
         Hide();
         using var main = new FrmMain(result.Data);
@@ -530,25 +541,9 @@ public sealed class FrmLogin : Form
 
     private void HandleRegisterStub(object? sender, EventArgs e)
     {
-        if (string.IsNullOrWhiteSpace(_txtRegFullName.Text)
-            || string.IsNullOrWhiteSpace(_txtRegUsername.Text)
-            || string.IsNullOrWhiteSpace(_txtRegPassword.Text)
-            || string.IsNullOrWhiteSpace(_txtRegConfirm.Text))
-        {
-            MessageBox.Show("Vui lòng điền đầy đủ thông tin.", "Đăng ký", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            return;
-        }
-
-        if (!string.Equals(_txtRegPassword.Text, _txtRegConfirm.Text, StringComparison.Ordinal))
-        {
-            MessageBox.Show("Mật khẩu xác nhận không khớp.", "Đăng ký", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-            return;
-        }
-
         MessageBox.Show(
-            "Phiên bản demo: Chưa có tạo tài khoản tự phục vụ qua cơ sở dữ liệu. "
-            + "Quản trị viên có thể tạo tài khoản trên màn hình Quản trị. "
-            + "Yêu cầu đăng ký của bạn được ghi nhận (mô phỏng).",
+            "Tạo tài khoản được quản lý bởi Quản trị viên. "
+            + "Vui lòng liên hệ Quản trị viên để được tạo tài khoản và phân quyền.",
             "Đăng ký tài khoản",
             MessageBoxButtons.OK,
             MessageBoxIcon.Information);
@@ -559,16 +554,12 @@ public sealed class FrmLogin : Form
     {
         if (string.IsNullOrWhiteSpace(_txtForgotIdentity.Text))
         {
-            MessageBox.Show("Vui lòng nhập tên đăng nhập hoặc email.", "Khôi phục mật khẩu", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show("Vui lòng nhập tên đăng nhập.", "Khôi phục mật khẩu", MessageBoxButtons.OK, MessageBoxIcon.Information);
             return;
         }
 
-        MessageBox.Show(
-            "Phiên bản demo: Không gửi email thật. Vui lòng liên hệ quản trị viên để đặt lại mật khẩu, "
-            + "hoặc dùng tài khoản demo theo tài liệu hướng dẫn dự án.",
-            "Khôi phục mật khẩu",
-            MessageBoxButtons.OK,
-            MessageBoxIcon.Information);
+        var result = _passwordRecoveryService.SubmitForgotPasswordRequest(_txtForgotIdentity.Text);
+        MessageBox.Show(result.Message, "Khôi phục mật khẩu", MessageBoxButtons.OK, MessageBoxIcon.Information);
         ShowAuthView(AuthView.Login);
     }
 

@@ -11,6 +11,7 @@ namespace QuanLyKhoBanHang.WinForms.Forms.Admin;
 public sealed class FrmUserManagement : Form
 {
     private readonly UserAccountService _service = new();
+    private readonly int _currentUserId;
     private readonly BindingSource _source = new();
     private readonly DataGridView _grid = new();
     private readonly TextBox _searchBox = new();
@@ -52,8 +53,13 @@ public sealed class FrmUserManagement : Form
     private string _dataStateMessage = "Sẵn sàng";
     private bool _dataStateIsError;
 
-    public FrmUserManagement()
+    public FrmUserManagement() : this(currentUserId: 1)
     {
+    }
+
+    public FrmUserManagement(int currentUserId)
+    {
+        _currentUserId = currentUserId;
         Text = "Tài khoản";
         BackColor = AppTheme.AppBackground;
         Font = AppTheme.BodyFont();
@@ -218,7 +224,7 @@ public sealed class FrmUserManagement : Form
             RowCount = 1
         };
         layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
-        layout.Controls.Add(UiFactory.SectionHeader("Danh sách tài khoản", "Tài khoản demo được quản lý qua BLL, phân vai trò rõ ràng.", IconChar.UserGear), 0, 0);
+        layout.Controls.Add(UiFactory.SectionHeader("Danh sách tài khoản", "Tài khoản được quản lý qua BLL, phân vai trò rõ ràng.", IconChar.UserGear), 0, 0);
         card.Controls.Add(layout);
         return card;
     }
@@ -331,7 +337,7 @@ public sealed class FrmUserManagement : Form
         _editHintLabel.ForeColor = AppTheme.TextMuted;
         _editHintLabel.TextAlign = ContentAlignment.MiddleLeft;
         _editHintLabel.AutoEllipsis = true;
-        _editHintLabel.Text = "Tạo tài khoản demo, phân vai trò và trạng thái hoạt động.";
+        _editHintLabel.Text = "Tạo tài khoản, phân vai trò và trạng thái hoạt động.";
 
         _editModeLabel.Dock = DockStyle.Fill;
         _editModeLabel.ForeColor = AppTheme.Primary;
@@ -362,22 +368,14 @@ public sealed class FrmUserManagement : Form
         ConfigureTextField(_usernameBox, 0, "Tên đăng nhập", "VD: manager");
         ConfigureTextField(_fullNameBox, 1, "Họ tên", "VD: Quản lý demo");
         ConfigureComboField(_roleBox, 2, "Vai trò");
-        ConfigureTextField(_passwordBox, 3, "Mật khẩu demo", "Để trống khi sửa nếu muốn giữ nguyên");
+        ConfigureTextField(_passwordBox, 3, "Mật khẩu", "Để trống khi sửa nếu muốn giữ nguyên");
 
         _activeBox.Text = "Đang hoạt động";
         _activeBox.AutoSize = true;
         _activeBox.Margin = new Padding(0, 10, 0, 0);
         _editGrid.Controls.Add(_activeBox, 0, 4);
 
-        _editGrid.Controls.Add(new Label
-        {
-            Text = "Mật khẩu chỉ dùng cho demo trong bộ nhớ, không hiển thị trên danh sách.",
-            Dock = DockStyle.Fill,
-            ForeColor = AppTheme.TextMuted,
-            Font = AppTheme.BodyFont(9F),
-            TextAlign = ContentAlignment.MiddleLeft,
-            AutoEllipsis = true
-        }, 0, 5);
+        // Xóa dòng hướng dẫn mật khẩu demo
 
         var wrapper = new TableLayoutPanel
         {
@@ -573,9 +571,9 @@ public sealed class FrmUserManagement : Form
         _roleBox.SelectedValue = UserRole.Manager;
         _activeBox.Checked = true;
         SetEditorEnabled(true);
-        _selectedStateLabel.Text = "Đang tạo tài khoản demo mới";
+        _selectedStateLabel.Text = "Đang tạo tài khoản mới";
         _editModeLabel.Text = "Nhập thông tin rồi bấm Lưu.";
-        SetMessage("Đang tạo tài khoản demo mới.");
+        SetMessage("Đang tạo tài khoản mới.");
         UpdateSelectionState();
     }
 
@@ -613,8 +611,8 @@ public sealed class FrmUserManagement : Form
         };
 
         var result = _selectedId == 0
-            ? ToSaveResult(_service.CreateAccount(account))
-            : ToSaveResult(_service.UpdateAccount(account));
+            ? ToSaveResult(_service.CreateAccount(account, _currentUserId))
+            : ToSaveResult(_service.UpdateAccount(account, _currentUserId));
 
         if (!result.Success)
         {
@@ -643,7 +641,7 @@ public sealed class FrmUserManagement : Form
             return;
         }
 
-        var result = _service.DeactivateAccount(_selectedId);
+        var result = _service.DeactivateAccount(_selectedId, _currentUserId);
         RefreshData();
         SetMessage(result.Message, !result.Success);
     }
