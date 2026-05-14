@@ -1,192 +1,136 @@
-using System.Globalization;
-using System.Text;
 using QuanLyKhoBanHang.DTO.Assistant;
+using QuanLyKhoBanHang.BLL.Services;
+using System;
+using System.Linq;
+using System.Text;
+using System.Collections.Generic;
 
 namespace QuanLyKhoBanHang.BLL.Services.Assistant;
 
-internal sealed class RuleBasedAssistantProvider
+public class RuleBasedAssistantProvider
 {
     private readonly ReportService _reportService;
     private readonly InventoryService _inventoryService;
     private readonly StocktakeService _stocktakeService;
 
-    public RuleBasedAssistantProvider(
-        ReportService reportService,
-        InventoryService inventoryService,
-        StocktakeService stocktakeService)
+    public RuleBasedAssistantProvider(ReportService reportService, InventoryService inventoryService, StocktakeService stocktakeService)
     {
         _reportService = reportService;
         _inventoryService = inventoryService;
         _stocktakeService = stocktakeService;
     }
 
-    public AssistantResponseDto Ask(string question, string mode, string statusMessage, bool isFallback)
-    {
-        var intent = ResolveIntent(question);
-        return new AssistantResponseDto
-        {
-            Intent = intent,
-            Answer = BuildAnswer(intent),
-            Handled = intent != AssistantIntentCatalog.Unknown,
-            Mode = mode,
-            StatusMessage = statusMessage,
-            IsFallback = isFallback
-        };
-    }
-
+    /// <summary>
+    /// Xây dựng ngữ cảnh an toàn cho trợ lý.
+    /// Trả về IReadOnlyList để khớp hoàn toàn với AssistantService.
+    /// </summary>
     public IReadOnlyList<AssistantSafeContext> BuildSafeContexts()
     {
-        return
-        [
-            new AssistantSafeContext(AssistantIntentCatalog.RevenueToday, "Doanh thu hôm nay", BuildAnswer(AssistantIntentCatalog.RevenueToday)),
-            new AssistantSafeContext(AssistantIntentCatalog.LowStock, "Hàng sắp hết", BuildAnswer(AssistantIntentCatalog.LowStock)),
-            new AssistantSafeContext(AssistantIntentCatalog.TopProducts, "Top sản phẩm bán chạy", BuildAnswer(AssistantIntentCatalog.TopProducts)),
-            new AssistantSafeContext(AssistantIntentCatalog.TopCustomers, "Khách hàng mua nhiều nhất", BuildAnswer(AssistantIntentCatalog.TopCustomers)),
-            new AssistantSafeContext(AssistantIntentCatalog.StocktakeToday, "Kiểm kê hôm nay", BuildAnswer(AssistantIntentCatalog.StocktakeToday))
-        ];
-    }
-
-    private static string ResolveIntent(string question)
-    {
-        var normalized = Normalize(question);
-        if (string.IsNullOrWhiteSpace(normalized))
+        return new List<AssistantSafeContext>
         {
-            return AssistantIntentCatalog.Unknown;
-        }
-
-        if (normalized.Contains("doanh thu", StringComparison.Ordinal))
-        {
-            return AssistantIntentCatalog.RevenueToday;
-        }
-
-        if (normalized.Contains("sap het", StringComparison.Ordinal)
-            || normalized.Contains("ton thap", StringComparison.Ordinal)
-            || normalized.Contains("low stock", StringComparison.Ordinal)
-            || normalized.Contains("can nhap", StringComparison.Ordinal))
-        {
-            return AssistantIntentCatalog.LowStock;
-        }
-
-        if ((normalized.Contains("top", StringComparison.Ordinal) || normalized.Contains("ban chay", StringComparison.Ordinal))
-            && (normalized.Contains("san pham", StringComparison.Ordinal)
-                || normalized.Contains("mat hang", StringComparison.Ordinal)
-                || normalized.Contains("hang", StringComparison.Ordinal)))
-        {
-            return AssistantIntentCatalog.TopProducts;
-        }
-
-        if (normalized.Contains("khach", StringComparison.Ordinal)
-            && (normalized.Contains("mua", StringComparison.Ordinal)
-                || normalized.Contains("nhieu", StringComparison.Ordinal)
-                || normalized.Contains("top", StringComparison.Ordinal)))
-        {
-            return AssistantIntentCatalog.TopCustomers;
-        }
-
-        if (normalized.Contains("kiem ke", StringComparison.Ordinal)
-            || normalized.Contains("stocktake", StringComparison.Ordinal))
-        {
-            return AssistantIntentCatalog.StocktakeToday;
-        }
-
-        return AssistantIntentCatalog.Unknown;
-    }
-
-    private string BuildAnswer(string intent)
-    {
-        return intent switch
-        {
-            AssistantIntentCatalog.RevenueToday => BuildRevenueAnswer(),
-            AssistantIntentCatalog.LowStock => BuildLowStockAnswer(),
-            AssistantIntentCatalog.TopProducts => BuildTopProductsAnswer(),
-            AssistantIntentCatalog.TopCustomers => BuildTopCustomersAnswer(),
-            AssistantIntentCatalog.StocktakeToday => BuildStocktakeAnswer(),
-            _ => "Trợ lý chưa hiểu câu này. Hãy thử: doanh thu hôm nay, hàng sắp hết, top sản phẩm bán chạy, khách hàng mua nhiều nhất, kiểm kê hôm nay."
+            new AssistantSafeContext
+            {
+                Key = "SystemStatus",
+                Value = "Cửa hàng đang hoạt động bình thường.",
+                Title = "Trạng thái",
+                Intent = "System.Status",
+                Answer = "Hệ thống đã sẵn sàng."
+            }
         };
     }
 
-    private string BuildRevenueAnswer()
+    public AssistantResponseDto Ask(string question, string mode, string statusMessage, bool isFallback)
     {
-        var today = DateTime.Today;
-        var result = _reportService.GetRevenue(today, today);
-        if (!result.Success || result.Data is not { Count: > 0 } rows)
+        var response = new AssistantResponseDto
         {
-            return "Không lấy được dữ liệu doanh thu demo.";
-        }
+            Intent = "Unknown",
+            Handled = false,
+            Mode = mode,
+            StatusMessage = statusMessage,
+            IsFallback = isFallback,
+            Answer = "Xin lỗi, tôi chưa hiểu ý bạn. Hiện tại tôi có thể giúp bạn xem 'doanh thu hôm nay', 'doanh thu tháng này', 'top sản phẩm bán chạy', hoặc 'khách hàng mua nhiều nhất'."
+        };
 
-        var total = rows.Sum(x => x.Revenue);
-        var invoices = rows.Sum(x => x.InvoiceCount);
-        var profit = rows.Sum(x => x.EstimatedProfit);
-        return $"Doanh thu hôm nay: {total:N0} đ, {invoices:N0} hóa đơn, lợi nhuận ước tính {profit:N0} đ. Dữ liệu lấy từ ReportService.";
-    }
+        if (string.IsNullOrWhiteSpace(question)) return response;
 
-    private string BuildLowStockAnswer()
-    {
-        var result = _inventoryService.GetLowStockProducts();
-        var rows = result.Success ? result.Data ?? [] : [];
-        if (rows.Count == 0)
+        string cmd = question.ToLower().Trim();
+        DateTime today = DateTime.Today;
+        DateTime firstDayOfMonth = new DateTime(today.Year, today.Month, 1);
+
+        // 1. Lệnh: DOANH THU HÔM NAY
+        if (cmd.Contains("doanh thu hôm nay"))
         {
-            return "Không có sản phẩm tồn thấp trong dữ liệu demo hiện tại.";
-        }
-
-        var details = string.Join("; ", rows.Take(5).Select(x => $"{x.Code} - {x.Name}: {x.QuantityOnHand:N0}/{x.MinStockLevel:N0} {x.Unit}"));
-        return $"Có {rows.Count:N0} sản phẩm sắp hết hoặc tồn thấp: {details}.";
-    }
-
-    private string BuildTopProductsAnswer()
-    {
-        var today = DateTime.Today;
-        var result = _reportService.GetTopSellingProducts(today.AddDays(-29), today, 5);
-        var rows = result.Success ? result.Data ?? [] : [];
-        if (rows.Count == 0)
-        {
-            return "Không lấy được dữ liệu top sản phẩm demo.";
-        }
-
-        var details = string.Join("; ", rows.Select((x, index) => $"{index + 1}. {x.ProductName} ({x.QuantitySold:N0} bán ra, {x.Revenue:N0} đ)"));
-        return $"Top sản phẩm bán chạy 30 ngày gần nhất: {details}.";
-    }
-
-    private string BuildTopCustomersAnswer()
-    {
-        var today = DateTime.Today;
-        var result = _reportService.GetTopCustomers(today.AddDays(-29), today, 5);
-        var rows = result.Success ? result.Data ?? [] : [];
-        if (rows.Count == 0)
-        {
-            return "Không lấy được dữ liệu top khách hàng demo.";
-        }
-
-        var details = string.Join("; ", rows.Select((x, index) => $"{index + 1}. {x.CustomerName} ({x.InvoiceCount:N0} hóa đơn, {x.TotalAmount:N0} đ)"));
-        return $"Khách hàng mua nhiều nhất 30 ngày gần nhất: {details}.";
-    }
-
-    private string BuildStocktakeAnswer()
-    {
-        var today = DateTime.Today;
-        var result = _stocktakeService.GetStocktakes(today.AddDays(-7), today);
-        if (!result.Success || result.Data is not { Count: > 0 } rows)
-        {
-            return "Không có dữ liệu kiểm kê demo trong 7 ngày gần nhất.";
-        }
-
-        var latest = rows.OrderByDescending(x => x.StocktakeDate).First();
-        var lineCount = latest.Lines.Count;
-        return $"Phiếu kiểm kê gần nhất là {latest.StocktakeCode} ngày {latest.StocktakeDate:dd/MM/yyyy}, có {lineCount:N0} dòng hàng. Ghi chú: {latest.Note}.";
-    }
-
-    private static string Normalize(string value)
-    {
-        var normalized = value.Trim().ToLowerInvariant().Normalize(NormalizationForm.FormD);
-        var builder = new StringBuilder(normalized.Length);
-        foreach (var c in normalized)
-        {
-            if (CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
+            var res = _reportService.GetRevenue(today, today);
+            // Nếu code báo đỏ chữ Success, hãy đổi thành IsSuccess theo đúng ServiceResult của bạn
+            if (res != null && res.Success && res.Data != null && res.Data.Any())
             {
-                builder.Append(c);
+                var data = res.Data.First();
+                response.Answer = $"Doanh thu hôm nay là {data.Revenue:N0} VNĐ với tổng cộng {data.InvoiceCount} hóa đơn.";
             }
+            else response.Answer = "Hôm nay cửa hàng chưa có doanh thu nào.";
+
+            response.Handled = true;
+            response.Intent = "Report.RevenueToday";
+            return response;
         }
 
-        return builder.ToString().Normalize(NormalizationForm.FormC);
+        // 2. Lệnh: DOANH THU THÁNG NÀY
+        if (cmd.Contains("doanh thu tháng này"))
+        {
+            var res = _reportService.GetRevenue(firstDayOfMonth, today);
+            if (res != null && res.Success && res.Data != null && res.Data.Any())
+            {
+                decimal totalRev = res.Data.Sum(x => x.Revenue);
+                int totalInv = res.Data.Sum(x => x.InvoiceCount);
+                response.Answer = $"Doanh thu tháng này đạt {totalRev:N0} VNĐ với tổng cộng {totalInv} hóa đơn.";
+            }
+            else response.Answer = "Tháng này cửa hàng chưa có doanh thu nào.";
+
+            response.Handled = true;
+            response.Intent = "Report.RevenueMonth";
+            return response;
+        }
+
+        // 3. Lệnh: TOP SẢN PHẨM BÁN CHẠY
+        if (cmd.Contains("top sản phẩm") || cmd.Contains("bán chạy"))
+        {
+            var res = _reportService.GetTopSellingProducts(firstDayOfMonth, today, 5);
+            if (res != null && res.Success && res.Data != null && res.Data.Any())
+            {
+                StringBuilder sb = new StringBuilder("Top sản phẩm bán chạy nhất tháng này gồm có:\n");
+                foreach (var item in res.Data)
+                {
+                    sb.AppendLine($"- {item.ProductName}: Đã bán được {item.QuantitySold} cái.");
+                }
+                response.Answer = sb.ToString();
+            }
+            else response.Answer = "Chưa có dữ liệu sản phẩm bán chạy trong tháng này.";
+
+            response.Handled = true;
+            response.Intent = "Report.TopProducts";
+            return response;
+        }
+
+        // 4. Lệnh: KHÁCH HÀNG MUA NHIỀU NHẤT
+        if (cmd.Contains("khách hàng") || cmd.Contains("mua nhiều"))
+        {
+            var res = _reportService.GetTopCustomers(firstDayOfMonth, today, 5);
+            if (res != null && res.Success && res.Data != null && res.Data.Any())
+            {
+                StringBuilder sb = new StringBuilder("Top những khách hàng mua nhiều nhất tháng này là:\n");
+                foreach (var item in res.Data)
+                {
+                    sb.AppendLine($"- {item.CustomerName}: Đã chi tiêu {item.TotalAmount:N0} VNĐ.");
+                }
+                response.Answer = sb.ToString();
+            }
+            else response.Answer = "Chưa có dữ liệu khách hàng mua hàng trong tháng này.";
+
+            response.Handled = true;
+            response.Intent = "Report.TopCustomers";
+            return response;
+        }
+
+        return response;
     }
 }

@@ -1,62 +1,82 @@
 using QuanLyKhoBanHang.BLL.Common;
+using QuanLyKhoBanHang.DAL;
 using QuanLyKhoBanHang.DTO.Sales;
+using System;
+using System.Collections.Generic;
 
-namespace QuanLyKhoBanHang.BLL.Services;
-
-public sealed class CustomerService
+namespace QuanLyKhoBanHang.BLL.Services
 {
-    public ServiceResult<List<CustomerDto>> GetAllCustomers()
+    public sealed class CustomerService
     {
-        return ServiceResult<List<CustomerDto>>.Ok(new List<CustomerDto>(), "Chưa có dữ liệu khách hàng.");
-    }
+        private readonly CustomerRepository _repo;
 
-    public ServiceResult<List<CustomerDto>> SearchCustomers(string keyword)
-    {
-        return ServiceResult<List<CustomerDto>>.Ok(new List<CustomerDto>(), "Chưa có dữ liệu tìm kiếm khách hàng.");
-    }
-
-    public ServiceResult<CustomerDto> GetCustomerById(int id)
-    {
-        if (id <= 0)
+        public CustomerService()
         {
-            return ServiceResult<CustomerDto>.Fail("Id khách hàng không hợp lệ.");
+            _repo = new CustomerRepository();
         }
 
-        return ServiceResult<CustomerDto>.Fail("Chưa có dữ liệu khách hàng theo id.");
-    }
-
-    public ServiceResult<int> CreateCustomer(CustomerDto customer)
-    {
-        if (string.IsNullOrWhiteSpace(customer.Code) || string.IsNullOrWhiteSpace(customer.Name))
+        public ServiceResult<List<CustomerDto>> GetAllCustomers()
         {
-            return ServiceResult<int>.Fail("Mã khách hàng và tên khách hàng là bắt buộc.");
+            try { return ServiceResult<List<CustomerDto>>.Ok(_repo.GetAllCustomers(), "Thành công."); }
+            catch (Exception ex) { return ServiceResult<List<CustomerDto>>.Fail("Lỗi: " + ex.Message); }
         }
 
-        return ServiceResult<int>.Ok(0, "Service khách hàng đang ở chế độ stub.");
-    }
-
-    public ServiceResult<bool> UpdateCustomer(CustomerDto customer)
-    {
-        if (customer.Id <= 0)
+        public ServiceResult<List<CustomerDto>> SearchCustomers(string keyword)
         {
-            return ServiceResult<bool>.Fail("Id khách hàng không hợp lệ.");
+            try
+            {
+                if (string.IsNullOrWhiteSpace(keyword)) return GetAllCustomers();
+                return ServiceResult<List<CustomerDto>>.Ok(_repo.SearchCustomers(keyword), "Thành công.");
+            }
+            catch (Exception ex) { return ServiceResult<List<CustomerDto>>.Fail("Lỗi: " + ex.Message); }
         }
 
-        if (string.IsNullOrWhiteSpace(customer.Code) || string.IsNullOrWhiteSpace(customer.Name))
+        public ServiceResult<CustomerDto> GetCustomerById(int id)
         {
-            return ServiceResult<bool>.Fail("Mã khách hàng và tên khách hàng là bắt buộc.");
+            try
+            {
+                var cust = _repo.GetCustomerById(id);
+                if (cust == null) return ServiceResult<CustomerDto>.Fail("Không tìm thấy khách hàng.");
+                return ServiceResult<CustomerDto>.Ok(cust, "Thành công.");
+            }
+            catch (Exception ex) { return ServiceResult<CustomerDto>.Fail("Lỗi: " + ex.Message); }
         }
 
-        return ServiceResult<bool>.Ok(true, "Service khách hàng đang ở chế độ stub.");
-    }
-
-    public ServiceResult<bool> DeactivateCustomer(int id)
-    {
-        if (id <= 0)
+        public ServiceResult<int> CreateCustomer(CustomerDto customer)
         {
-            return ServiceResult<bool>.Fail("Id khách hàng không hợp lệ.");
+            // Bài test: Tạo khách hàng thiếu tên thì fail
+            if (string.IsNullOrWhiteSpace(customer.Name)) // Đã đổi thành Name
+            {
+                return ServiceResult<int>.Fail("Lỗi: Tên khách hàng là thông tin bắt buộc!");
+            }
+
+            try { return ServiceResult<int>.Ok(_repo.CreateCustomer(customer), "Thêm mới khách hàng thành công."); }
+            catch (Exception ex) { return ServiceResult<int>.Fail("Lỗi hệ thống: " + ex.Message); }
         }
 
-        return ServiceResult<bool>.Ok(true, "Service khách hàng đang ở chế độ stub.");
+        public ServiceResult<bool> UpdateCustomer(CustomerDto customer)
+        {
+            if (string.IsNullOrWhiteSpace(customer.Name)) return ServiceResult<bool>.Fail("Lỗi: Tên khách hàng là thông tin bắt buộc!");
+            if (customer.Id <= 0) return ServiceResult<bool>.Fail("Lỗi: Mã khách hàng không hợp lệ.");
+
+            try
+            {
+                _repo.UpdateCustomer(customer);
+                return ServiceResult<bool>.Ok(true, "Cập nhật thông tin thành công.");
+            }
+            catch (Exception ex) { return ServiceResult<bool>.Fail("Lỗi hệ thống: " + ex.Message); }
+        }
+
+        public ServiceResult<bool> DeactivateCustomer(int id)
+        {
+            if (id <= 0) return ServiceResult<bool>.Fail("Lỗi: Mã khách hàng không hợp lệ.");
+
+            try
+            {
+                _repo.DeactivateCustomer(id);
+                return ServiceResult<bool>.Ok(true, "Đã vô hiệu hóa khách hàng thành công.");
+            }
+            catch (Exception ex) { return ServiceResult<bool>.Fail("Lỗi hệ thống: " + ex.Message); }
+        }
     }
 }
