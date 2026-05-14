@@ -384,7 +384,9 @@ public sealed class FrmSalesInvoice : Form
         SelectDefaultCustomer();
         RefreshLineSource();
         UpdateSummary();
-        SetMessage("Sẵn sàng lập hóa đơn.");
+        var success = productResult.Success && customerResult.Success;
+        var msg = success ? "Sẵn sàng lập hóa đơn." : $"{(productResult.Success ? customerResult.Message : productResult.Message)} - Đang dùng dữ liệu demo.";
+        SetMessage(msg, !success);
     }
 
     private void ApplyProductFilter()

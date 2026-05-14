@@ -381,7 +381,7 @@ public sealed class FrmPurchaseReceipt : Form
         ApplyProductFilter();
         RefreshLineSource();
         UpdateTotal();
-        SetMessage("Sẵn sàng nhập kho.");
+        SetMessage(result.Success ? "Sẵn sàng nhập kho." : $"{result.Message} - Đang dùng dữ liệu demo.", !result.Success);
     }
 
     private void ApplyProductFilter()

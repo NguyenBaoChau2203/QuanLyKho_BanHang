@@ -203,7 +203,7 @@ public sealed class FrmInventory : Form
         _items = productResult.Success && productResult.Data is { Count: > 0 } ? productResult.Data! : CreateStubProducts();
         LoadFilterOptions();
         ApplyFilters();
-        SetMessage(productResult.Success ? "Đã cập nhật tồn kho." : $"{productResult.Message} - Đang dùng dữ liệu demo.", !productResult.Success);
+        SetMessage(productResult.Success ? productResult.Message : $"{productResult.Message} - Đang dùng dữ liệu demo.", !productResult.Success);
     }
 
     private void LoadFilterOptions()

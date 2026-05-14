@@ -266,7 +266,7 @@ public sealed class FrmStocktake : Form
         _stocktakeDate.Value = DateTime.Today;
         _ = _stocktakeService.GetStocktakeById(1);
         ApplyFilters();
-        SetMessage(result.Success ? "Đã tải dữ liệu kiểm kê." : result.Message);
+        SetMessage(result.Success ? "Đã tải dữ liệu kiểm kê." : $"{result.Message} - Đang dùng dữ liệu demo.", !result.Success);
     }
 
     private void ApplyFilters()
