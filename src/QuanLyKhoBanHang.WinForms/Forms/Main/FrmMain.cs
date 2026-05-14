@@ -23,6 +23,8 @@ public sealed class FrmMain : Form
     private readonly Label _subtitleLabel = new();
     private readonly ToolStripStatusLabel _statusLabel = new();
 
+    public bool LogoutRequested { get; private set; }
+
     public FrmMain(UserDto currentUser)
     {
         _currentUser = currentUser;
@@ -65,16 +67,18 @@ public sealed class FrmMain : Form
         {
             Dock = DockStyle.Fill,
             ColumnCount = 1,
-            RowCount = 4
+            RowCount = 5
         };
         stack.RowStyles.Add(new RowStyle(SizeType.Absolute, 76));
         stack.RowStyles.Add(new RowStyle(SizeType.Absolute, 84));
         stack.RowStyles.Add(new RowStyle(SizeType.Absolute, 12));
         stack.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
+        stack.RowStyles.Add(new RowStyle(SizeType.Absolute, 50));
 
         stack.Controls.Add(BuildBrand(), 0, 0);
         stack.Controls.Add(BuildUserBadge(), 0, 1);
         stack.Controls.Add(BuildMenu(entries), 0, 3);
+        stack.Controls.Add(BuildLogoutButton(), 0, 4);
         sidebar.Controls.Add(stack);
         return sidebar;
     }
@@ -229,6 +233,37 @@ public sealed class FrmMain : Form
         return menu;
     }
 
+    private Control BuildLogoutButton()
+    {
+        var button = new IconButton
+        {
+            Text = "Đăng xuất",
+            Dock = DockStyle.Fill,
+            Height = 42,
+            Margin = new Padding(0, 6, 0, 0),
+            FlatStyle = FlatStyle.Flat,
+            BackColor = Color.FromArgb(54, 73, 104),
+            ForeColor = Color.White,
+            Font = AppTheme.BodyFont(),
+            IconChar = IconChar.RightFromBracket,
+            IconColor = AppTheme.SidebarTextMuted,
+            IconFont = IconFont.Auto,
+            IconSize = 18,
+            TextAlign = ContentAlignment.MiddleLeft,
+            TextImageRelation = TextImageRelation.ImageBeforeText,
+            ImageAlign = ContentAlignment.MiddleLeft,
+            Padding = new Padding(12, 0, 0, 0),
+            UseVisualStyleBackColor = false,
+            Cursor = Cursors.Hand
+        };
+
+        button.FlatAppearance.BorderSize = 0;
+        button.FlatAppearance.MouseOverBackColor = Color.FromArgb(69, 92, 126);
+        button.FlatAppearance.MouseDownBackColor = Color.FromArgb(84, 105, 137);
+        button.Click += HandleLogout;
+        return button;
+    }
+
     private static void ResizeSidebarMenuItems(FlowLayoutPanel menu)
     {
         var width = Math.Max(120, menu.ClientSize.Width - 8);
@@ -361,6 +396,25 @@ public sealed class FrmMain : Form
 
         LoadView(factory());
         SetActiveNav(featureKey);
+    }
+
+    private void HandleLogout(object? sender, EventArgs e)
+    {
+        var confirm = MessageBox.Show(
+            "Bạn muốn đăng xuất và quay lại màn hình đăng nhập?",
+            "Đăng xuất",
+            MessageBoxButtons.YesNo,
+            MessageBoxIcon.Question,
+            MessageBoxDefaultButton.Button2);
+
+        if (confirm != DialogResult.Yes)
+        {
+            return;
+        }
+
+        LogoutRequested = true;
+        _statusLabel.Text = "Đang đăng xuất...";
+        Close();
     }
 
     private IconButton CreateNavButton(SidebarEntry entry)

@@ -510,6 +510,21 @@ public sealed class FrmLogin : Form
         Hide();
         using var main = new FrmMain(result.Data);
         main.ShowDialog(this);
+
+        if (main.LogoutRequested)
+        {
+            if (!_chkRemember.Checked)
+            {
+                _txtLoginPassword.Clear();
+            }
+
+            Show();
+            WindowState = FormWindowState.Normal;
+            ShowAuthView(AuthView.Login);
+            _btnLogin.Focus();
+            return;
+        }
+
         Close();
     }
 
