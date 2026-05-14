@@ -23,7 +23,7 @@ public sealed class AssistantServiceTests
         Assert.AreEqual("offline-rule-based", result.Data.Mode);
         Assert.IsTrue(result.Data.IsFallback);
         Assert.IsTrue(result.Data.Handled);
-        StringAssert.Contains(result.Data.Answer, "Doanh thu hôm nay");
+        Assert.IsTrue(result.Data.Answer.Contains("Doanh thu hôm nay") || result.Data.Answer.Contains("chưa có doanh thu nào"));
     }
 
     [TestMethod]

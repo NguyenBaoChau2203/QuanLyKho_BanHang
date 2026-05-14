@@ -1,6 +1,7 @@
 using System.ComponentModel;
 using FontAwesome.Sharp;
 using QuanLyKhoBanHang.BLL.Services;
+using QuanLyKhoBanHang.DTO.Inventory;
 using QuanLyKhoBanHang.DTO.MasterData;
 using QuanLyKhoBanHang.WinForms.Forms.Common;
 
@@ -301,7 +302,31 @@ public sealed class FrmStocktake : Form
 
     private void Save()
     {
-        SetMessage("Đã ghi nhận kiểm kê trong chế độ demo, chờ backend thật xử lý transaction.");
+        var stocktake = new StocktakeDto
+        {
+            StocktakeCode = $"KK-{DateTime.Now:yyyyMMdd-HHmm}",
+            StocktakeDate = _stocktakeDate.Value.Date,
+            Note = _note.Text.Trim(),
+            CreatedByUserId = 1,
+            Lines = _lines.Select(x => new StocktakeLineDto
+            {
+                ProductId = x.ProductId,
+                ProductName = x.ProductName,
+                SystemQuantity = x.SystemQuantity,
+                ActualQuantity = x.ActualQuantity
+            }).ToList()
+        };
+
+        var result = _stocktakeService.CreateStocktake(stocktake);
+        if (result.Success)
+        {
+            SetMessage(result.Message);
+            LoadData();
+        }
+        else
+        {
+            SetMessage(result.Message, true);
+        }
     }
 
     private void SetMessage(string message, bool error = false)

@@ -9,6 +9,10 @@ public sealed class CategoryService
 {
     private readonly CategoryRepository _categoryRepository;
 
+    public CategoryService() : this(new DatabaseOptions())
+    {
+    }
+
     public CategoryService(DatabaseOptions options)
     {
         _categoryRepository = new CategoryRepository(options);

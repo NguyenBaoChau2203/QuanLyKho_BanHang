@@ -197,11 +197,45 @@ public sealed class FrmSupplier : CrudListForm<SupplierDto>
             return;
         }
 
-        ToggleEditing(false);
-        _selectedStateLabel.Text = "Đã lưu giao diện. Dữ liệu thật sẽ do BLL/DAL xử lý sau.";
-        _editModeLabel.Text = "Đang xem dữ liệu đã lưu.";
-        UiFactory.SetMessage(_gridStateLabel, $"Đã lưu tạm nhà cung cấp trong chế độ stub.");
-        UpdateSelectionState();
+        var dto = new SupplierDto
+        {
+            Id = SelectedId,
+            Code = CodeBox.Text.Trim(),
+            Name = NameBox.Text.Trim(),
+            Phone = _phoneBox.Text.Trim(),
+            Email = _emailBox.Text.Trim(),
+            Address = _addressBox.Text.Trim(),
+            IsActive = ActiveBox.Checked
+        };
+
+        if (SelectedId <= 0)
+        {
+            var result = _service.CreateSupplier(dto);
+            if (result.Success)
+            {
+                ToggleEditing(false);
+                RefreshData();
+                UiFactory.SetMessage(_gridStateLabel, result.Message);
+            }
+            else
+            {
+                UiFactory.SetMessage(_gridStateLabel, result.Message, true);
+            }
+        }
+        else
+        {
+            var result = _service.UpdateSupplier(dto);
+            if (result.Success)
+            {
+                ToggleEditing(false);
+                RefreshData();
+                UiFactory.SetMessage(_gridStateLabel, result.Message);
+            }
+            else
+            {
+                UiFactory.SetMessage(_gridStateLabel, result.Message, true);
+            }
+        }
     }
 
     protected override void CancelEdit()
@@ -219,7 +253,16 @@ public sealed class FrmSupplier : CrudListForm<SupplierDto>
             return;
         }
 
-        UiFactory.SetMessage(_gridStateLabel, "Đã ghi nhận yêu cầu ngừng kích hoạt ở lớp UI stub.");
+        var result = _service.DeactivateSupplier(SelectedId);
+        if (result.Success)
+        {
+            RefreshData();
+            UiFactory.SetMessage(_gridStateLabel, result.Message);
+        }
+        else
+        {
+            UiFactory.SetMessage(_gridStateLabel, result.Message, true);
+        }
     }
 
     private void ConfigureScreen()

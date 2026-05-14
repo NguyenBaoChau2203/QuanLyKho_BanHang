@@ -526,6 +526,7 @@ public sealed class FrmSalesInvoice : Form
         {
             InvoiceCode = _invoiceCode.Text.Trim(),
             CustomerId = _selectedCustomerId,
+            CreatedByUserId = 1,
             InvoiceDate = _saleDate.Value.Date,
             Note = _note.Text,
             Lines = _lines.Select(x => new SalesInvoiceLineDto
@@ -540,7 +541,15 @@ public sealed class FrmSalesInvoice : Form
         };
 
         var result = _salesService.CreateInvoice(invoice);
-        SetMessage(result.Message, !result.Success);
+        if (result.Success)
+        {
+            SetMessage(result.Message);
+            ResetForm();
+        }
+        else
+        {
+            SetMessage(result.Message, true);
+        }
     }
 
     private void ResetForm()

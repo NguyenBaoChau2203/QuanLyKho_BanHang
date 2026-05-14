@@ -9,6 +9,10 @@ public sealed class ProductService
 {
     private readonly ProductRepository _productRepository;
 
+    public ProductService() : this(new DatabaseOptions())
+    {
+    }
+
     public ProductService(DatabaseOptions options)
     {
         _productRepository = new ProductRepository(options);

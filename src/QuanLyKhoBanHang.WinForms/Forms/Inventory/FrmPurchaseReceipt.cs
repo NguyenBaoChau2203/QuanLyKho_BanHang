@@ -483,6 +483,7 @@ public sealed class FrmPurchaseReceipt : Form
         {
             ReceiptCode = _receiptCode.Text.Trim(),
             SupplierId = 1,
+            CreatedByUserId = 1,
             ReceiptDate = _receiptDate.Value.Date,
             Note = string.Join(" - ", new[] { _supplier.Text.Trim(), _supplierNote.Text.Trim(), _note.Text.Trim() }.Where(x => !string.IsNullOrWhiteSpace(x))),
             Lines = _lines.Select(x => new PurchaseReceiptLineDto
@@ -496,7 +497,15 @@ public sealed class FrmPurchaseReceipt : Form
         };
 
         var result = _purchaseService.CreateReceipt(receipt);
-        SetMessage(result.Message, !result.Success);
+        if (result.Success)
+        {
+            SetMessage(result.Message);
+            ResetForm();
+        }
+        else
+        {
+            SetMessage(result.Message, true);
+        }
     }
 
     private void ResetForm()

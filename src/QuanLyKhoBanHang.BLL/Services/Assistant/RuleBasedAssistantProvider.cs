@@ -131,6 +131,41 @@ public class RuleBasedAssistantProvider
             return response;
         }
 
+        // 5. Lệnh: HÀNG SẮP HẾT
+        if (cmd.Contains("hàng sắp hết") || cmd.Contains("tồn thấp"))
+        {
+            var res = _inventoryService.GetLowStockProducts();
+            if (res != null && res.Success && res.Data != null && res.Data.Any())
+            {
+                StringBuilder sb = new StringBuilder($"Có {res.Data.Count} sản phẩm sắp hết hàng:\n");
+                foreach (var item in res.Data.Take(5))
+                {
+                    sb.AppendLine($"- {item.Code} - {item.Name}: Còn {item.QuantityOnHand} {item.Unit}");
+                }
+                response.Answer = sb.ToString();
+            }
+            else response.Answer = "Hiện tại không có sản phẩm nào sắp hết hàng.";
+
+            response.Handled = true;
+            response.Intent = "Inventory.LowStock";
+            return response;
+        }
+
+        // 6. Lệnh: KIỂM KÊ HÔM NAY
+        if (cmd.Contains("kiểm kê hôm nay"))
+        {
+            var res = _stocktakeService.GetStocktakes(today, today);
+            if (res != null && res.Success && res.Data != null && res.Data.Any())
+            {
+                response.Answer = $"Hôm nay đã có {res.Data.Count} phiếu kiểm kê được tạo.";
+            }
+            else response.Answer = "Hôm nay chưa có phiếu kiểm kê nào được tạo.";
+
+            response.Handled = true;
+            response.Intent = "Inventory.StocktakeToday";
+            return response;
+        }
+
         return response;
     }
 }

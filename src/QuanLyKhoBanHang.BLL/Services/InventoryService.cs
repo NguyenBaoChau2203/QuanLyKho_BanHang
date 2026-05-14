@@ -13,6 +13,10 @@ public sealed class InventoryService
     private readonly ProductRepository _productRepository;
     private readonly StockTransactionRepository _stockTransactionRepository;
 
+    public InventoryService() : this(new DatabaseOptions())
+    {
+    }
+
     public InventoryService(DatabaseOptions options)
     {
         _productRepository = new ProductRepository(options);
