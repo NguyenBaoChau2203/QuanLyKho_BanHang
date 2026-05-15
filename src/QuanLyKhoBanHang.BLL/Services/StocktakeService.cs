@@ -69,12 +69,8 @@ public sealed class StocktakeService
                 line.SystemQuantity = product.QuantityOnHand;
             }
 
-            int stocktakeId = _stocktakeRepository.CreateStocktake(stocktake);
-
-            if (stocktakeId <= 0)
-            {
-                return ServiceResult<int>.Fail("Không thể tạo phiếu kiểm kê.");
-            }
+            var productUpdates = new List<ProductQuantityUpdateDto>();
+            var stockTransactions = new List<StockTransactionDto>();
 
             foreach (var line in stocktake.Lines)
             {
@@ -83,9 +79,14 @@ public sealed class StocktakeService
                 if (difference != 0)
                 {
                     int newQuantity = line.ActualQuantity;
-                    _productRepository.UpdateQuantity(line.ProductId, difference);
 
-                    var transaction = new StockTransactionDto
+                    productUpdates.Add(new ProductQuantityUpdateDto
+                    {
+                        ProductId = line.ProductId,
+                        QuantityChange = difference
+                    });
+
+                    stockTransactions.Add(new StockTransactionDto
                     {
                         ProductId = line.ProductId,
                         TransactionType = StockTransactionType.StocktakeAdjustment,
@@ -95,10 +96,15 @@ public sealed class StocktakeService
                         CreatedAt = DateTime.Now,
                         CreatedByUserId = stocktake.CreatedByUserId,
                         Note = $"Điều chỉnh tồn kho từ kiểm kê {stocktake.StocktakeCode}"
-                    };
-
-                    _stockTransactionRepository.CreateTransaction(transaction);
+                    });
                 }
+            }
+
+            int stocktakeId = _stocktakeRepository.CreateStocktakeWithTransaction(stocktake, productUpdates, stockTransactions);
+
+            if (stocktakeId <= 0)
+            {
+                return ServiceResult<int>.Fail("Không thể tạo phiếu kiểm kê.");
             }
 
             return ServiceResult<int>.Ok(stocktakeId, "Đã tạo phiếu kiểm kê thành công.");

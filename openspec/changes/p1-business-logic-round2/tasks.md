@@ -1,0 +1,5 @@
+- [x] Bổ sung validation vào `ProductService`.
+- [x] Thêm phương thức `CreateReceiptWithTransaction` trong `PurchaseRepository`.
+- [x] Cập nhật `PurchaseService.CreateReceipt` để gọi `CreateReceiptWithTransaction`.
+- [x] Thêm phương thức `CreateStocktakeWithTransaction` trong `StocktakeRepository`.
+- [x] Cập nhật `StocktakeService.CreateStocktake` để gọi `CreateStocktakeWithTransaction`.
