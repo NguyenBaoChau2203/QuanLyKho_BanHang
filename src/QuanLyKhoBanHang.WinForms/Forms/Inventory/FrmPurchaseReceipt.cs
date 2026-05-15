@@ -57,7 +57,7 @@ public sealed class FrmPurchaseReceipt : Form
             RowCount = 4,
             Padding = AppTheme.PagePadding
         };
-        root.RowStyles.Add(new RowStyle(SizeType.Absolute, 78));
+        root.RowStyles.Add(new RowStyle(SizeType.Absolute, 92));
         root.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
         root.RowStyles.Add(new RowStyle(SizeType.Absolute, 174));
         root.RowStyles.Add(new RowStyle(SizeType.Absolute, 30));
@@ -85,17 +85,17 @@ public sealed class FrmPurchaseReceipt : Form
         var title = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 2, RowCount = 1 };
         title.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 56));
         title.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
-        title.Controls.Add(UiFactory.IconTile(IconChar.TruckRampBox, AppTheme.Warning, AppTheme.WarningSoft, 46, 24), 0, 0);
+        title.Controls.Add(UiFactory.IconTile(IconChar.TruckRampBox, AppTheme.Warning, AppTheme.WarningSoft, 46, 20), 0, 0);
 
         var stack = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 2, ColumnCount = 1 };
-        stack.RowStyles.Add(new RowStyle(SizeType.Absolute, 30));
-        stack.RowStyles.Add(new RowStyle(SizeType.Absolute, 24));
+        stack.RowStyles.Add(new RowStyle(SizeType.Absolute, 36));
+        stack.RowStyles.Add(new RowStyle(SizeType.Absolute, 22));
         stack.Controls.Add(new Label
         {
             Text = "Lập phiếu nhập kho",
             Dock = DockStyle.Fill,
-            Font = AppTheme.TitleFont(17F),
-            TextAlign = ContentAlignment.MiddleLeft
+            Font = AppTheme.TitleFont(16F),
+            TextAlign = ContentAlignment.BottomLeft
         }, 0, 0);
         stack.Controls.Add(new Label
         {
@@ -133,8 +133,8 @@ public sealed class FrmPurchaseReceipt : Form
     private Control BuildWorkspace()
     {
         var layout = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 2, RowCount = 1 };
-        layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 38));
-        layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 62));
+        layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 42));
+        layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 58));
         layout.Controls.Add(BuildProductCard(), 0, 0);
         layout.Controls.Add(BuildLineCard(), 1, 0);
         return layout;
@@ -172,9 +172,9 @@ public sealed class FrmPurchaseReceipt : Form
 
         var layout = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 4 };
         layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 56));
-        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 38));
+        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 48));
         layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
-        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 126));
+        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 154));
         layout.Controls.Add(UiFactory.SectionHeader("Tìm kiếm sản phẩm", "Chọn mặt hàng, nhập số lượng và giá nhập.", IconChar.MagnifyingGlass), 0, 0);
 
         _productSearch.Dock = DockStyle.Top;
@@ -200,7 +200,7 @@ public sealed class FrmPurchaseReceipt : Form
         shell.Padding = new Padding(12, 8, 12, 8);
 
         var layout = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 2 };
-        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 38));
+        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 54));
         layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
 
         var readouts = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 4, RowCount = 1 };
@@ -214,21 +214,24 @@ public sealed class FrmPurchaseReceipt : Form
         readouts.Controls.Add(BuildReadout("Tên sản phẩm", _productNameLabel), 3, 0);
         layout.Controls.Add(readouts, 0, 0);
 
-        var entryRow = new FlowLayoutPanel
+        var entryRow = new TableLayoutPanel
         {
             Dock = DockStyle.Fill,
-            WrapContents = false,
-            FlowDirection = FlowDirection.LeftToRight,
-            Padding = new Padding(0, 4, 0, 0)
+            ColumnCount = 3,
+            RowCount = 1,
+            Padding = new Padding(0, 6, 0, 0),
+            Margin = Padding.Empty
         };
-        entryRow.Controls.Add(BuildFixedTextInput("Số lượng", _quantity, 84));
-        entryRow.Controls.Add(BuildFixedInput("Đơn giá nhập", _unitCost, 194));
+        entryRow.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 92));
+        entryRow.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 172));
+        entryRow.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+        entryRow.Controls.Add(BuildFixedTextInput("Số lượng", _quantity, 82), 0, 0);
+        entryRow.Controls.Add(BuildFixedInput("Đơn giá nhập", _unitCost, 160), 1, 0);
         var addButton = CreatePrimaryButton("Thêm vào phiếu nhập", IconChar.Plus, (_, _) => AddSelectedProduct(), AppTheme.Warning);
-        addButton.Dock = DockStyle.None;
-        addButton.Width = 190;
-        addButton.Height = 34;
-        addButton.Margin = new Padding(18, 18, 0, 0);
-        entryRow.Controls.Add(addButton);
+        addButton.Dock = DockStyle.Fill;
+        addButton.Height = 36;
+        addButton.Margin = new Padding(12, 20, 0, 4);
+        entryRow.Controls.Add(addButton, 2, 0);
         layout.Controls.Add(entryRow, 0, 1);
 
         shell.Controls.Add(layout);
@@ -621,7 +624,7 @@ public sealed class FrmPurchaseReceipt : Form
 
     private static Panel BuildFixedInputShell(string label, int width)
     {
-        var panel = new Panel { Width = width, Height = 54, Margin = new Padding(0, 0, 16, 0) };
+        var panel = new Panel { Width = width, Height = 60, Margin = Padding.Empty };
         panel.Controls.Add(new Label
         {
             Text = label,
@@ -669,11 +672,12 @@ public sealed class FrmPurchaseReceipt : Form
     private static Control BuildReadout(string label, Label value)
     {
         var panel = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 2, ColumnCount = 1, Padding = new Padding(0, 0, 10, 4) };
-        panel.RowStyles.Add(new RowStyle(SizeType.Absolute, 16));
-        panel.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
-        panel.Controls.Add(new Label { Text = label, Dock = DockStyle.Fill, Font = AppTheme.BodyFont(8.5F), ForeColor = AppTheme.TextMuted }, 0, 0);
+        panel.RowStyles.Add(new RowStyle(SizeType.Absolute, 20));
+        panel.RowStyles.Add(new RowStyle(SizeType.Absolute, 26));
+        panel.Controls.Add(new Label { Text = label, Dock = DockStyle.Fill, Font = AppTheme.BodyFont(8F), ForeColor = AppTheme.TextMuted, TextAlign = ContentAlignment.BottomLeft, AutoEllipsis = true }, 0, 0);
         value.Dock = DockStyle.Fill;
-        value.Font = AppTheme.SectionFont(9.5F);
+        value.Font = AppTheme.SectionFont(8.25F);
+        value.TextAlign = ContentAlignment.MiddleLeft;
         value.AutoEllipsis = true;
         panel.Controls.Add(value, 0, 1);
         return panel;
@@ -788,13 +792,16 @@ public sealed class FrmPurchaseReceipt : Form
             Height = 36,
             Margin = new Padding(0, 0, 8, 4),
             FlatStyle = FlatStyle.Flat,
+            Font = AppTheme.BodyFont(9F),
             IconChar = icon,
             IconColor = AppTheme.Primary,
             IconFont = IconFont.Auto,
-            IconSize = 16,
+            IconSize = 13,
             TextImageRelation = TextImageRelation.ImageBeforeText,
             TextAlign = ContentAlignment.MiddleCenter,
-            ImageAlign = ContentAlignment.MiddleCenter,
+            ImageAlign = ContentAlignment.MiddleLeft,
+            Padding = new Padding(6, 0, 6, 0),
+            AutoEllipsis = true,
             UseVisualStyleBackColor = false
         };
         button.Click += handler;

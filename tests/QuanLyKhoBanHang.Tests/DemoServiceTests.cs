@@ -53,6 +53,7 @@ public sealed class DemoServiceTests
     [TestMethod]
     public void AssistantService_HandlesAllDemoCommands()
     {
+        Environment.SetEnvironmentVariable("DEEPSEEK_API_KEY", null);
         var service = new AssistantService();
 
         var commands = new[]

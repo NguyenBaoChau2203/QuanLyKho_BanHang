@@ -45,7 +45,7 @@ public sealed class FrmRolePermission : Form
             RowCount = 4,
             Padding = AppTheme.PagePadding
         };
-        root.RowStyles.Add(new RowStyle(SizeType.Absolute, 72));
+        root.RowStyles.Add(new RowStyle(SizeType.Absolute, 88));
         root.RowStyles.Add(new RowStyle(SizeType.Absolute, 56));
         root.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
         root.RowStyles.Add(new RowStyle(SizeType.Absolute, 36));
@@ -68,7 +68,7 @@ public sealed class FrmRolePermission : Form
         _headerCard.BorderColor = AppTheme.Border;
         _headerCard.Radius = 8;
         _headerCard.ShadowSize = 1;
-        _headerCard.Padding = new Padding(18, 14, 18, 14);
+        _headerCard.Padding = new Padding(18, 10, 18, 10);
         _headerCard.Margin = Padding.Empty;
 
         var headerLayout = new TableLayoutPanel

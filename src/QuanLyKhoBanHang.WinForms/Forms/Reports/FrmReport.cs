@@ -74,17 +74,17 @@ public sealed class FrmReport : Form
         var layout = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 2, RowCount = 1 };
         layout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 56));
         layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
-        layout.Controls.Add(UiFactory.IconTile(IconChar.ChartBar, AppTheme.Primary, AppTheme.PrimarySoft, 46, 24), 0, 0);
+        layout.Controls.Add(UiFactory.IconTile(IconChar.ChartBar, AppTheme.Primary, AppTheme.PrimarySoft, 46, 20), 0, 0);
 
         var text = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 2, ColumnCount = 1 };
-        text.RowStyles.Add(new RowStyle(SizeType.Absolute, 30));
-        text.RowStyles.Add(new RowStyle(SizeType.Absolute, 24));
+        text.RowStyles.Add(new RowStyle(SizeType.Absolute, 36));
+        text.RowStyles.Add(new RowStyle(SizeType.Absolute, 22));
         text.Controls.Add(new Label
         {
             Text = "Không gian báo cáo",
             Dock = DockStyle.Fill,
-            Font = AppTheme.TitleFont(17F),
-            TextAlign = ContentAlignment.MiddleLeft
+            Font = AppTheme.TitleFont(16F),
+            TextAlign = ContentAlignment.BottomLeft
         }, 0, 0);
         text.Controls.Add(new Label
         {
@@ -129,14 +129,14 @@ public sealed class FrmReport : Form
         layout.Controls.Add(new Label
         {
             Text = "Dữ liệu demo được lấy qua ReportService, không gọi trực tiếp DAL.",
-            Width = 420,
+            Width = 360,
             Height = 36,
             Margin = new Padding(14, 22, 10, 0),
             ForeColor = AppTheme.TextMuted,
             TextAlign = ContentAlignment.MiddleLeft
         });
-        layout.Controls.Add(CreateButton("Xem báo cáo", IconChar.RotateRight, (_, _) => ReloadReports(), AppTheme.Primary));
-        layout.Controls.Add(CreateButton("Xuất Excel", IconChar.FileExport, (_, _) => ExportReport(), AppTheme.Success));
+        layout.Controls.Add(CreateButton("Xem báo cáo", IconChar.RotateRight, (_, _) => ReloadReports(), AppTheme.Primary, 138));
+        layout.Controls.Add(CreateButton("Xuất Excel", IconChar.FileExport, (_, _) => ExportReport(), AppTheme.Success, 132));
 
         card.Controls.Add(layout);
         return card;
@@ -462,26 +462,29 @@ public sealed class FrmReport : Form
         return panel;
     }
 
-    private static IconButton CreateButton(string text, IconChar icon, EventHandler handler, Color color)
+    private static IconButton CreateButton(string text, IconChar icon, EventHandler handler, Color color, int width)
     {
         var button = new IconButton
         {
             Text = text,
             Dock = DockStyle.None,
-            Width = 118,
+            Width = width,
             Height = 36,
             MinimumSize = new Size(0, 36),
-            Margin = new Padding(4, 22, 8, 0),
+            Margin = new Padding(4, 22, 10, 0),
             FlatStyle = FlatStyle.Flat,
             BackColor = color,
             ForeColor = Color.White,
+            Font = AppTheme.BodyFont(9F),
             IconChar = icon,
             IconColor = Color.White,
             IconFont = IconFont.Auto,
-            IconSize = 15,
+            IconSize = 13,
             TextImageRelation = TextImageRelation.ImageBeforeText,
             TextAlign = ContentAlignment.MiddleCenter,
-            ImageAlign = ContentAlignment.MiddleCenter,
+            ImageAlign = ContentAlignment.MiddleLeft,
+            Padding = new Padding(8, 0, 8, 0),
+            AutoEllipsis = true,
             UseVisualStyleBackColor = false
         };
         button.FlatAppearance.BorderSize = 0;

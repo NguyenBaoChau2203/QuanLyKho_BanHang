@@ -10,7 +10,7 @@ namespace QuanLyKhoBanHang.WinForms.Forms.Auth;
 public sealed class FrmLogin : Form
 {
     private const int AuthCardWidth = 396;
-    private const int AuthCardHeight = 500;
+    private const int AuthCardHeight = 520;
     private const int AuthCardLeft = 442;
     private const int AuthCardTop = 30;
 
@@ -116,7 +116,7 @@ public sealed class FrmLogin : Form
             BackColor = AuthLoginTheme.CardSurface,
             BorderColor = AuthLoginTheme.Border,
             CornerRadius = 8,
-            Padding = new Padding(28, 30, 28, 24),
+            Padding = new Padding(28, 24, 28, 18),
             AutoScroll = true
         };
 
@@ -304,9 +304,12 @@ public sealed class FrmLogin : Form
         _btnRegister.Click += HandleRegisterStub;
         layout.Controls.Add(_btnRegister, 0, r++);
 
-        RowAuto();
+        RowAbs(34);
         StyleSecondaryLink(_lnkBackFromRegister, "← Quay lại đăng nhập");
-        _lnkBackFromRegister.Margin = new Padding(0, 8, 0, 0);
+        _lnkBackFromRegister.AutoSize = false;
+        _lnkBackFromRegister.Dock = DockStyle.Fill;
+        _lnkBackFromRegister.TextAlign = ContentAlignment.MiddleLeft;
+        _lnkBackFromRegister.Margin = new Padding(0, 6, 0, 0);
         _lnkBackFromRegister.TabIndex = 5;
         _lnkBackFromRegister.Click += (_, _) => ShowAuthView(AuthView.Login);
         layout.Controls.Add(_lnkBackFromRegister, 0, r++);

@@ -61,7 +61,7 @@ public sealed class FrmSalesInvoice : Form
             RowCount = 3,
             Padding = AppTheme.PagePadding
         };
-        root.RowStyles.Add(new RowStyle(SizeType.Absolute, 68));
+        root.RowStyles.Add(new RowStyle(SizeType.Absolute, 92));
         root.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
         root.RowStyles.Add(new RowStyle(SizeType.Absolute, 30));
         root.Controls.Add(BuildHeader(), 0, 0);
@@ -82,23 +82,20 @@ public sealed class FrmSalesInvoice : Form
             RowCount = 1
         };
         panel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
-        panel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 500));
-        panel.Controls.Add(UiFactory.SectionHeader(
-            "Hóa đơn bán hàng",
-            "Chọn khách hàng, thêm dòng hàng và theo dõi tổng tiền, chiết khấu, thành tiền.",
-            IconChar.CartShopping), 0, 0);
+        panel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 560));
+        panel.Controls.Add(BuildSalesPageHeader(), 0, 0);
 
         var meta = new TableLayoutPanel
         {
             Dock = DockStyle.Fill,
-            ColumnCount = 4,
-            RowCount = 1,
-            Padding = new Padding(0, 6, 0, 0)
+            ColumnCount = 2,
+            RowCount = 2,
+            Padding = new Padding(0, 8, 0, 0)
         };
-        meta.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 92));
-        meta.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 136));
-        meta.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 96));
+        meta.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 160));
         meta.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+        meta.RowStyles.Add(new RowStyle(SizeType.Absolute, 22));
+        meta.RowStyles.Add(new RowStyle(SizeType.Absolute, 32));
         _invoiceCode.Width = 150;
         _invoiceCode.ReadOnly = true;
         _invoiceCode.Dock = DockStyle.Fill;
@@ -107,11 +104,66 @@ public sealed class FrmSalesInvoice : Form
         _saleDate.Format = DateTimePickerFormat.Custom;
         _saleDate.CustomFormat = "dd/MM/yyyy";
         meta.Controls.Add(BuildInlineLabel("Ngày\u00A0bán"), 0, 0);
-        meta.Controls.Add(_saleDate, 1, 0);
-        meta.Controls.Add(BuildInlineLabel("Mã hóa đơn"), 2, 0);
-        meta.Controls.Add(_invoiceCode, 3, 0);
+        meta.Controls.Add(BuildInlineLabel("Mã\u00A0hóa\u00A0đơn"), 1, 0);
+        meta.Controls.Add(_saleDate, 0, 1);
+        meta.Controls.Add(_invoiceCode, 1, 1);
         panel.Controls.Add(meta, 1, 0);
         return panel;
+    }
+
+    private static Control BuildSalesPageHeader()
+    {
+        var layout = new TableLayoutPanel
+        {
+            Dock = DockStyle.Fill,
+            ColumnCount = 2,
+            RowCount = 1,
+            Padding = new Padding(0, 16, 0, 0)
+        };
+        layout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 42));
+        layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+
+        layout.Controls.Add(new IconPictureBox
+        {
+            Dock = DockStyle.Top,
+            BackColor = Color.Transparent,
+            IconChar = IconChar.CartShopping,
+            IconColor = AppTheme.Primary,
+            IconFont = IconFont.Auto,
+            IconSize = 22,
+            Margin = new Padding(0, 4, 10, 0)
+        }, 0, 0);
+
+        var text = new TableLayoutPanel
+        {
+            Dock = DockStyle.Fill,
+            ColumnCount = 1,
+            RowCount = 2,
+            Margin = Padding.Empty,
+            Padding = Padding.Empty
+        };
+        text.RowStyles.Add(new RowStyle(SizeType.Absolute, 28));
+        text.RowStyles.Add(new RowStyle(SizeType.Absolute, 24));
+        text.Controls.Add(new Label
+        {
+            Text = "Hóa đơn bán hàng",
+            Dock = DockStyle.Fill,
+            Font = AppTheme.SectionFont(13F),
+            ForeColor = AppTheme.Primary,
+            TextAlign = ContentAlignment.MiddleLeft,
+            AutoEllipsis = true
+        }, 0, 0);
+        text.Controls.Add(new Label
+        {
+            Text = "Chọn khách hàng, thêm dòng hàng và theo dõi tổng tiền, chiết khấu, thành tiền.",
+            Dock = DockStyle.Fill,
+            Font = AppTheme.BodyFont(9.5F),
+            ForeColor = AppTheme.TextMuted,
+            TextAlign = ContentAlignment.TopLeft,
+            AutoEllipsis = true
+        }, 0, 1);
+        layout.Controls.Add(text, 1, 0);
+        return layout;
     }
 
     private Control BuildBody()
@@ -163,13 +215,13 @@ public sealed class FrmSalesInvoice : Form
         var search = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 3, RowCount = 1 };
         search.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 84));
         search.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
-        search.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 116));
+        search.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 142));
         search.Controls.Add(new Label { Text = "Tìm sản phẩm", Dock = DockStyle.Fill, TextAlign = ContentAlignment.MiddleLeft }, 0, 0);
         _productSearch.Dock = DockStyle.Fill;
         _productSearch.PlaceholderText = "Mã, tên...";
         _productSearch.TextChanged += (_, _) => ApplyProductFilter();
         search.Controls.Add(_productSearch, 1, 0);
-        search.Controls.Add(CreatePrimaryButton("Thêm dòng", IconChar.Plus, (_, _) => AddSelectedProduct(), 108), 2, 0);
+        search.Controls.Add(CreatePrimaryButton("Thêm dòng", IconChar.Plus, (_, _) => AddSelectedProduct(), 132), 2, 0);
         layout.Controls.Add(search, 0, 0);
 
         ConfigureProductGrid();
@@ -221,8 +273,8 @@ public sealed class FrmSalesInvoice : Form
         layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 58));
         layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 208));
         layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
-        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 96));
-        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 46));
+        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 124));
+        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 52));
         layout.Controls.Add(BuildSalesSectionHeader("Thông tin hóa đơn", "Nhập số lượng, giá bán và quản lý dòng hàng.", IconChar.FileInvoiceDollar), 0, 0);
         layout.Controls.Add(BuildInvoiceForm(), 0, 1);
         layout.Controls.Add(BuildLineGridPanel(), 0, 2);
@@ -282,7 +334,7 @@ public sealed class FrmSalesInvoice : Form
 
     private Control BuildSummaryPanel()
     {
-        var layout = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 2, RowCount = 4, Padding = new Padding(0, 8, 0, 0) };
+        var layout = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 2, RowCount = 4, Padding = new Padding(0, 4, 0, 2) };
         layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50));
         layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50));
         for (var i = 0; i < 4; i++)
@@ -299,11 +351,15 @@ public sealed class FrmSalesInvoice : Form
 
     private Control BuildActionRow()
     {
-        var panel = new FlowLayoutPanel { Dock = DockStyle.Fill, WrapContents = false };
-        panel.Controls.Add(CreatePrimaryButton("Thêm dòng", IconChar.Plus, (_, _) => AddSelectedProduct(), 116));
-        panel.Controls.Add(CreateSecondaryButton("Xóa dòng", IconChar.Trash, (_, _) => RemoveCurrentLine(), 112, AppTheme.Danger));
-        panel.Controls.Add(CreatePrimaryButton("Lưu hóa đơn", IconChar.FloppyDisk, (_, _) => SaveInvoice(), 120));
-        panel.Controls.Add(CreateSecondaryButton("Làm mới", IconChar.RotateRight, (_, _) => ResetForm(), 108, AppTheme.Primary));
+        var panel = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 4, RowCount = 1, Padding = new Padding(0, 6, 0, 4) };
+        panel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 23));
+        panel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25));
+        panel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 27));
+        panel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25));
+        panel.Controls.Add(CreatePrimaryButton("Thêm dòng", IconChar.Plus, (_, _) => AddSelectedProduct(), 0), 0, 0);
+        panel.Controls.Add(CreateSecondaryButton("Xóa dòng", IconChar.Trash, (_, _) => RemoveCurrentLine(), 0, AppTheme.Danger), 1, 0);
+        panel.Controls.Add(CreatePrimaryButton("Lưu hóa đơn", IconChar.FloppyDisk, (_, _) => SaveInvoice(), 0), 2, 0);
+        panel.Controls.Add(CreateSecondaryButton("Làm mới", IconChar.RotateRight, (_, _) => ResetForm(), 0, AppTheme.Primary), 3, 0);
         return panel;
     }
 
@@ -680,7 +736,7 @@ public sealed class FrmSalesInvoice : Form
 
         value.Dock = DockStyle.Fill;
         value.TextAlign = ContentAlignment.MiddleRight;
-        value.Font = strong ? AppTheme.TitleFont(14F) : AppTheme.BodyFont(10F);
+        value.Font = strong ? AppTheme.SectionFont(11.5F) : AppTheme.BodyFont(10F);
         value.ForeColor = color ?? AppTheme.Text;
         layout.Controls.Add(value, 1, row);
     }
@@ -691,10 +747,11 @@ public sealed class FrmSalesInvoice : Form
         AutoSize = false,
         Dock = DockStyle.Fill,
         Margin = new Padding(0, 0, 8, 0),
-        Padding = new Padding(0, 8, 0, 0),
+        Padding = Padding.Empty,
         ForeColor = AppTheme.Text,
-        TextAlign = ContentAlignment.TopLeft,
-        AutoEllipsis = true
+        TextAlign = ContentAlignment.MiddleLeft,
+        AutoEllipsis = true,
+        Font = AppTheme.BodyFont(9F)
     };
 
     private static IconButton CreatePrimaryButton(string text, IconChar icon, EventHandler handler, int width)
@@ -725,16 +782,20 @@ public sealed class FrmSalesInvoice : Form
         var button = new IconButton
         {
             Text = text,
-            Width = width,
-            Height = 34,
+            Dock = width == 0 ? DockStyle.Fill : DockStyle.None,
+            Width = width == 0 ? 120 : width,
+            Height = 36,
             Margin = new Padding(0, 0, 8, 0),
             FlatStyle = FlatStyle.Flat,
+            Font = AppTheme.BodyFont(9F),
             IconChar = icon,
             IconFont = IconFont.Auto,
-            IconSize = 15,
+            IconSize = 13,
             TextImageRelation = TextImageRelation.ImageBeforeText,
             TextAlign = ContentAlignment.MiddleCenter,
-            ImageAlign = ContentAlignment.MiddleCenter,
+            ImageAlign = ContentAlignment.MiddleLeft,
+            Padding = new Padding(8, 0, 8, 0),
+            AutoEllipsis = true,
             UseVisualStyleBackColor = false
         };
         button.Click += handler;

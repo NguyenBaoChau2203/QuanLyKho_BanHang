@@ -41,7 +41,7 @@ public sealed class FrmInventory : Form
             RowCount = 5,
             Padding = AppTheme.PagePadding
         };
-        root.RowStyles.Add(new RowStyle(SizeType.Absolute, 78));
+        root.RowStyles.Add(new RowStyle(SizeType.Absolute, 92));
         root.RowStyles.Add(new RowStyle(SizeType.Absolute, 120));
         root.RowStyles.Add(new RowStyle(SizeType.Absolute, 72));
         root.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
@@ -69,14 +69,14 @@ public sealed class FrmInventory : Form
         layout.Controls.Add(UiFactory.IconTile(IconChar.Warehouse, AppTheme.Primary, AppTheme.PrimarySoft, 46, 24), 0, 0);
 
         var text = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 2, ColumnCount = 1 };
-        text.RowStyles.Add(new RowStyle(SizeType.Absolute, 30));
-        text.RowStyles.Add(new RowStyle(SizeType.Absolute, 24));
+        text.RowStyles.Add(new RowStyle(SizeType.Absolute, 36));
+        text.RowStyles.Add(new RowStyle(SizeType.Absolute, 22));
         text.Controls.Add(new Label
         {
             Text = "Tổng quan tồn kho",
             Dock = DockStyle.Fill,
-            Font = AppTheme.TitleFont(17F),
-            TextAlign = ContentAlignment.MiddleLeft
+            Font = AppTheme.TitleFont(16F),
+            TextAlign = ContentAlignment.BottomLeft
         }, 0, 0);
         text.Controls.Add(new Label
         {
@@ -116,8 +116,8 @@ public sealed class FrmInventory : Form
         layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
         layout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 170));
         layout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 160));
-        layout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 112));
-        layout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 112));
+        layout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 124));
+        layout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 130));
         layout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 4));
 
         _searchBox.Dock = DockStyle.Fill;
@@ -137,8 +137,8 @@ public sealed class FrmInventory : Form
         _statusFilter.SelectedIndexChanged += (_, _) => ApplyFilters();
         layout.Controls.Add(_statusFilter, 2, 0);
 
-        layout.Controls.Add(CreateButton("Làm mới", IconChar.RotateRight, (_, _) => LoadData(), 104, AppTheme.Primary), 3, 0);
-        layout.Controls.Add(CreateButton("Xuất Excel", IconChar.FileExport, (_, _) => SetMessage("Xuất Excel tồn kho đang ở chế độ demo."), 104, AppTheme.Success), 4, 0);
+        layout.Controls.Add(CreateButton("Làm mới", IconChar.RotateRight, (_, _) => LoadData(), 116, AppTheme.Primary), 3, 0);
+        layout.Controls.Add(CreateButton("Xuất Excel", IconChar.FileExport, (_, _) => SetMessage("Xuất Excel tồn kho đang ở chế độ demo."), 122, AppTheme.Success), 4, 0);
 
         card.Controls.Add(layout);
         return card;
@@ -282,13 +282,16 @@ public sealed class FrmInventory : Form
             FlatStyle = FlatStyle.Flat,
             BackColor = color,
             ForeColor = Color.White,
+            Font = AppTheme.BodyFont(9F),
             IconChar = icon,
             IconColor = Color.White,
             IconFont = IconFont.Auto,
-            IconSize = 15,
+            IconSize = 13,
             TextImageRelation = TextImageRelation.ImageBeforeText,
             TextAlign = ContentAlignment.MiddleCenter,
-            ImageAlign = ContentAlignment.MiddleCenter,
+            ImageAlign = ContentAlignment.MiddleLeft,
+            Padding = new Padding(8, 0, 8, 0),
+            AutoEllipsis = true,
             UseVisualStyleBackColor = false
         };
         button.FlatAppearance.BorderSize = 0;

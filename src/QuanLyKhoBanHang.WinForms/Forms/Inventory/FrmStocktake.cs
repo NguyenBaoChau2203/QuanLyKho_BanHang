@@ -372,13 +372,16 @@ public sealed class FrmStocktake : Form
             FlatStyle = FlatStyle.Flat,
             BackColor = color,
             ForeColor = Color.White,
+            Font = AppTheme.BodyFont(9F),
             IconChar = icon,
             IconColor = Color.White,
             IconFont = IconFont.Auto,
-            IconSize = 15,
+            IconSize = 13,
             TextImageRelation = TextImageRelation.ImageBeforeText,
             TextAlign = ContentAlignment.MiddleCenter,
-            ImageAlign = ContentAlignment.MiddleCenter,
+            ImageAlign = ContentAlignment.MiddleLeft,
+            Padding = new Padding(6, 0, 6, 0),
+            AutoEllipsis = true,
             UseVisualStyleBackColor = false
         };
         button.FlatAppearance.BorderSize = 0;
@@ -398,13 +401,16 @@ public sealed class FrmStocktake : Form
             FlatStyle = FlatStyle.Flat,
             BackColor = AppTheme.Surface,
             ForeColor = AppTheme.Primary,
+            Font = AppTheme.BodyFont(9F),
             IconChar = icon,
             IconColor = AppTheme.Primary,
             IconFont = IconFont.Auto,
-            IconSize = 15,
+            IconSize = 13,
             TextImageRelation = TextImageRelation.ImageBeforeText,
             TextAlign = ContentAlignment.MiddleCenter,
-            ImageAlign = ContentAlignment.MiddleCenter,
+            ImageAlign = ContentAlignment.MiddleLeft,
+            Padding = new Padding(6, 0, 6, 0),
+            AutoEllipsis = true,
             UseVisualStyleBackColor = false
         };
         button.FlatAppearance.BorderColor = AppTheme.BorderStrong;
