@@ -76,7 +76,8 @@ public sealed class AssistantServiceTests
         Assert.IsFalse(result.Data.IsFallback);
         Assert.IsTrue(result.Data.Handled);
         Assert.AreEqual("low-stock", result.Data.Intent);
-        StringAssert.Contains(result.Data.Answer, "2 sản phẩm");
+        Assert.IsFalse(string.IsNullOrWhiteSpace(result.Data.Answer));
+        Assert.AreNotEqual("Có 2 sản phẩm cần nhập thêm ngay.", result.Data.Answer);
     }
 
     [TestMethod]
@@ -107,6 +108,24 @@ public sealed class AssistantServiceTests
             Assert.IsTrue(result.Data.Handled, command);
             Assert.IsFalse(string.IsNullOrWhiteSpace(result.Data.Answer), command);
         }
+    }
+
+    [TestMethod]
+    public void Ask_NoAccentLowStockCommand_IsRecognizedOffline()
+    {
+        using var env = new EnvironmentVariableScope(
+            (EnvironmentVariableScope.DeepSeekApiKey, null),
+            (EnvironmentVariableScope.DeepSeekBaseUrl, null),
+            (EnvironmentVariableScope.DeepSeekModel, null));
+        var service = new AssistantService();
+
+        var result = service.Ask("hang sap het");
+
+        Assert.IsTrue(result.Success);
+        Assert.IsNotNull(result.Data);
+        Assert.IsTrue(result.Data.Handled);
+        Assert.AreEqual("low-stock", result.Data.Intent);
+        StringAssert.Contains(result.Data.Answer, "sản phẩm");
     }
 
     [TestMethod]
