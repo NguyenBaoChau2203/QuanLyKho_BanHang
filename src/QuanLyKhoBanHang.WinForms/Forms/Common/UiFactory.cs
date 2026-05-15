@@ -101,22 +101,26 @@ internal static class UiFactory
 
     public static IconButton IconActionButton(string text, IconChar icon, EventHandler handler, int width = 120)
     {
+        var font = AppTheme.BodyFont(8.75F);
         var button = new IconButton
         {
             Text = text,
             Height = 36,
-            Width = width,
+            Width = CalculateIconButtonWidth(text, font, width),
             Margin = new Padding(0, 0, 8, 0),
             FlatStyle = FlatStyle.Flat,
             BackColor = AppTheme.Primary,
             ForeColor = Color.White,
+            Font = font,
             IconChar = icon,
             IconColor = Color.White,
             IconFont = IconFont.Auto,
-            IconSize = 16,
+            IconSize = 13,
             TextImageRelation = TextImageRelation.ImageBeforeText,
             ImageAlign = ContentAlignment.MiddleLeft,
             TextAlign = ContentAlignment.MiddleCenter,
+            Padding = new Padding(10, 0, 10, 0),
+            AutoEllipsis = true,
             UseVisualStyleBackColor = false
         };
         button.FlatAppearance.BorderSize = 0;
@@ -124,6 +128,53 @@ internal static class UiFactory
         button.FlatAppearance.MouseDownBackColor = Color.FromArgb(30, 64, 175);
         button.Click += handler;
         return button;
+    }
+
+    public static Control ActionButtonGrid(params Button[] buttons)
+    {
+        var layout = new TableLayoutPanel
+        {
+            Dock = DockStyle.Fill,
+            ColumnCount = 4,
+            RowCount = 2,
+            Padding = new Padding(0, 8, 0, 4),
+            Margin = Padding.Empty
+        };
+
+        for (var i = 0; i < 4; i++)
+        {
+            layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25));
+        }
+
+        layout.RowStyles.Add(new RowStyle(SizeType.Percent, 50));
+        layout.RowStyles.Add(new RowStyle(SizeType.Percent, 50));
+
+        for (var i = 0; i < buttons.Length; i++)
+        {
+            var button = buttons[i];
+            button.Dock = DockStyle.Fill;
+            button.Height = 36;
+            button.Margin = new Padding(0, 0, i % 4 == 3 ? 0 : 8, i < 4 ? 8 : 0);
+            if (button is IconButton iconButton)
+            {
+                iconButton.TextAlign = ContentAlignment.MiddleCenter;
+                iconButton.ImageAlign = ContentAlignment.MiddleLeft;
+                iconButton.Padding = new Padding(8, 0, 8, 0);
+                iconButton.AutoEllipsis = true;
+            }
+
+            layout.Controls.Add(button, i % 4, i / 4);
+        }
+
+        return layout;
+    }
+
+    private static int CalculateIconButtonWidth(string text, Font font, int requestedWidth)
+    {
+        var textWidth = TextRenderer.MeasureText(text, font, Size.Empty, TextFormatFlags.NoPadding).Width;
+        const int iconSlotWidth = 22;
+        const int horizontalPadding = 22;
+        return Math.Max(requestedWidth, textWidth + iconSlotWidth + horizontalPadding);
     }
 
     public static Button SidebarButton(string text)
@@ -179,7 +230,7 @@ internal static class UiFactory
 
         var iconBox = new IconPictureBox
         {
-            Size = new Size(iconSize, iconSize),
+            Dock = DockStyle.Fill,
             BackColor = Color.Transparent,
             IconChar = icon,
             IconColor = iconColor,
@@ -188,18 +239,7 @@ internal static class UiFactory
             SizeMode = PictureBoxSizeMode.CenterImage
         };
 
-        void CenterIcon()
-        {
-            iconBox.Location = new Point(
-                Math.Max(0, (tile.ClientSize.Width - iconBox.Width) / 2),
-                Math.Max(0, (tile.ClientSize.Height - iconBox.Height) / 2));
-        }
-
         tile.Controls.Add(iconBox);
-        tile.SizeChanged += (_, _) => CenterIcon();
-        tile.HandleCreated += (_, _) => CenterIcon();
-        CenterIcon();
-
         return tile;
     }
 
@@ -213,19 +253,22 @@ internal static class UiFactory
         };
         layout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 34));
         layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
-        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 26));
-        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 22));
+        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 28));
+        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 24));
 
-        layout.Controls.Add(new IconPictureBox
+        var iconBox = new IconPictureBox
         {
             Dock = DockStyle.Fill,
             BackColor = Color.Transparent,
             IconChar = icon,
             IconColor = AppTheme.Primary,
             IconFont = IconFont.Auto,
-            IconSize = 20,
-            Padding = new Padding(0, 3, 8, 0)
-        }, 0, 0);
+            IconSize = 18,
+            Margin = new Padding(0, 2, 8, 0),
+            SizeMode = PictureBoxSizeMode.CenterImage
+        };
+        layout.Controls.Add(iconBox, 0, 0);
+        layout.SetRowSpan(iconBox, 2);
 
         layout.Controls.Add(new Label
         {
@@ -233,7 +276,8 @@ internal static class UiFactory
             Dock = DockStyle.Fill,
             Font = AppTheme.SectionFont(12F),
             ForeColor = AppTheme.Primary,
-            TextAlign = ContentAlignment.MiddleLeft
+            TextAlign = ContentAlignment.BottomLeft,
+            AutoEllipsis = true
         }, 1, 0);
 
         layout.Controls.Add(new Label
@@ -242,7 +286,8 @@ internal static class UiFactory
             Dock = DockStyle.Fill,
             Font = AppTheme.BodyFont(9.5F),
             ForeColor = AppTheme.TextMuted,
-            TextAlign = ContentAlignment.MiddleLeft
+            TextAlign = ContentAlignment.TopLeft,
+            AutoEllipsis = true
         }, 1, 1);
 
         return layout;
@@ -348,19 +393,21 @@ internal static class UiFactory
         grid.RowHeadersVisible = false;
         grid.CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal;
         grid.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.Single;
-        grid.ColumnHeadersHeight = 38;
-        grid.RowTemplate.Height = 34;
-        grid.DefaultCellStyle.Font = AppTheme.BodyFont(9.5F);
+        grid.ColumnHeadersHeight = 44;
+        grid.RowTemplate.Height = 32;
+        grid.DefaultCellStyle.Font = AppTheme.BodyFont(9F);
         grid.DefaultCellStyle.BackColor = AppTheme.Surface;
         grid.DefaultCellStyle.ForeColor = AppTheme.Text;
-        grid.DefaultCellStyle.Padding = new Padding(8, 0, 8, 0);
+        grid.DefaultCellStyle.Padding = new Padding(5, 0, 5, 0);
+        grid.DefaultCellStyle.WrapMode = DataGridViewTriState.False;
         grid.AlternatingRowsDefaultCellStyle.BackColor = AppTheme.SurfaceSubtle;
         grid.DefaultCellStyle.SelectionBackColor = AppTheme.Selection;
         grid.DefaultCellStyle.SelectionForeColor = AppTheme.Text;
-        grid.ColumnHeadersDefaultCellStyle.Font = AppTheme.SectionFont(9.5F);
+        grid.ColumnHeadersDefaultCellStyle.Font = AppTheme.SectionFont(8.75F);
         grid.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(239, 245, 255);
         grid.ColumnHeadersDefaultCellStyle.ForeColor = AppTheme.Text;
-        grid.ColumnHeadersDefaultCellStyle.Padding = new Padding(8, 0, 8, 0);
+        grid.ColumnHeadersDefaultCellStyle.Padding = new Padding(5, 0, 5, 0);
+        grid.ColumnHeadersDefaultCellStyle.WrapMode = DataGridViewTriState.True;
         grid.ColumnHeadersDefaultCellStyle.SelectionBackColor = Color.FromArgb(239, 245, 255);
         grid.ColumnHeadersDefaultCellStyle.SelectionForeColor = AppTheme.Text;
         grid.EnableHeadersVisualStyles = false;

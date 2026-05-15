@@ -48,7 +48,7 @@ public sealed class AdminFeatureTests
 
         var salesFeatures = service.GetAccessibleFeatures(UserRole.SalesStaff);
         Assert.IsTrue(salesFeatures.Success);
-        Assert.IsTrue(salesFeatures.Data!.Count > 0);
+        Assert.IsNotEmpty(salesFeatures.Data!);
         Assert.IsTrue(salesFeatures.Data!.Any(f => f.FeatureKey == PermissionService.FeatureSalesInvoice));
         Assert.IsTrue(salesFeatures.Data!.Any(f => f.FeatureKey == PermissionService.FeatureCustomer));
         Assert.IsFalse(salesFeatures.Data!.Any(f => f.FeatureKey == PermissionService.FeatureReport));
