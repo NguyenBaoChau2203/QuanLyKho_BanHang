@@ -17,7 +17,7 @@ namespace QuanLyKhoBanHang.DTO.Reports;
     public class TopProductDto
     {
         public int ProductId { get; set; }
-        public string ProductName { get; set; }
+        public string ProductName { get; set; } = string.Empty;
         public int TotalQuantitySold { get; set; }
     }
 
@@ -25,6 +25,6 @@ namespace QuanLyKhoBanHang.DTO.Reports;
     public class TopCustomerDto
     {
         public int CustomerId { get; set; }
-        public string CustomerName { get; set; }
+        public string CustomerName { get; set; } = string.Empty;
         public decimal TotalSpent { get; set; }
     }

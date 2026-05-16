@@ -94,8 +94,8 @@ namespace QuanLyKhoBanHang.DAL
                             list.Add(new ProductSalesSummaryDto
                             {
                                 ProductId = Convert.ToInt32(reader["ProductId"]),
-                                ProductCode = reader["ProductCode"]?.ToString(),
-                                ProductName = reader["ProductName"]?.ToString(),
+                                ProductCode = reader["ProductCode"]?.ToString() ?? string.Empty,
+                                ProductName = reader["ProductName"]?.ToString() ?? string.Empty,
                                 QuantitySold = Convert.ToInt32(reader["QuantitySold"]),
                                 Revenue = Convert.ToDecimal(reader["Revenue"])
                             });
@@ -138,7 +138,7 @@ namespace QuanLyKhoBanHang.DAL
                             list.Add(new CustomerPurchaseSummaryDto
                             {
                                 CustomerId = Convert.ToInt32(reader["CustomerId"]),
-                                CustomerName = reader["CustomerName"]?.ToString(),
+                                CustomerName = reader["CustomerName"]?.ToString() ?? string.Empty,
                                 InvoiceCount = Convert.ToInt32(reader["InvoiceCount"]),
                                 TotalAmount = Convert.ToDecimal(reader["TotalAmount"])
                             });

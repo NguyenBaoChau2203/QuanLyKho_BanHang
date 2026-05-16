@@ -151,20 +151,29 @@ public sealed class FrmUserManagement : Form
         var layout = new TableLayoutPanel
         {
             Dock = DockStyle.Fill,
-            RowCount = 4,
+            RowCount = 3,
             ColumnCount = 1
         };
-        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 62));
         layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 112));
         layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 72));
         layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
 
-        layout.Controls.Add(BuildToolbarCard(), 0, 0);
-        layout.Controls.Add(BuildQuickMetrics(), 0, 1);
-        layout.Controls.Add(BuildGridHeader(), 0, 2);
-        layout.Controls.Add(_gridCard, 0, 3);
+        layout.Controls.Add(BuildQuickMetrics(), 0, 0);
+        layout.Controls.Add(BuildGridHeader(), 0, 1);
+        layout.Controls.Add(_gridCard, 0, 2);
         return layout;
     }
+
+    private Control BuildEditorActions() => UiFactory.ActionButtonGrid(
+        _addButton,
+        _editButton,
+        _saveButton,
+        _cancelButton,
+        _deactivateButton,
+        _refreshButton,
+        _clearSearchButton,
+        _setReadonlyButton
+    );
 
     private Control BuildToolbarCard()
     {
@@ -266,7 +275,8 @@ public sealed class FrmUserManagement : Form
             IconColor = AppTheme.Primary,
             IconFont = IconFont.Auto,
             IconSize = 18,
-            Padding = new Padding(0, 9, 10, 9)
+            Margin = new Padding(0, 0, 8, 0),
+            SizeMode = PictureBoxSizeMode.CenterImage
         }, 0, 0);
 
         layout.Controls.Add(new Label
@@ -351,9 +361,13 @@ public sealed class FrmUserManagement : Form
         _selectedStateLabel.AutoEllipsis = true;
         _selectedStateLabel.Font = AppTheme.BodyFont(9.5F);
 
-        _editGrid.Dock = DockStyle.Fill;
+        _editGrid.Controls.Clear();
+        _editGrid.ColumnStyles.Clear();
+        _editGrid.Dock = DockStyle.Top;
+        _editGrid.AutoSize = true;
+        _editGrid.AutoSizeMode = AutoSizeMode.GrowAndShrink;
         _editGrid.ColumnCount = 1;
-        _editGrid.RowCount = 6;
+        _editGrid.RowCount = 5;
         _editGrid.Padding = Padding.Empty;
         _editGrid.Margin = Padding.Empty;
         _editGrid.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
@@ -363,7 +377,6 @@ public sealed class FrmUserManagement : Form
         _editGrid.RowStyles.Add(new RowStyle(SizeType.Absolute, 70));
         _editGrid.RowStyles.Add(new RowStyle(SizeType.Absolute, 70));
         _editGrid.RowStyles.Add(new RowStyle(SizeType.Absolute, 40));
-        _editGrid.RowStyles.Add(new RowStyle(SizeType.Absolute, 56));
 
         ConfigureTextField(_usernameBox, 0, "Tên đăng nhập", "VD: manager");
         ConfigureTextField(_fullNameBox, 1, "Họ tên", "VD: Quản lý demo");
@@ -377,22 +390,33 @@ public sealed class FrmUserManagement : Form
 
         // Xóa dòng hướng dẫn mật khẩu demo
 
+        var editorHost = new Panel
+        {
+            Dock = DockStyle.Fill,
+            AutoScroll = true,
+            Margin = Padding.Empty,
+            Padding = Padding.Empty
+        };
+        editorHost.Controls.Add(_editGrid);
+
         var wrapper = new TableLayoutPanel
         {
             Dock = DockStyle.Fill,
             ColumnCount = 1,
-            RowCount = 5
+            RowCount = 6
         };
         wrapper.RowStyles.Add(new RowStyle(SizeType.Absolute, 52));
         wrapper.RowStyles.Add(new RowStyle(SizeType.Absolute, 34));
         wrapper.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
+        wrapper.RowStyles.Add(new RowStyle(SizeType.Absolute, 96));
         wrapper.RowStyles.Add(new RowStyle(SizeType.Absolute, 28));
         wrapper.RowStyles.Add(new RowStyle(SizeType.Absolute, 34));
         wrapper.Controls.Add(UiFactory.SectionHeader("Thông tin tài khoản", "Thông tin đăng nhập và quyền truy cập", IconChar.UserGear), 0, 0);
         wrapper.Controls.Add(_editHintLabel, 0, 1);
-        wrapper.Controls.Add(_editGrid, 0, 2);
-        wrapper.Controls.Add(_editModeLabel, 0, 3);
-        wrapper.Controls.Add(_selectedStateLabel, 0, 4);
+        wrapper.Controls.Add(editorHost, 0, 2);
+        wrapper.Controls.Add(BuildEditorActions(), 0, 3);
+        wrapper.Controls.Add(_editModeLabel, 0, 4);
+        wrapper.Controls.Add(_selectedStateLabel, 0, 5);
         _editCard.Controls.Add(wrapper);
     }
 

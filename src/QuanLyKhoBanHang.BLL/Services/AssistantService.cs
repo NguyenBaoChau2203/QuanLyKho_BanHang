@@ -63,17 +63,14 @@ public sealed class AssistantService
 
         try
         {
+            var deterministic = _ruleBasedProvider.Ask(
+                question,
+                AssistantModes.AiOnline,
+                AiReadyStatus,
+                isFallback: false);
             var safeContexts = _ruleBasedProvider.BuildSafeContexts();
             var ai = _deepSeekProvider.Ask(question, safeContexts);
-            var online = new AssistantResponseDto
-            {
-                Intent = ai.Intent,
-                Answer = ai.Answer,
-                Handled = ai.Handled,
-                Mode = AssistantModes.AiOnline,
-                StatusMessage = AiReadyStatus,
-                IsFallback = false
-            };
+            var online = BuildGroundedOnlineResponse(ai, deterministic, safeContexts);
 
             return ServiceResult<AssistantResponseDto>.Ok(online, online.StatusMessage);
         }
@@ -86,6 +83,40 @@ public sealed class AssistantService
                 isFallback: true);
             return ServiceResult<AssistantResponseDto>.Ok(fallback, fallback.StatusMessage);
         }
+    }
+
+    private static AssistantResponseDto BuildGroundedOnlineResponse(
+        DeepSeekAssistantResult ai,
+        AssistantResponseDto deterministic,
+        IReadOnlyList<AssistantSafeContext> safeContexts)
+    {
+        var intent = ai.Intent;
+        var handled = ai.Handled && intent != AssistantIntentCatalog.Unknown;
+        var answer = ai.Answer;
+
+        if (handled && AssistantIntentCatalog.BusinessIntents.Contains(intent))
+        {
+            var groundedAnswer = deterministic.Handled && deterministic.Intent == intent
+                ? deterministic.Answer
+                : safeContexts.FirstOrDefault(context => context.Intent == intent)?.Answer;
+
+            if (string.IsNullOrWhiteSpace(groundedAnswer))
+            {
+                throw new InvalidOperationException("AI API returned an intent without BLL context.");
+            }
+
+            answer = groundedAnswer;
+        }
+
+        return new AssistantResponseDto
+        {
+            Intent = intent,
+            Answer = answer,
+            Handled = handled,
+            Mode = AssistantModes.AiOnline,
+            StatusMessage = AiReadyStatus,
+            IsFallback = false
+        };
     }
 
     private static string BuildFallbackStatus(Exception ex)

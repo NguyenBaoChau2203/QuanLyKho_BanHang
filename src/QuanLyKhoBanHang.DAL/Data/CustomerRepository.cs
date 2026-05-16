@@ -78,7 +78,7 @@ namespace QuanLyKhoBanHang.DAL
 
         public CustomerDto GetCustomerById(int id)
         {
-            CustomerDto customer = null;
+            CustomerDto? customer = null;
             using (var conn = new SqlConnection(_connStr))
             {
                 conn.Open();
@@ -101,7 +101,7 @@ namespace QuanLyKhoBanHang.DAL
                     }
                 }
             }
-            return customer;
+            return customer!;
         }
 
         public int CreateCustomer(CustomerDto customer)

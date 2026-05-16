@@ -33,8 +33,8 @@ public sealed class FrmAuditLog : Form
         Font = AppTheme.BodyFont();
         MinimumSize = new Size(1100, 640);
 
-        _filterButton = UiFactory.IconActionButton("Lọc", IconChar.MagnifyingGlass, (_, _) => ReloadLogs(), 90);
-        _clearButton = UiFactory.IconActionButton("Xóa lọc", IconChar.Eraser, (_, _) => ClearFilter(), 100);
+        _filterButton = UiFactory.IconActionButton("Lọc", IconChar.MagnifyingGlass, (_, _) => ReloadLogs(), 118);
+        _clearButton = UiFactory.IconActionButton("Xóa lọc", IconChar.Eraser, (_, _) => ClearFilter(), 128);
 
         ConfigureActionButtons();
         BuildUi();
@@ -153,10 +153,10 @@ public sealed class FrmAuditLog : Form
         filterLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 144));
         filterLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 32));
         filterLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 72));
-        filterLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 300));
+        filterLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 260));
         filterLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
-        filterLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 96));
-        filterLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 108));
+        filterLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 124));
+        filterLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 136));
 
         _fromDate.Format = DateTimePickerFormat.Custom;
         _fromDate.CustomFormat = "dd/MM/yyyy";
@@ -169,7 +169,7 @@ public sealed class FrmAuditLog : Form
         _toDate.Value = DateTime.Today;
 
         _keywordBox.AutoSize = false;
-        _keywordBox.Width = 286;
+        _keywordBox.Width = 246;
         _keywordBox.Height = 28;
         _keywordBox.BorderStyle = BorderStyle.FixedSingle;
         _keywordBox.Font = AppTheme.BodyFont(10F);

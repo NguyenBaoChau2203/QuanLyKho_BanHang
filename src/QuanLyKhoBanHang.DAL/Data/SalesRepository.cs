@@ -45,7 +45,8 @@ namespace QuanLyKhoBanHang.DAL
                         using (var cmdInv = new SqlCommand(sqlInv, conn, trans))
                         {
                             cmdInv.Parameters.AddWithValue("@Code", string.IsNullOrEmpty(invoice.InvoiceCode) ? "HD" + DateTime.Now.ToString("yyMMddHHmmss") : invoice.InvoiceCode);
-                            cmdInv.Parameters.AddWithValue("@CustId", (object)invoice.CustomerId ?? DBNull.Value);
+                            var customerIdValue = invoice.CustomerId.HasValue ? (object)invoice.CustomerId.Value : DBNull.Value;
+                            cmdInv.Parameters.AddWithValue("@CustId", customerIdValue);
                             cmdInv.Parameters.AddWithValue("@Date", invoice.InvoiceDate == default ? DateTime.Now : invoice.InvoiceDate);
                             cmdInv.Parameters.AddWithValue("@UserId", invoice.CreatedByUserId);
                             cmdInv.Parameters.AddWithValue("@Total", invoice.TotalAmount);
@@ -53,7 +54,13 @@ namespace QuanLyKhoBanHang.DAL
                             cmdInv.Parameters.AddWithValue("@Note", (object)invoice.Note ?? DBNull.Value);
 
                             // Lấy ra Id của Hóa đơn vừa tạo
-                            invoiceId = (int)cmdInv.ExecuteScalar();
+                            var invoiceIdValue = cmdInv.ExecuteScalar();
+                            if (invoiceIdValue is null || invoiceIdValue == DBNull.Value)
+                            {
+                                throw new InvalidOperationException("KhÃ´ng láº¥y Ä‘Æ°á»£c mÃ£ hÃ³a Ä‘Æ¡n vá»«a táº¡o.");
+                            }
+
+                            invoiceId = Convert.ToInt32(invoiceIdValue);
                         }
 
                         // 2. LƯU CHI TIẾT & TRỪ TỒN KHO
@@ -142,12 +149,12 @@ namespace QuanLyKhoBanHang.DAL
                             list.Add(new SalesInvoiceDto
                             {
                                 Id = Convert.ToInt32(reader["Id"]),
-                                InvoiceCode = reader["InvoiceCode"].ToString(),
+                                InvoiceCode = reader["InvoiceCode"]?.ToString() ?? string.Empty,
                                 CustomerId = reader["CustomerId"] != DBNull.Value ? Convert.ToInt32(reader["CustomerId"]) : null,
                                 InvoiceDate = Convert.ToDateTime(reader["InvoiceDate"]),
                                 TotalAmount = Convert.ToDecimal(reader["TotalAmount"]),
                                 DiscountAmount = Convert.ToDecimal(reader["DiscountAmount"]),
-                                Note = reader["Note"].ToString()
+                                Note = reader["Note"]?.ToString() ?? string.Empty
                             });
                         }
                     }
@@ -161,7 +168,7 @@ namespace QuanLyKhoBanHang.DAL
         // ---------------------------------------------------
         public SalesInvoiceDto GetInvoiceById(int id)
         {
-            SalesInvoiceDto invoice = null;
+            SalesInvoiceDto? invoice = null;
             using (var conn = new SqlConnection(_connStr))
             {
                 conn.Open();
@@ -176,12 +183,12 @@ namespace QuanLyKhoBanHang.DAL
                             invoice = new SalesInvoiceDto
                             {
                                 Id = Convert.ToInt32(reader["Id"]),
-                                InvoiceCode = reader["InvoiceCode"].ToString(),
+                                InvoiceCode = reader["InvoiceCode"]?.ToString() ?? string.Empty,
                                 CustomerId = reader["CustomerId"] != DBNull.Value ? Convert.ToInt32(reader["CustomerId"]) : null,
                                 InvoiceDate = Convert.ToDateTime(reader["InvoiceDate"]),
                                 TotalAmount = Convert.ToDecimal(reader["TotalAmount"]),
                                 DiscountAmount = Convert.ToDecimal(reader["DiscountAmount"]),
-                                Note = reader["Note"].ToString(),
+                                Note = reader["Note"]?.ToString() ?? string.Empty,
                                 Lines = new List<SalesInvoiceLineDto>()
                             };
                         }
@@ -207,7 +214,7 @@ namespace QuanLyKhoBanHang.DAL
                                     Id = Convert.ToInt32(readerLines["Id"]),
                                     SalesInvoiceId = Convert.ToInt32(readerLines["SalesInvoiceId"]),
                                     ProductId = Convert.ToInt32(readerLines["ProductId"]),
-                                    ProductName = readerLines["ProductName"].ToString(),
+                                    ProductName = readerLines["ProductName"]?.ToString() ?? string.Empty,
                                     Quantity = Convert.ToInt32(readerLines["Quantity"]),
                                     UnitPrice = Convert.ToDecimal(readerLines["UnitPrice"]),
                                     LineTotal = Convert.ToInt32(readerLines["Quantity"]) * Convert.ToDecimal(readerLines["UnitPrice"])
@@ -217,7 +224,7 @@ namespace QuanLyKhoBanHang.DAL
                     }
                 }
             }
-            return invoice;
+            return invoice!;
         }
     }
 }

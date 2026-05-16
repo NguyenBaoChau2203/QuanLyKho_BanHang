@@ -98,5 +98,3 @@ Dự án tuân thủ nghiêm ngặt mô hình 3 lớp để đảm bảo tính d
 - **Nguyễn Bảo Châu** (@NguyenBaoChau2203) - *Lead, Admin, Auth & UI Integration*
 - **...** (@...) - *Warehouse & Inventory Services*
 - **...** (@...) - *Sales & Reporting Services*
-
----

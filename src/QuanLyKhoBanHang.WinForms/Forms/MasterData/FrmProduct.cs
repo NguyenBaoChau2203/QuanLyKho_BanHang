@@ -342,45 +342,22 @@ public sealed class FrmProduct : CrudListForm<ProductDto>
         var layout = new TableLayoutPanel
         {
             Dock = DockStyle.Fill,
-            RowCount = 4,
+            RowCount = 3,
             ColumnCount = 1
         };
-        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 62));
         layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 112));
         layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 72));
         layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
 
-        layout.Controls.Add(BuildToolbarCard(), 0, 0);
-        layout.Controls.Add(BuildQuickMetrics(), 0, 1);
-        layout.Controls.Add(BuildGridHeader(), 0, 2);
-        layout.Controls.Add(_gridCard, 0, 3);
+        layout.Controls.Add(BuildQuickMetrics(), 0, 0);
+        layout.Controls.Add(BuildGridHeader(), 0, 1);
+        layout.Controls.Add(_gridCard, 0, 2);
         return layout;
     }
 
-    private Control BuildToolbarCard()
+    private Control BuildEditorActions()
     {
-        var card = UiFactory.Card();
-        card.Padding = new Padding(14, 10, 14, 10);
-        card.Margin = Padding.Empty;
-
-        var layout = new TableLayoutPanel
-        {
-            Dock = DockStyle.Fill,
-            ColumnCount = 1,
-            RowCount = 1
-        };
-        layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
-
-        var buttons = new FlowLayoutPanel
-        {
-            Dock = DockStyle.Fill,
-            WrapContents = false,
-            AutoScroll = true,
-            FlowDirection = FlowDirection.LeftToRight,
-            Margin = Padding.Empty,
-            Padding = Padding.Empty
-        };
-        buttons.Controls.AddRange([
+        return UiFactory.ActionButtonGrid(
             _addButton,
             _editButton,
             _saveButton,
@@ -389,17 +366,7 @@ public sealed class FrmProduct : CrudListForm<ProductDto>
             _refreshButton,
             _clearSearchButton,
             _setReadonlyButton
-        ]);
-
-        _filterSummaryLabel.Dock = DockStyle.Fill;
-        _filterSummaryLabel.Font = AppTheme.BodyFont(9.5F);
-        _filterSummaryLabel.ForeColor = AppTheme.TextMuted;
-        _filterSummaryLabel.TextAlign = ContentAlignment.MiddleRight;
-        _filterSummaryLabel.AutoEllipsis = true;
-
-        layout.Controls.Add(buttons, 0, 0);
-        card.Controls.Add(layout);
-        return card;
+        );
     }
 
     private Control BuildGridHeader()
@@ -489,7 +456,8 @@ public sealed class FrmProduct : CrudListForm<ProductDto>
             IconColor = AppTheme.Primary,
             IconFont = IconFont.Auto,
             IconSize = 18,
-            Padding = new Padding(0, 9, 10, 9)
+            Margin = new Padding(0, 0, 8, 0),
+            SizeMode = PictureBoxSizeMode.CenterImage
         }, 0, 0);
 
         layout.Controls.Add(new Label
@@ -569,7 +537,11 @@ public sealed class FrmProduct : CrudListForm<ProductDto>
         _selectedStateLabel.AutoEllipsis = true;
         _selectedStateLabel.Font = AppTheme.BodyFont(9.5F);
 
-        _editGrid.Dock = DockStyle.Fill;
+        _editGrid.Controls.Clear();
+        _editGrid.ColumnStyles.Clear();
+        _editGrid.Dock = DockStyle.Top;
+        _editGrid.AutoSize = true;
+        _editGrid.AutoSizeMode = AutoSizeMode.GrowAndShrink;
         _editGrid.ColumnCount = 2;
         _editGrid.RowCount = 5;
         _editGrid.Padding = Padding.Empty;
@@ -594,26 +566,38 @@ public sealed class FrmProduct : CrudListForm<ProductDto>
 
         ActiveBox.Text = "Đang hoạt động";
         ActiveBox.AutoSize = true;
-        ActiveBox.Margin = new Padding(0, 10, 0, 0);
+        ActiveBox.Dock = DockStyle.Fill;
+        ActiveBox.Margin = new Padding(0, 6, 0, 0);
         _editGrid.Controls.Add(ActiveBox, 0, 4);
         _editGrid.SetColumnSpan(ActiveBox, 2);
+
+        var editorHost = new Panel
+        {
+            Dock = DockStyle.Fill,
+            AutoScroll = true,
+            Margin = Padding.Empty,
+            Padding = Padding.Empty
+        };
+        editorHost.Controls.Add(_editGrid);
 
         var wrapper = new TableLayoutPanel
         {
             Dock = DockStyle.Fill,
             ColumnCount = 1,
-            RowCount = 5
+            RowCount = 6
         };
         wrapper.RowStyles.Add(new RowStyle(SizeType.Absolute, 52));
         wrapper.RowStyles.Add(new RowStyle(SizeType.Absolute, 34));
         wrapper.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
+        wrapper.RowStyles.Add(new RowStyle(SizeType.Absolute, 96));
         wrapper.RowStyles.Add(new RowStyle(SizeType.Absolute, 28));
         wrapper.RowStyles.Add(new RowStyle(SizeType.Absolute, 34));
         wrapper.Controls.Add(UiFactory.SectionHeader("Chi tiết sản phẩm", "Thông tin nhập liệu và trạng thái", IconChar.BoxOpen), 0, 0);
         wrapper.Controls.Add(_editHintLabel, 0, 1);
-        wrapper.Controls.Add(_editGrid, 0, 2);
-        wrapper.Controls.Add(_editModeLabel, 0, 3);
-        wrapper.Controls.Add(_selectedStateLabel, 0, 4);
+        wrapper.Controls.Add(editorHost, 0, 2);
+        wrapper.Controls.Add(BuildEditorActions(), 0, 3);
+        wrapper.Controls.Add(_editModeLabel, 0, 4);
+        wrapper.Controls.Add(_selectedStateLabel, 0, 5);
         _editCard.Controls.Add(wrapper);
 
         DescriptionBox.Multiline = true;
