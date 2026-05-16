@@ -2,6 +2,7 @@ using System.Data;
 using Microsoft.Data.SqlClient;
 using QuanLyKhoBanHang.DAL.Data;
 using QuanLyKhoBanHang.DTO.Inventory;
+using QuanLyKhoBanHang.DTO.Common;
 
 namespace QuanLyKhoBanHang.DAL.Inventory;
 
@@ -55,6 +56,95 @@ public sealed class PurchaseRepository : RepositoryBase
                 lineCommand.Parameters.AddWithValue("@UnitCost", line.UnitCost);
                 
                 lineCommand.ExecuteNonQuery();
+            }
+            
+            transaction.Commit();
+            return receiptId;
+        }
+        catch
+        {
+            transaction.Rollback();
+            throw;
+        }
+    }
+
+    public int CreateReceiptWithTransaction(PurchaseReceiptDto receipt, List<ProductQuantityUpdateDto> productUpdates, List<StockTransactionDto> stockTransactions)
+    {
+        using var connection = new SqlConnection(Options.ConnectionString);
+        connection.Open();
+        
+        using var transaction = connection.BeginTransaction();
+        
+        try
+        {
+            int receiptId;
+            
+            using (var command = new SqlCommand(
+                "INSERT INTO PurchaseReceipts (ReceiptCode, SupplierId, ReceiptDate, CreatedByUserId, TotalAmount, Note) " +
+                "OUTPUT INSERTED.Id VALUES (@ReceiptCode, @SupplierId, @ReceiptDate, @CreatedByUserId, @TotalAmount, @Note)", 
+                connection, transaction))
+            {
+                command.Parameters.AddWithValue("@ReceiptCode", receipt.ReceiptCode);
+                command.Parameters.AddWithValue("@SupplierId", receipt.SupplierId);
+                command.Parameters.AddWithValue("@ReceiptDate", receipt.ReceiptDate);
+                command.Parameters.AddWithValue("@CreatedByUserId", receipt.CreatedByUserId);
+                command.Parameters.AddWithValue("@TotalAmount", receipt.TotalAmount);
+                command.Parameters.AddWithValue("@Note", (object?)receipt.Note ?? DBNull.Value);
+                
+                var result = command.ExecuteScalar();
+                receiptId = result != null ? Convert.ToInt32(result) : 0;
+            }
+            
+            if (receiptId <= 0)
+            {
+                transaction.Rollback();
+                return 0;
+            }
+            
+            foreach (var line in receipt.Lines)
+            {
+                using var lineCommand = new SqlCommand(
+                    "INSERT INTO PurchaseReceiptDetails (PurchaseReceiptId, ProductId, Quantity, UnitCost) " +
+                    "VALUES (@PurchaseReceiptId, @ProductId, @Quantity, @UnitCost)", 
+                    connection, transaction);
+                
+                lineCommand.Parameters.AddWithValue("@PurchaseReceiptId", receiptId);
+                lineCommand.Parameters.AddWithValue("@ProductId", line.ProductId);
+                lineCommand.Parameters.AddWithValue("@Quantity", line.Quantity);
+                lineCommand.Parameters.AddWithValue("@UnitCost", line.UnitCost);
+                
+                lineCommand.ExecuteNonQuery();
+            }
+
+            foreach (var update in productUpdates)
+            {
+                using var prodCommand = new SqlCommand(
+                    "UPDATE Products SET QuantityOnHand = QuantityOnHand + @QuantityChange WHERE Id = @ProductId", 
+                    connection, transaction);
+                
+                prodCommand.Parameters.AddWithValue("@ProductId", update.ProductId);
+                prodCommand.Parameters.AddWithValue("@QuantityChange", update.QuantityChange);
+                
+                prodCommand.ExecuteNonQuery();
+            }
+
+            foreach (var st in stockTransactions)
+            {
+                using var stCommand = new SqlCommand(
+                    "INSERT INTO StockTransactions (ProductId, TransactionType, QuantityChange, QuantityAfter, ReferenceCode, CreatedAt, CreatedByUserId, Note) " +
+                    "VALUES (@ProductId, @TransactionType, @QuantityChange, @QuantityAfter, @ReferenceCode, @CreatedAt, @CreatedByUserId, @Note)", 
+                    connection, transaction);
+                
+                stCommand.Parameters.AddWithValue("@ProductId", st.ProductId);
+                stCommand.Parameters.AddWithValue("@TransactionType", (int)st.TransactionType);
+                stCommand.Parameters.AddWithValue("@QuantityChange", st.QuantityChange);
+                stCommand.Parameters.AddWithValue("@QuantityAfter", st.QuantityAfter);
+                stCommand.Parameters.AddWithValue("@ReferenceCode", st.ReferenceCode);
+                stCommand.Parameters.AddWithValue("@CreatedAt", st.CreatedAt);
+                stCommand.Parameters.AddWithValue("@CreatedByUserId", st.CreatedByUserId);
+                stCommand.Parameters.AddWithValue("@Note", (object?)st.Note ?? DBNull.Value);
+                
+                stCommand.ExecuteNonQuery();
             }
             
             transaction.Commit();

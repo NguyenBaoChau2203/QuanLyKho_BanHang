@@ -74,12 +74,8 @@ public sealed class PurchaseService
             decimal totalAmount = receipt.Lines.Sum(l => l.Quantity * l.UnitCost);
             receipt.TotalAmount = totalAmount;
 
-            int receiptId = _purchaseRepository.CreateReceipt(receipt);
-
-            if (receiptId <= 0)
-            {
-                return ServiceResult<int>.Fail("Không thể tạo phiếu nhập.");
-            }
+            var productUpdates = new List<ProductQuantityUpdateDto>();
+            var stockTransactions = new List<StockTransactionDto>();
 
             foreach (var line in receipt.Lines)
             {
@@ -90,9 +86,14 @@ public sealed class PurchaseService
                 }
 
                 int newQuantity = product.QuantityOnHand + line.Quantity;
-                _productRepository.UpdateQuantity(line.ProductId, line.Quantity);
 
-                var transaction = new StockTransactionDto
+                productUpdates.Add(new ProductQuantityUpdateDto
+                {
+                    ProductId = line.ProductId,
+                    QuantityChange = line.Quantity
+                });
+
+                stockTransactions.Add(new StockTransactionDto
                 {
                     ProductId = line.ProductId,
                     TransactionType = StockTransactionType.Purchase,
@@ -102,9 +103,14 @@ public sealed class PurchaseService
                     CreatedAt = DateTime.Now,
                     CreatedByUserId = receipt.CreatedByUserId,
                     Note = $"Nhập kho từ phiếu {receipt.ReceiptCode}"
-                };
+                });
+            }
 
-                _stockTransactionRepository.CreateTransaction(transaction);
+            int receiptId = _purchaseRepository.CreateReceiptWithTransaction(receipt, productUpdates, stockTransactions);
+
+            if (receiptId <= 0)
+            {
+                return ServiceResult<int>.Fail("Không thể tạo phiếu nhập.");
             }
 
             return ServiceResult<int>.Ok(receiptId, "Đã tạo phiếu nhập thành công.");

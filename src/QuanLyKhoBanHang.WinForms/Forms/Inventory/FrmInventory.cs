@@ -10,6 +10,7 @@ public sealed class FrmInventory : Form
 {
     private readonly InventoryService _inventoryService = new();
     private readonly ProductService _productService = new();
+    private readonly ExcelExportService _excelExportService = new();
     private readonly BindingSource _stockSource = new();
     private readonly DataGridView _stockGrid = new();
     private readonly TextBox _searchBox = new();
@@ -138,7 +139,7 @@ public sealed class FrmInventory : Form
         layout.Controls.Add(_statusFilter, 2, 0);
 
         layout.Controls.Add(CreateButton("Làm mới", IconChar.RotateRight, (_, _) => LoadData(), 116, AppTheme.Primary), 3, 0);
-        layout.Controls.Add(CreateButton("Xuất Excel", IconChar.FileExport, (_, _) => SetMessage("Xuất Excel tồn kho đang ở chế độ demo."), 122, AppTheme.Success), 4, 0);
+        layout.Controls.Add(CreateButton("Xuất Excel", IconChar.FileExport, (_, _) => ExportExcel(), 122, AppTheme.Success), 4, 0);
 
         card.Controls.Add(layout);
         return card;
@@ -263,6 +264,27 @@ public sealed class FrmInventory : Form
             StockValue = unitCost * product.QuantityOnHand,
             Status = status
         };
+    }
+
+    private void ExportExcel()
+    {
+        if (_items.Count == 0)
+        {
+            SetMessage("Không có dữ liệu để xuất.", true);
+            return;
+        }
+
+        using var dialog = new SaveFileDialog
+        {
+            Filter = "Excel Files|*.xlsx",
+            FileName = $"TonKho_{DateTime.Now:yyyyMMdd_HHmm}.xlsx",
+            Title = "Chọn nơi lưu file Excel tồn kho"
+        };
+
+        if (dialog.ShowDialog() != DialogResult.OK) return;
+
+        var result = _excelExportService.ExportInventory(_items, dialog.FileName);
+        SetMessage(result.Message, !result.Success);
     }
 
     private void SetMessage(string message, bool error = false)

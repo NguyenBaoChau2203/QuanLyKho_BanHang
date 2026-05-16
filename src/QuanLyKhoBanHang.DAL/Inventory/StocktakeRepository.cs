@@ -2,6 +2,7 @@ using System.Data;
 using Microsoft.Data.SqlClient;
 using QuanLyKhoBanHang.DAL.Data;
 using QuanLyKhoBanHang.DTO.Inventory;
+using QuanLyKhoBanHang.DTO.Common;
 
 namespace QuanLyKhoBanHang.DAL.Inventory;
 
@@ -53,6 +54,93 @@ public sealed class StocktakeRepository : RepositoryBase
                 lineCommand.Parameters.AddWithValue("@ActualQuantity", line.ActualQuantity);
                 
                 lineCommand.ExecuteNonQuery();
+            }
+            
+            transaction.Commit();
+            return stocktakeId;
+        }
+        catch
+        {
+            transaction.Rollback();
+            throw;
+        }
+    }
+
+    public int CreateStocktakeWithTransaction(StocktakeDto stocktake, List<ProductQuantityUpdateDto> productUpdates, List<StockTransactionDto> stockTransactions)
+    {
+        using var connection = new SqlConnection(Options.ConnectionString);
+        connection.Open();
+        
+        using var transaction = connection.BeginTransaction();
+        
+        try
+        {
+            int stocktakeId;
+            
+            using (var command = new SqlCommand(
+                "INSERT INTO Stocktakes (StocktakeCode, StocktakeDate, CreatedByUserId, Note) " +
+                "OUTPUT INSERTED.Id VALUES (@StocktakeCode, @StocktakeDate, @CreatedByUserId, @Note)", 
+                connection, transaction))
+            {
+                command.Parameters.AddWithValue("@StocktakeCode", stocktake.StocktakeCode);
+                command.Parameters.AddWithValue("@StocktakeDate", stocktake.StocktakeDate);
+                command.Parameters.AddWithValue("@CreatedByUserId", stocktake.CreatedByUserId);
+                command.Parameters.AddWithValue("@Note", (object?)stocktake.Note ?? DBNull.Value);
+                
+                var result = command.ExecuteScalar();
+                stocktakeId = result != null ? Convert.ToInt32(result) : 0;
+            }
+            
+            if (stocktakeId <= 0)
+            {
+                transaction.Rollback();
+                return 0;
+            }
+            
+            foreach (var line in stocktake.Lines)
+            {
+                using var lineCommand = new SqlCommand(
+                    "INSERT INTO StocktakeDetails (StocktakeId, ProductId, SystemQuantity, ActualQuantity) " +
+                    "VALUES (@StocktakeId, @ProductId, @SystemQuantity, @ActualQuantity)", 
+                    connection, transaction);
+                
+                lineCommand.Parameters.AddWithValue("@StocktakeId", stocktakeId);
+                lineCommand.Parameters.AddWithValue("@ProductId", line.ProductId);
+                lineCommand.Parameters.AddWithValue("@SystemQuantity", line.SystemQuantity);
+                lineCommand.Parameters.AddWithValue("@ActualQuantity", line.ActualQuantity);
+                
+                lineCommand.ExecuteNonQuery();
+            }
+
+            foreach (var update in productUpdates)
+            {
+                using var prodCommand = new SqlCommand(
+                    "UPDATE Products SET QuantityOnHand = QuantityOnHand + @QuantityChange WHERE Id = @ProductId", 
+                    connection, transaction);
+                
+                prodCommand.Parameters.AddWithValue("@ProductId", update.ProductId);
+                prodCommand.Parameters.AddWithValue("@QuantityChange", update.QuantityChange);
+                
+                prodCommand.ExecuteNonQuery();
+            }
+
+            foreach (var st in stockTransactions)
+            {
+                using var stCommand = new SqlCommand(
+                    "INSERT INTO StockTransactions (ProductId, TransactionType, QuantityChange, QuantityAfter, ReferenceCode, CreatedAt, CreatedByUserId, Note) " +
+                    "VALUES (@ProductId, @TransactionType, @QuantityChange, @QuantityAfter, @ReferenceCode, @CreatedAt, @CreatedByUserId, @Note)", 
+                    connection, transaction);
+                
+                stCommand.Parameters.AddWithValue("@ProductId", st.ProductId);
+                stCommand.Parameters.AddWithValue("@TransactionType", (int)st.TransactionType);
+                stCommand.Parameters.AddWithValue("@QuantityChange", st.QuantityChange);
+                stCommand.Parameters.AddWithValue("@QuantityAfter", st.QuantityAfter);
+                stCommand.Parameters.AddWithValue("@ReferenceCode", st.ReferenceCode);
+                stCommand.Parameters.AddWithValue("@CreatedAt", st.CreatedAt);
+                stCommand.Parameters.AddWithValue("@CreatedByUserId", st.CreatedByUserId);
+                stCommand.Parameters.AddWithValue("@Note", (object?)st.Note ?? DBNull.Value);
+                
+                stCommand.ExecuteNonQuery();
             }
             
             transaction.Commit();

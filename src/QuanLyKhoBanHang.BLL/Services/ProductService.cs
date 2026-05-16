@@ -81,6 +81,16 @@ public sealed class ProductService
             return ServiceResult<int>.Fail("Loại hàng không hợp lệ.");
         }
 
+        if (product.CostPrice < 0 || product.SellingPrice < 0)
+        {
+            return ServiceResult<int>.Fail("Giá vốn và giá bán không được âm.");
+        }
+
+        if (product.QuantityOnHand < 0)
+        {
+            return ServiceResult<int>.Fail("Số lượng tồn kho không được âm.");
+        }
+
         try
         {
             if (_productRepository.CodeExists(product.Code))
@@ -114,6 +124,16 @@ public sealed class ProductService
         if (product.CategoryId <= 0)
         {
             return ServiceResult<bool>.Fail("Loại hàng không hợp lệ.");
+        }
+
+        if (product.CostPrice < 0 || product.SellingPrice < 0)
+        {
+            return ServiceResult<bool>.Fail("Giá vốn và giá bán không được âm.");
+        }
+
+        if (product.QuantityOnHand < 0)
+        {
+            return ServiceResult<bool>.Fail("Số lượng tồn kho không được âm.");
         }
 
         try
