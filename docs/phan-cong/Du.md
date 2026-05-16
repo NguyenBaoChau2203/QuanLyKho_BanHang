@@ -95,11 +95,11 @@ Các bảng dưới đây là phạm vi nghiệp vụ Dũ cần hiểu và viế
 
 ## Test cần có
 
-- [ ] Tạo sản phẩm thiếu mã hoặc tên thì fail.
-- [ ] Tạo phiếu nhập rỗng thì fail.
-- [ ] Tạo phiếu nhập hợp lệ thì tăng tồn.
-- [ ] Sản phẩm dưới mức tồn tối thiểu xuất hiện trong cảnh báo.
-- [ ] Kiểm kê có chênh lệch thì cập nhật tồn và ghi giao dịch kho.
+- [x] Tạo sản phẩm thiếu mã hoặc tên thì fail.
+- [x] Tạo phiếu nhập rỗng thì fail.
+- [x] Tạo phiếu nhập hợp lệ thì tăng tồn.
+- [x] Sản phẩm dưới mức tồn tối thiểu xuất hiện trong cảnh báo.
+- [x] Kiểm kê có chênh lệch thì cập nhật tồn và ghi giao dịch kho.
 
 ## Bàn giao cho Châu
 

@@ -154,4 +154,44 @@ public sealed class InventoryAndMasterDataTests
         Assert.AreEqual(2, trans.QuantityChange);
         Assert.AreEqual(actualQuantity, trans.QuantityAfter);
     }
+
+    [TestMethod]
+    [Ignore("Requires active SQL Server connection to run this integration test")]
+    public void GetLowStockProducts_ProductBelowMinLevel_AppearsInList()
+    {
+        var productService = new ProductService();
+        var inventoryService = new InventoryService();
+        var categoryService = new CategoryService();
+
+        string uniqueSuffix = Guid.NewGuid().ToString("N").Substring(0, 8).ToUpper();
+
+        // Tạo category
+        var catResult = categoryService.CreateCategory(new CategoryDto { Code = "C_LS_" + uniqueSuffix, Name = "Test LowStock" });
+        int categoryId = catResult.Data;
+        Assert.IsTrue(categoryId > 0, "Category creation failed: " + catResult.Message);
+
+        // Tạo sản phẩm với QuantityOnHand (3) <= MinStockLevel (10) → phải xuất hiện trong cảnh báo tồn thấp
+        var prodResult = productService.CreateProduct(new ProductDto
+        {
+            Code = "P_LS_" + uniqueSuffix,
+            Name = "Test LowStock Product",
+            CategoryId = categoryId,
+            CostPrice = 5000,
+            SellingPrice = 8000,
+            QuantityOnHand = 3,
+            MinStockLevel = 10
+        });
+        int productId = prodResult.Data;
+        Assert.IsTrue(productId > 0, "Product creation failed: " + prodResult.Message);
+
+        // Gọi GetLowStockProducts
+        var lowStockResult = inventoryService.GetLowStockProducts();
+        Assert.IsTrue(lowStockResult.Success, lowStockResult.Message);
+        Assert.IsNotNull(lowStockResult.Data);
+
+        // Verify sản phẩm vừa tạo có trong danh sách tồn thấp
+        var found = lowStockResult.Data.Find(p => p.Id == productId);
+        Assert.IsNotNull(found, $"Sản phẩm ID {productId} với tồn kho ({3}) <= mức tối thiểu ({10}) phải xuất hiện trong cảnh báo tồn thấp.");
+        Assert.IsTrue(found.QuantityOnHand <= found.MinStockLevel);
+    }
 }
