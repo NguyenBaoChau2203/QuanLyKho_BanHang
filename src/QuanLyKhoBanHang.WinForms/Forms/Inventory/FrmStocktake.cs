@@ -11,6 +11,7 @@ public sealed class FrmStocktake : Form
 {
     private readonly StocktakeService _stocktakeService = new();
     private readonly ProductService _productService = new();
+    private readonly ExcelExportService _excelExportService = new();
     private readonly BindingSource _source = new();
     private readonly DataGridView _grid = new();
     private readonly TextBox _searchBox = new();
@@ -171,7 +172,7 @@ public sealed class FrmStocktake : Form
         layout.Controls.Add(_differenceFilter, 1, 0);
 
         layout.Controls.Add(CreateButton("Làm mới", IconChar.RotateRight, (_, _) => LoadData(), AppTheme.Primary), 2, 0);
-        layout.Controls.Add(CreateButton("Xuất Excel", IconChar.FileExport, (_, _) => SetMessage("Xuất Excel kiểm kê đang ở chế độ demo."), AppTheme.Success), 3, 0);
+        layout.Controls.Add(CreateButton("Xuất Excel", IconChar.FileExport, (_, _) => ExportExcel(), AppTheme.Success), 3, 0);
         card.Controls.Add(layout);
         return card;
     }
@@ -329,6 +330,36 @@ public sealed class FrmStocktake : Form
         {
             SetMessage(result.Message, true);
         }
+    }
+
+    private void ExportExcel()
+    {
+        if (_lines.Count == 0)
+        {
+            SetMessage("Không có dữ liệu để xuất.", true);
+            return;
+        }
+
+        using var dialog = new SaveFileDialog
+        {
+            Filter = "Excel Files|*.xlsx",
+            FileName = $"KiemKe_{DateTime.Now:yyyyMMdd_HHmm}.xlsx",
+            Title = "Chọn nơi lưu file Excel kiểm kê"
+        };
+
+        if (dialog.ShowDialog() != DialogResult.OK) return;
+
+        var exportRows = _lines.Select(l => new StocktakeExportRow
+        {
+            ProductCode = l.ProductCode,
+            ProductName = l.ProductName,
+            CategoryName = l.CategoryName,
+            SystemQuantity = l.SystemQuantity,
+            ActualQuantity = l.ActualQuantity
+        }).ToList();
+
+        var result = _excelExportService.ExportStocktake(exportRows, _stocktakeDate.Value.Date, dialog.FileName);
+        SetMessage(result.Message, !result.Success);
     }
 
     private void SetMessage(string message, bool error = false)
