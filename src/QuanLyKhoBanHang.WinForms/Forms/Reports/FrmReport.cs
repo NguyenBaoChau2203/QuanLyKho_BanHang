@@ -10,6 +10,7 @@ namespace QuanLyKhoBanHang.WinForms.Forms.Reports;
 public sealed class FrmReport : Form
 {
     private readonly ReportService _reportService = new();
+    private readonly ExcelExportService _excelExportService = new();
     private readonly BindingSource _revenueSource = new();
     private readonly BindingSource _topProductsSource = new();
     private readonly BindingSource _topCustomersSource = new();
@@ -27,6 +28,9 @@ public sealed class FrmReport : Form
     private readonly DataGridView _revenueGrid = new();
     private readonly DataGridView _topProductsGrid = new();
     private readonly DataGridView _topCustomersGrid = new();
+    private List<RevenueSummaryDto> _lastRevenue = [];
+    private List<ProductSalesSummaryDto> _lastTopProducts = [];
+    private List<CustomerPurchaseSummaryDto> _lastTopCustomers = [];
 
     public FrmReport()
     {
@@ -360,7 +364,10 @@ public sealed class FrmReport : Form
 
         var revenueRows = ApplyRevenue(revenueResult, from, to);
         var productRows = ApplyProducts(productResult);
-        ApplyCustomers(customerResult);
+        var customerRows = ApplyCustomers(customerResult);
+        _lastRevenue = revenueRows;
+        _lastTopProducts = productRows;
+        _lastTopCustomers = customerRows;
         UpdateMetrics(revenueRows, productRows);
         SetStatus("Đã cập nhật báo cáo.");
     }
@@ -397,7 +404,7 @@ public sealed class FrmReport : Form
         return rows;
     }
 
-    private void ApplyCustomers(ServiceResult<List<CustomerPurchaseSummaryDto>> result)
+    private List<CustomerPurchaseSummaryDto> ApplyCustomers(ServiceResult<List<CustomerPurchaseSummaryDto>> result)
     {
         var rows = result.Success ? result.Data ?? [] : CreateStubTopCustomers();
         _topCustomersSource.DataSource = new BindingList<CustomerRow>(rows.Select((x, index) => new CustomerRow
@@ -407,6 +414,7 @@ public sealed class FrmReport : Form
             InvoiceCount = x.InvoiceCount,
             TotalAmount = x.TotalAmount
         }).ToList());
+        return rows;
     }
 
     private void UpdateMetrics(IReadOnlyCollection<RevenueSummaryDto> revenueRows, IReadOnlyCollection<ProductSalesSummaryDto> productRows)
@@ -432,7 +440,19 @@ public sealed class FrmReport : Form
 
     private void ExportReport()
     {
-        SetStatus("Xuất báo cáo đang ở chế độ demo. Có thể dùng bảng trên màn hình để chụp báo cáo đồ án.");
+        using var dialog = new SaveFileDialog
+        {
+            Filter = "Excel Files|*.xlsx",
+            FileName = $"BaoCao_{DateTime.Now:yyyyMMdd_HHmm}.xlsx",
+            Title = "Chọn nơi lưu file Excel báo cáo"
+        };
+
+        if (dialog.ShowDialog() != DialogResult.OK) return;
+
+        var result = _excelExportService.ExportReport(
+            _lastRevenue, _lastTopProducts, _lastTopCustomers,
+            _fromDate.Value.Date, _toDate.Value.Date, dialog.FileName);
+        SetStatus(result.Success ? result.Message : result.Message, !result.Success);
     }
 
     private static Control BuildFilterField(string label, Control control, int width)
